@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package gobuildslave;
+
+message Empty {}
+
+message JobSpec {
+	string name = 1;
+	string id = 2;
+}
+
+service GoBuildSlave {
+	rpc BuildJob(JobSpec) returns (Empty) {};
+}
