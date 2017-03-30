@@ -6,13 +6,28 @@ import (
 	"log"
 	"os"
 	"strings"
-	"time"
+
+	"google.golang.org/grpc"
+
+	"github.com/brotherlogic/goserver"
 )
+
+// Server the main server type
+type Server struct {
+	*goserver.GoServer
+	runner *Runner
+}
+
+// DoRegister Registers this server
+func (s Server) DoRegister(server *grpc.Server) {
+	//Nothing to register at the moment
+}
 
 //Init builds the default runner framework
 func Init() *Runner {
 	r := &Runner{gopath: "goautobuild"}
 	r.runner = runCommand
+	go r.run()
 	return r
 }
 
@@ -51,9 +66,9 @@ func runCommand(c *runnerCommand) {
 }
 
 func main() {
-	r := Init()
-	go r.run()
-	log.Printf("STARTING SLEEP")
-	time.Sleep(10000 * time.Millisecond)
-	log.Printf("DONE MAIN")
+	s := Server{&goserver.GoServer{}, Init()}
+	s.Register = s
+	s.PrepServer()
+	s.RegisterServer("gobuildslave", true)
+	s.Serve()
 }
