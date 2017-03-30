@@ -69,6 +69,6 @@ func main() {
 	s := Server{&goserver.GoServer{}, Init()}
 	s.Register = s
 	s.PrepServer()
-	s.RegisterServer("gobuildslave", true)
+	s.RegisterServer("gobuildslave", false)
 	s.Serve()
 }
