@@ -6,7 +6,6 @@ message Empty {}
 
 message JobSpec {
 	string name = 1;
-	string id = 2;
 }
 
 service GoBuildSlave {

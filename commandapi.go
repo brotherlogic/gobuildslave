@@ -7,9 +7,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/brotherlogic/goserver"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/brotherlogic/goserver"
+	pb "github.com/brotherlogic/gobuildslave/proto"
 )
 
 // Server the main server type
@@ -18,9 +20,15 @@ type Server struct {
 	runner *Runner
 }
 
+// BuildJob builds out a job
+func (s *Server) BuildJob(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
+	s.runner.Checkout(in.Name)
+	return &pb.Empty{}, nil
+}
+
 // DoRegister Registers this server
 func (s Server) DoRegister(server *grpc.Server) {
-	//Nothing to register at the moment
+	pb.RegisterGoBuildSlaveServer(server, &s)
 }
 
 //Init builds the default runner framework
