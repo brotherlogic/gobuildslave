@@ -53,19 +53,43 @@ func runCommand(c *runnerCommand) {
 
 	}
 
-	env = append(env, fmt.Sprintf("GOPATH="+home+"gobuild"))
-	c.command.Env = env
+	path := fmt.Sprintf("GOPATH=" + home + "/gobuild")	
+     found := false
+     log.Printf("HERE = %v", c.command.Env)
+     	   envl := os.Environ()
+	   	for i, blah := range envl {
+		       if strings.HasPrefix(blah, "GOPATH") {
+		       	  			  	    envl[i] = path
+									found = true
+									      	}
+											}
+												if !found {
+												   	  envl = append(envl, path)
+													       }
+													       log.Printf("ENV = %v", envl) 
+														c.command.Env = envl
 
 	out, err := c.command.StdoutPipe()
+		out2, err2 := c.command.StderrPipe()
 	if err != nil {
-
+	   log.Printf("Blah: %v", err)
 	}
 
+if err2 != nil {
+   log.Printf("Blah2: %v", err)
+   }
+
+        log.Printf("%v, %v and %v", c.command.Path, c.command.Args, c.command.Env)
 	c.command.Start()
 
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(out)
 	str := buf.String()
+
+	buf2 := new(bytes.Buffer)
+	buf2.ReadFrom(out2)
+	str2 := buf2.String()
+	log.Printf("%v and %v", str, str2)
 
 	c.command.Wait()
 
