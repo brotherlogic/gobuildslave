@@ -40,7 +40,7 @@ func Init() *Runner {
 }
 
 func runCommand(c *runnerCommand) {
-	log.Printf("RUNNING COMMAND")
+	log.Printf("RUNNING COMMAND: %v", c)
 	env := os.Environ()
 	home := ""
 	for _, s := range env {
@@ -53,33 +53,33 @@ func runCommand(c *runnerCommand) {
 
 	}
 
-	path := fmt.Sprintf("GOPATH=" + home + "/gobuild")	
-     found := false
-     log.Printf("HERE = %v", c.command.Env)
-     	   envl := os.Environ()
-	   	for i, blah := range envl {
-		       if strings.HasPrefix(blah, "GOPATH") {
-		       	  			  	    envl[i] = path
-									found = true
-									      	}
-											}
-												if !found {
-												   	  envl = append(envl, path)
-													       }
-													       log.Printf("ENV = %v", envl) 
-														c.command.Env = envl
+	path := fmt.Sprintf("GOPATH=" + home + "/gobuild")
+	found := false
+	log.Printf("HERE = %v", c.command.Env)
+	envl := os.Environ()
+	for i, blah := range envl {
+		if strings.HasPrefix(blah, "GOPATH") {
+			envl[i] = path
+			found = true
+		}
+	}
+	if !found {
+		envl = append(envl, path)
+	}
+	log.Printf("ENV = %v", envl)
+	c.command.Env = envl
 
 	out, err := c.command.StdoutPipe()
-		out2, err2 := c.command.StderrPipe()
+	out2, err2 := c.command.StderrPipe()
 	if err != nil {
-	   log.Printf("Blah: %v", err)
+		log.Printf("Blah: %v", err)
 	}
 
-if err2 != nil {
-   log.Printf("Blah2: %v", err)
-   }
+	if err2 != nil {
+		log.Printf("Blah2: %v", err)
+	}
 
-        log.Printf("%v, %v and %v", c.command.Path, c.command.Args, c.command.Env)
+	log.Printf("%v, %v and %v", c.command.Path, c.command.Args, c.command.Env)
 	c.command.Start()
 
 	buf := new(bytes.Buffer)

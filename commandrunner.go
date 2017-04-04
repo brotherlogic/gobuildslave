@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os/exec"
 	"time"
 )
@@ -64,6 +65,7 @@ func (r *Runner) addCommand(command *runnerCommand) {
 
 // Checkout a repo - returns the repo version
 func (r *Runner) Checkout(repo string) string {
+	log.Printf("CHECKOUT = %v", repo)
 	r.addCommand(&runnerCommand{command: exec.Command("go", "get", "-u", repo)})
 	readCommand := &runnerCommand{command: exec.Command("cat", "$GOPATH/repo/refs/heads/master"), discard: false}
 	r.addCommand(readCommand)
