@@ -10,4 +10,5 @@ message JobSpec {
 
 service GoBuildSlave {
 	rpc BuildJob(JobSpec) returns (Empty) {};
+	rpc Run(JobSpec) returns (Empty) {};
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -22,10 +23,11 @@ type Runner struct {
 }
 
 type runnerCommand struct {
-	command  *exec.Cmd
-	discard  bool
-	output   string
-	complete bool
+	command    *exec.Cmd
+	discard    bool
+	output     string
+	complete   bool
+	background bool
 }
 
 func (r *Runner) run() {
@@ -67,9 +69,17 @@ func (r *Runner) addCommand(command *runnerCommand) {
 func (r *Runner) Checkout(repo string) string {
 	log.Printf("CHECKOUT = %v", repo)
 	r.addCommand(&runnerCommand{command: exec.Command("go", "get", "-u", repo)})
-	readCommand := &runnerCommand{command: exec.Command("cat", "$GOPATH/repo/refs/heads/master"), discard: false}
+	readCommand := &runnerCommand{command: exec.Command("cat", "$GOPATH/"+repo+"/refs/heads/master"), discard: false}
 	r.addCommand(readCommand)
-
 	r.BlockUntil(readCommand)
 	return readCommand.output
+}
+
+// Run the specified server specified in the repo
+func (r *Runner) Run(repo string) {
+	elems := strings.Split(repo, "/")
+	command := elems[len(elems)-1]
+	com := &runnerCommand{command: exec.Command("$GOPATH/" + repo + "/" + command), background: true}
+	r.addCommand(com)
+	r.BlockUntil(com)
 }

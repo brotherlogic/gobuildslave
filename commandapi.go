@@ -26,6 +26,12 @@ func (s *Server) BuildJob(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error
 	return &pb.Empty{}, nil
 }
 
+// Run runs a background task
+func (s *Server) Run(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
+	s.runner.Run(in.Name)
+	return &pb.Empty{}, nil
+}
+
 // DoRegister Registers this server
 func (s Server) DoRegister(server *grpc.Server) {
 	pb.RegisterGoBuildSlaveServer(server, &s)
@@ -91,10 +97,11 @@ func runCommand(c *runnerCommand) {
 	str2 := buf2.String()
 	log.Printf("%v and %v", str, str2)
 
-	c.command.Wait()
-
-	c.output = str
-	c.complete = true
+	if !c.background {
+		c.command.Wait()
+		c.output = str
+		c.complete = true
+	}
 }
 
 func main() {
