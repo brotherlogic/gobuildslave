@@ -25,7 +25,6 @@ func TestRun(t *testing.T) {
 	r := InitTest()
 	r.Run("testrepo")
 	r.LameDuck(true)
-
 	if r.commandsRun != 1 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
 	}

@@ -54,6 +54,10 @@ func (r *Runner) BlockUntil(command *runnerCommand) {
 func (r *Runner) LameDuck(shutdown bool) {
 	r.lameDuck = true
 
+	for len(r.commands) > 0 {
+		time.Sleep(waitTime)
+	}
+
 	if shutdown {
 		r.running = false
 	}
