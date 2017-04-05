@@ -79,7 +79,7 @@ func (r *Runner) Checkout(repo string) string {
 func (r *Runner) Run(repo string) {
 	elems := strings.Split(repo, "/")
 	command := elems[len(elems)-1]
-	com := &runnerCommand{command: exec.Command("$GOPATH/" + repo + "/" + command), background: true}
+	com := &runnerCommand{command: exec.Command("$GOPATH/bin/" + command), background: true}
 	r.addCommand(com)
 	r.BlockUntil(com)
 }

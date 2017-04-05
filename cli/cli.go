@@ -36,7 +36,7 @@ func main() {
 	var server = buildFlags.String("server", "", "Name of the server to build on")
 
 	if len(os.Args) <= 1 {
-		fmt.Printf("Commands: build\n")
+		fmt.Printf("Commands: build run\n")
 	} else {
 		switch os.Args[1] {
 		case "build":
@@ -48,6 +48,19 @@ func main() {
 
 				registry := pb.NewGoBuildSlaveClient(conn)
 				_, err := registry.BuildJob(context.Background(), &pb.JobSpec{Name: *name})
+				if err != nil {
+					log.Printf("Error building job: %v", err)
+				}
+			}
+		case "run":
+			if err := buildFlags.Parse(os.Args[2:]); err == nil {
+				host, port := findServer("gobuildslave", *server)
+
+				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
+				defer conn.Close()
+
+				registry := pb.NewGoBuildSlaveClient(conn)
+				_, err := registry.Run(context.Background(), &pb.JobSpec{Name: *name})
 				if err != nil {
 					log.Printf("Error building job: %v", err)
 				}
