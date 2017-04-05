@@ -69,7 +69,7 @@ func (r *Runner) addCommand(command *runnerCommand) {
 func (r *Runner) Checkout(repo string) string {
 	log.Printf("CHECKOUT = %v", repo)
 	r.addCommand(&runnerCommand{command: exec.Command("go", "get", "-u", repo)})
-	readCommand := &runnerCommand{command: exec.Command("cat", "$GOPATH/src/"+repo+".git/refs/heads/master"), discard: false}
+	readCommand := &runnerCommand{command: exec.Command("cat", "$GOPATH/src/"+repo+"/.git/refs/heads/master"), discard: false}
 	r.addCommand(readCommand)
 	r.BlockUntil(readCommand)
 	return readCommand.output
