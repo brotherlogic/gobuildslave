@@ -93,20 +93,21 @@ func runCommand(c *runnerCommand) {
 	log.Printf("%v, %v and %v", c.command.Path, c.command.Args, c.command.Env)
 	c.command.Start()
 
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(out)
-	str := buf.String()
-
-	buf2 := new(bytes.Buffer)
-	buf2.ReadFrom(out2)
-	str2 := buf2.String()
-	log.Printf("%v and %v", str, str2)
-
 	if !c.background {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(out)
+		str := buf.String()
+
+		buf2 := new(bytes.Buffer)
+		buf2.ReadFrom(out2)
+		str2 := buf2.String()
+		log.Printf("%v and %v", str, str2)
+
 		c.command.Wait()
 		c.output = str
 		c.complete = true
 	}
+	log.Printf("DONE")
 }
 
 func main() {
