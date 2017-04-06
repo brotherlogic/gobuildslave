@@ -14,12 +14,13 @@ const (
 
 // Runner is the server that runs commands
 type Runner struct {
-	commands    []*runnerCommand
-	runner      func(*runnerCommand)
-	gopath      string
-	running     bool
-	lameDuck    bool
-	commandsRun int
+	commands        []*runnerCommand
+	runner          func(*runnerCommand)
+	gopath          string
+	running         bool
+	lameDuck        bool
+	commandsRun     int
+	backgroundTasks []*runnerCommand
 }
 
 type runnerCommand struct {
@@ -37,6 +38,9 @@ func (r *Runner) run() {
 		time.Sleep(pauseTime)
 		if len(r.commands) > 0 {
 			r.runner(r.commands[0])
+			if r.commands[0].background {
+				r.backgroundTasks = append(r.backgroundTasks, r.commands[0])
+			}
 			r.commands = r.commands[1:]
 			r.commandsRun++
 		}

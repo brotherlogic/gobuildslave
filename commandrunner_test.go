@@ -28,6 +28,9 @@ func TestRun(t *testing.T) {
 	if r.commandsRun != 1 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
 	}
+	if len(r.backgroundTasks) != 1 {
+		t.Errorf("Not enough background tasks running %v", len(r.backgroundTasks))
+	}
 }
 
 func TestCheckout(t *testing.T) {
