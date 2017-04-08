@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os/exec"
 	"testing"
 	"time"
 
@@ -47,38 +46,5 @@ func TestCheckout(t *testing.T) {
 
 	if r.commandsRun != 2 {
 		t.Errorf("Not enough commands: %v", r.commands)
-	}
-}
-
-func TestUpdate(t *testing.T) {
-	command := exec.Command("ls", "")
-	com := &runnerCommand{command: command, details: &pb.JobDetails{}}
-	updateState(com)
-	if !com.details.Running {
-		t.Errorf("Problem with testing update: %v", com.details)
-	}
-
-	command.Start()
-	command.Wait()
-
-	updateState(com)
-	if com.details.Running {
-		t.Errorf("Problem with testing update: %v", com.details)
-	}
-}
-
-func TestLongUpdate(t *testing.T) {
-	command := exec.Command("sleep 1", "")
-	com := &runnerCommand{command: command, details: &pb.JobDetails{}}
-	updateState(com)
-	if !com.details.Running {
-		t.Errorf("Problem with testing update: %v", com.details)
-	}
-
-	command.Start()
-
-	updateState(com)
-	if !com.details.Running {
-		t.Errorf("Problem with testing update: %v", com.details)
 	}
 }

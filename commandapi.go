@@ -5,19 +5,47 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/brotherlogic/goserver"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
+	pbd "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
+	pbs "github.com/brotherlogic/goserver/proto"
 )
 
 // Server the main server type
 type Server struct {
 	*goserver.GoServer
 	runner *Runner
+}
+
+func getIP(name string, server string) (string, int) {
+	conn, _ := grpc.Dial("192.168.86.34:50055", grpc.WithInsecure())
+	defer conn.Close()
+
+	registry := pbd.NewDiscoveryServiceClient(conn)
+	entry := pbd.RegistryEntry{Name: name, Identifier: server}
+	r, _ := registry.Discover(context.Background(), &entry)
+	return r.Ip, int(r.Port)
+}
+
+// updateState of the runner command
+func updateState(com *runnerCommand) {
+	dServer, dPort := getIP(com.details.Spec.Name, com.details.Spec.Server)
+	dConn, err := grpc.Dial(dServer+":"+strconv.Itoa(dPort), grpc.WithInsecure())
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer dConn.Close()
+	c := pbs.NewGoserverServiceClient(dConn)
+	_, err = c.IsAlive(context.Background(), &pbs.Alive{})
+	com.details.Running = (err != nil)
 }
 
 // BuildJob builds out a job
