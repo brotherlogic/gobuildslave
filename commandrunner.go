@@ -5,6 +5,8 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+
+	pb "github.com/brotherlogic/gobuildslave/proto"
 )
 
 const (
@@ -29,6 +31,7 @@ type runnerCommand struct {
 	output     string
 	complete   bool
 	background bool
+	spec       *pb.JobSpec
 }
 
 func (r *Runner) run() {
@@ -84,9 +87,9 @@ func (r *Runner) Checkout(repo string) string {
 }
 
 // Run the specified server specified in the repo
-func (r *Runner) Run(repo string) {
-	elems := strings.Split(repo, "/")
+func (r *Runner) Run(spec *pb.JobSpec) {
+	elems := strings.Split(spec.Name, "/")
 	command := elems[len(elems)-1]
-	com := &runnerCommand{command: exec.Command("$GOPATH/bin/" + command), background: true}
+	com := &runnerCommand{command: exec.Command("$GOPATH/bin/" + command), background: true, spec: spec}
 	r.addCommand(com)
 }

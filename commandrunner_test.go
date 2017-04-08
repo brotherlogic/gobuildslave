@@ -4,6 +4,8 @@ import "log"
 import "testing"
 import "time"
 
+import pb "github.com/brotherlogic/gobuildslave/proto"
+
 func InitTest() *Runner {
 	r := &Runner{}
 	r.runner = testRunCommand
@@ -23,7 +25,7 @@ func testRunCommand(c *runnerCommand) {
 
 func TestRun(t *testing.T) {
 	r := InitTest()
-	r.Run("testrepo")
+	r.Run(&pb.JobSpec{Name: "testrepo"})
 	r.LameDuck(true)
 	if r.commandsRun != 1 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
