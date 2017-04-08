@@ -34,20 +34,6 @@ type runnerCommand struct {
 	details    *pb.JobDetails
 }
 
-// updateState of the runner command
-func updateState(com *runnerCommand) {
-	log.Printf("Updating State: %v", com)
-	if com.command.ProcessState == nil {
-		com.details.Running = true
-	} else {
-		if com.command.ProcessState.Exited() {
-			com.details.Running = false
-		} else {
-			com.details.Running = true
-		}
-	}
-}
-
 func (r *Runner) run() {
 	r.running = true
 
