@@ -31,7 +31,17 @@ type runnerCommand struct {
 	output     string
 	complete   bool
 	background bool
-	spec       *pb.JobSpec
+	details    *pb.JobDetails
+}
+
+// updateState of the runner command
+func updateState(com *runnerCommand) {
+	log.Printf("Updating State: %v", com)
+	if com.command.ProcessState == nil {
+		com.details.Running = true
+	} else {
+		com.details.Running = false
+	}
 }
 
 func (r *Runner) run() {
@@ -90,6 +100,6 @@ func (r *Runner) Checkout(repo string) string {
 func (r *Runner) Run(spec *pb.JobSpec) {
 	elems := strings.Split(spec.Name, "/")
 	command := elems[len(elems)-1]
-	com := &runnerCommand{command: exec.Command("$GOPATH/bin/" + command), background: true, spec: spec}
+	com := &runnerCommand{command: exec.Command("$GOPATH/bin/" + command), background: true, details: &pb.JobDetails{Spec: spec}}
 	r.addCommand(com)
 }

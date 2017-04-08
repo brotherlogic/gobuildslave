@@ -1,10 +1,13 @@
 package main
 
-import "log"
-import "testing"
-import "time"
+import (
+	"log"
+	"os/exec"
+	"testing"
+	"time"
 
-import pb "github.com/brotherlogic/gobuildslave/proto"
+	pb "github.com/brotherlogic/gobuildslave/proto"
+)
 
 func InitTest() *Runner {
 	r := &Runner{}
@@ -44,5 +47,22 @@ func TestCheckout(t *testing.T) {
 
 	if r.commandsRun != 2 {
 		t.Errorf("Not enough commands: %v", r.commands)
+	}
+}
+
+func TestUpdate(t *testing.T) {
+	command := exec.Command("ls", "")
+	com := &runnerCommand{command: command, details: &pb.JobDetails{}}
+	updateState(com)
+	if !com.details.Running {
+		t.Errorf("Problem with testing update: %v", com.details)
+	}
+
+	command.Start()
+	command.Wait()
+
+	updateState(com)
+	if com.details.Running {
+		t.Errorf("Problem with testing update: %v", com.details)
 	}
 }

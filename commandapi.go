@@ -30,9 +30,7 @@ func (s *Server) BuildJob(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error
 func (s *Server) List(ctx context.Context, in *pb.Empty) (*pb.JobList, error) {
 	details := &pb.JobList{}
 	for _, job := range s.runner.backgroundTasks {
-		detail := &pb.JobDetails{}
-		detail.Spec = job.spec
-		details.Details = append(details.Details, detail)
+		details.Details = append(details.Details, job.details)
 	}
 
 	return details, nil

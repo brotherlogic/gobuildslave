@@ -10,6 +10,7 @@ message JobSpec {
 
 message JobDetails {
 	JobSpec spec = 1;
+	bool running = 2;
 }
 
 message JobList {
