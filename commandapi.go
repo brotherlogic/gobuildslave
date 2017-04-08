@@ -26,9 +26,21 @@ func (s *Server) BuildJob(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error
 	return &pb.Empty{}, nil
 }
 
+// List lists all running jobs
+func (s *Server) List(ctx context.Context, in *pb.Empty) (*pb.JobList, error) {
+	details := &pb.JobList{}
+	for _, job := range s.runner.backgroundTasks {
+		detail := &pb.JobDetails{}
+		detail.Spec = job.spec
+		details.Details = append(details.Details, detail)
+	}
+
+	return details, nil
+}
+
 // Run runs a background task
 func (s *Server) Run(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
-	s.runner.Run(in.Name)
+	s.runner.Run(in)
 	return &pb.Empty{}, nil
 }
 

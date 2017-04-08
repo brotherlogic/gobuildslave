@@ -65,6 +65,22 @@ func main() {
 					log.Printf("Error building job: %v", err)
 				}
 			}
+		case "list":
+			if err := buildFlags.Parse(os.Args[2:]); err == nil {
+				host, port := findServer("gobuildslave", *server)
+
+				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
+				defer conn.Close()
+
+				registry := pb.NewGoBuildSlaveClient(conn)
+				res, err := registry.List(context.Background(), &pb.Empty{})
+				if err != nil {
+					log.Printf("Error building job: %v", err)
+				}
+				for _, r := range res.Details {
+					log.Printf("RUNNING: %v", r)
+				}
+			}
 		}
 	}
 }

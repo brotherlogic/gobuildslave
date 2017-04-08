@@ -8,7 +8,16 @@ message JobSpec {
 	string name = 1;
 }
 
+message JobDetails {
+	JobSpec spec = 1;
+}
+
+message JobList {
+	repeated JobDetails details = 1;
+}
+
 service GoBuildSlave {
 	rpc BuildJob(JobSpec) returns (Empty) {};
 	rpc Run(JobSpec) returns (Empty) {};
+	rpc List(Empty) returns (JobList) {};
 }
