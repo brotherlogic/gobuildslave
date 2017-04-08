@@ -12,6 +12,7 @@ import (
 
 	pbdi "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
+	pdb "github.com/brotherlogic/goserver/proto"
 )
 
 func findServer(name, server string) (string, int) {
@@ -30,7 +31,19 @@ func findServer(name, server string) (string, int) {
 	return "", -1
 }
 
+func pingServer() {
+	host, port := findServer("cardserver", "stationone")
+	conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
+	defer conn.Close()
+
+	registry := pdb.NewGoserverServiceClient(conn)
+	alive, err := registry.IsAlive(context.Background(), &pdb.Alive{})
+	log.Printf("HERE = %v and %v", alive, err)
+}
+
 func main() {
+	pingServer()
+
 	buildFlags := flag.NewFlagSet("BuildServer", flag.ExitOnError)
 	var name = buildFlags.String("name", "", "Name of the binary to build")
 	var server = buildFlags.String("server", "", "Name of the server to build on")

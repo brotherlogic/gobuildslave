@@ -35,7 +35,8 @@ func getIP(name string, server string) (string, int) {
 
 // updateState of the runner command
 func updateState(com *runnerCommand) {
-	dServer, dPort := getIP(com.details.Spec.Name, com.details.Spec.Server)
+	elems := strings.Split(com.details.Spec.Name, "/")
+	dServer, dPort := getIP(elems[len(elems)-1], com.details.Spec.Server)
 	dConn, err := grpc.Dial(dServer+":"+strconv.Itoa(dPort), grpc.WithInsecure())
 
 	if err != nil {
