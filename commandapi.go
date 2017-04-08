@@ -46,7 +46,7 @@ func updateState(com *runnerCommand) {
 	defer dConn.Close()
 	c := pbs.NewGoserverServiceClient(dConn)
 	_, err = c.IsAlive(context.Background(), &pbs.Alive{})
-	com.details.Running = (err != nil)
+	com.details.Running = (err == nil)
 }
 
 // BuildJob builds out a job
