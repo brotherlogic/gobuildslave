@@ -40,7 +40,11 @@ func updateState(com *runnerCommand) {
 	if com.command.ProcessState == nil {
 		com.details.Running = true
 	} else {
-		com.details.Running = false
+		if com.command.ProcessState.Exited() {
+			com.details.Running = false
+		} else {
+			com.details.Running = true
+		}
 	}
 }
 

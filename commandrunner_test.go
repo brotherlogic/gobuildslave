@@ -66,3 +66,19 @@ func TestUpdate(t *testing.T) {
 		t.Errorf("Problem with testing update: %v", com.details)
 	}
 }
+
+func TestLongUpdate(t *testing.T) {
+	command := exec.Command("sleep 1", "")
+	com := &runnerCommand{command: command, details: &pb.JobDetails{}}
+	updateState(com)
+	if !com.details.Running {
+		t.Errorf("Problem with testing update: %v", com.details)
+	}
+
+	command.Start()
+
+	updateState(com)
+	if !com.details.Running {
+		t.Errorf("Problem with testing update: %v", com.details)
+	}
+}
