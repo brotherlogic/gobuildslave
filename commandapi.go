@@ -77,6 +77,11 @@ func (s Server) DoRegister(server *grpc.Server) {
 	pb.RegisterGoBuildSlaveServer(server, &s)
 }
 
+// ReportHealth determines if the server is healthy
+func (s Server) ReportHealth() bool {
+	return true
+}
+
 //Init builds the default runner framework
 func Init() *Runner {
 	r := &Runner{gopath: "goautobuild"}

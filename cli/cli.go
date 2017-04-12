@@ -12,7 +12,6 @@ import (
 
 	pbdi "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
-	pdb "github.com/brotherlogic/goserver/proto"
 )
 
 func findServer(name, server string) (string, int) {
@@ -30,7 +29,6 @@ func findServer(name, server string) (string, int) {
 
 	return "", -1
 }
-
 
 func main() {
 	buildFlags := flag.NewFlagSet("BuildServer", flag.ExitOnError)

@@ -83,6 +83,7 @@ func (r *Runner) Checkout(repo string) string {
 	readCommand := &runnerCommand{command: exec.Command("cat", "$GOPATH/src/"+repo+"/.git/refs/heads/master"), discard: false}
 	r.addCommand(readCommand)
 	r.BlockUntil(readCommand)
+
 	return readCommand.output
 }
 
