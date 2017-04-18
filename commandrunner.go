@@ -50,6 +50,19 @@ func (r *Runner) run() {
 	}
 }
 
+func (r *Runner) kill(spec *pb.JobSpec) {
+	for i, t := range r.backgroundTasks {
+		log.Printf("HERE : %v, %v", i, t)
+		if t.details.GetSpec().Name == spec.Name {
+			log.Printf("KILL: %v", t.command.Process)
+			if t.command.Process != nil {
+				t.command.Process.Kill()
+			}
+			r.backgroundTasks = append(r.backgroundTasks[:i], r.backgroundTasks[i+1:]...)
+		}
+	}
+}
+
 // BlockUntil blocks on this until the command has run
 func (r *Runner) BlockUntil(command *runnerCommand) {
 	for !command.complete {

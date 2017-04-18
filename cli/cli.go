@@ -65,6 +65,19 @@ func main() {
 					log.Printf("Error building job: %v", err)
 				}
 			}
+		case "kill":
+			if err := buildFlags.Parse(os.Args[2:]); err == nil {
+				host, port := findServer("gobuildslave", *server)
+
+				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
+				defer conn.Close()
+
+				registry := pb.NewGoBuildSlaveClient(conn)
+				_, err := registry.Kill(context.Background(), &pb.JobSpec{Name: *name, Server: *server})
+				if err != nil {
+					log.Printf("Error building job: %v", err)
+				}
+			}
 		case "list":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
 				host, port := findServer("gobuildslave", *server)
