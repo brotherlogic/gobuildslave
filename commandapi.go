@@ -72,6 +72,12 @@ func (s *Server) Run(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
 	return &pb.Empty{}, nil
 }
 
+// Kill a background task
+func (s *Server) Kill(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
+	s.runner.kill(in)
+	return &pb.Empty{}, nil
+}
+
 // DoRegister Registers this server
 func (s Server) DoRegister(server *grpc.Server) {
 	pb.RegisterGoBuildSlaveServer(server, &s)

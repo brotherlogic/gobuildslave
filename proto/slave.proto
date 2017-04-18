@@ -21,5 +21,6 @@ message JobList {
 service GoBuildSlave {
 	rpc BuildJob(JobSpec) returns (Empty) {};
 	rpc Run(JobSpec) returns (Empty) {};
+	rpc Kill(JobSpec) returns (Empty) {};
 	rpc List(Empty) returns (JobList) {};
 }
