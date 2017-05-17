@@ -18,9 +18,15 @@ message JobList {
 	repeated JobDetails details = 1;
 }
 
+message Config {
+	int64 memory = 1;
+	int64 disk = 2;
+}
+
 service GoBuildSlave {
 	rpc BuildJob(JobSpec) returns (Empty) {};
 	rpc Run(JobSpec) returns (Empty) {};
 	rpc Kill(JobSpec) returns (Empty) {};
 	rpc List(Empty) returns (JobList) {};
+	rpc GetConfig(Empty) returns (Config) {};
 }

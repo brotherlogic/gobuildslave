@@ -3,8 +3,13 @@ package main
 import (
 	"log"
 	"os/exec"
+	"runtime"
+	"strconv"
 	"strings"
+	"syscall"
 	"time"
+
+	"golang.org/x/net/context"
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
 )
@@ -13,6 +18,47 @@ const (
 	waitTime  = 100 * time.Millisecond
 	pauseTime = 10 * time.Millisecond
 )
+
+type diskChecker interface {
+	diskUsage(path string) int64
+}
+
+type prodDiskChecker struct{}
+
+func diskUsage(path string) int64 {
+	fs := syscall.Statfs_t{}
+	err := syscall.Statfs(path, &fs)
+	if err != nil {
+		return -1
+	}
+	return int64(fs.Bfree * uint64(fs.Bsize))
+}
+
+// GetConfig gets the status of the server
+func (s *Server) GetConfig(ctx context.Context, in *pb.Empty) (*pb.Config, error) {
+
+	m := &runtime.MemStats{}
+	runtime.ReadMemStats(m)
+
+	// Basic disk allowance is 100 bytes
+	disk := int64(100)
+
+	// Disks should be mounted disk1, disk2, disk3, ...
+	pcount := 1
+	dir := "/share/disk" + strconv.Itoa(pcount)
+	found := false
+	for !found {
+		log.Printf("Checking %v", dir)
+		diskadd := int64(s.disk.diskUsage(dir))
+		if diskadd < 0 {
+			found = true
+		}
+		pcount++
+		dir = "/share/disk" + strconv.Itoa(pcount)
+
+	}
+	return &pb.Config{Memory: int64(m.Sys), Disk: int64(disk)}, nil
+}
 
 // Runner is the server that runs commands
 type Runner struct {
