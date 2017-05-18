@@ -21,6 +21,7 @@ import (
 type Server struct {
 	*goserver.GoServer
 	runner *Runner
+	disk   diskChecker
 }
 
 func getIP(name string, server string) (string, int) {
@@ -161,8 +162,12 @@ func runCommand(c *runnerCommand) {
 	log.Printf("DONE")
 }
 
+func (diskChecker prodDiskChecker) diskUsage(path string) int64 {
+	return diskUsage(path)
+}
+
 func main() {
-	s := Server{&goserver.GoServer{}, Init()}
+	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}}
 	s.Register = s
 	s.PrepServer()
 	s.RegisterServer("gobuildslave", false)

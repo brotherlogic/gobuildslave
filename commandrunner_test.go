@@ -6,8 +6,20 @@ import (
 	"testing"
 	"time"
 
+	"golang.org/x/net/context"
+
 	pb "github.com/brotherlogic/gobuildslave/proto"
 )
+
+type testDiskChecker struct{}
+
+func (diskChecker testDiskChecker) diskUsage(path string) int64 {
+	if strings.HasSuffix(path, "1") {
+		return int64(200)
+	}
+
+	return -1
+}
 
 func InitTest() *Runner {
 	r := &Runner{}
@@ -16,6 +28,34 @@ func InitTest() *Runner {
 	go r.run()
 
 	return r
+}
+
+func TestDiskUsage(t *testing.T) {
+	v := diskUsage("/")
+	if v <= 0 {
+		t.Errorf("Error getting disk usage: %v", v)
+	}
+}
+
+func TestDiskUsageFail(t *testing.T) {
+	v := diskUsage("/madeuppath")
+	if v > 0 {
+		t.Errorf("Disk usage on made up path did not fail")
+	}
+}
+
+func TestGetMachineCapabilities(t *testing.T) {
+	s := Server{}
+	s.disk = testDiskChecker{}
+	props, err := s.GetConfig(context.Background(), &pb.Empty{})
+
+	if err != nil {
+		t.Fatalf("Get Config has returned an error: %v", err)
+	}
+
+	if props.Disk == 0 || props.Memory == 0 {
+		t.Errorf("Failed to pull machine details: %v", props)
+	}
 }
 
 func testRunCommand(c *runnerCommand) {
