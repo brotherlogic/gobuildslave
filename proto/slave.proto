@@ -7,6 +7,7 @@ message Empty {}
 message JobSpec {
 	string name = 1;
 	string server = 2;
+	int64 disk = 3;
 }
 
 message JobDetails {
