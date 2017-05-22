@@ -45,7 +45,7 @@ func (s *Server) GetConfig(ctx context.Context, in *pb.Empty) (*pb.Config, error
 
 	// Disks should be mounted disk1, disk2, disk3, ...
 	pcount := 1
-	dir := "/share/disk" + strconv.Itoa(pcount)
+	dir := "/media/disk" + strconv.Itoa(pcount)
 	found := false
 	for !found {
 		log.Printf("Checking %v", dir)
@@ -54,7 +54,7 @@ func (s *Server) GetConfig(ctx context.Context, in *pb.Empty) (*pb.Config, error
 			found = true
 		}
 		pcount++
-		dir = "/share/disk" + strconv.Itoa(pcount)
+		dir = "/media/disk" + strconv.Itoa(pcount)
 
 	}
 	return &pb.Config{Memory: int64(m.Sys), Disk: int64(disk)}, nil
