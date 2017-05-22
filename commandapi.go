@@ -30,7 +30,13 @@ func getIP(name string, server string) (string, int) {
 
 	registry := pbd.NewDiscoveryServiceClient(conn)
 	entry := pbd.RegistryEntry{Name: name, Identifier: server}
-	r, _ := registry.Discover(context.Background(), &entry)
+	r, err := registry.Discover(context.Background(), &entry)
+
+	if err != nil {
+		log.Printf("Lookup failed for %v,%v -> %v", name, server, err)
+		return "", -1
+	}
+
 	return r.Ip, int(r.Port)
 }
 
@@ -38,16 +44,19 @@ func getIP(name string, server string) (string, int) {
 func updateState(com *runnerCommand) {
 	elems := strings.Split(com.details.Spec.Name, "/")
 	dServer, dPort := getIP(elems[len(elems)-1], com.details.Spec.Server)
-	dConn, err := grpc.Dial(dServer+":"+strconv.Itoa(dPort), grpc.WithInsecure())
 
-	if err != nil {
-		panic(err)
+	if dPort > 0 {
+		dConn, err := grpc.Dial(dServer+":"+strconv.Itoa(dPort), grpc.WithInsecure())
+
+		if err != nil {
+			panic(err)
+		}
+
+		defer dConn.Close()
+		c := pbs.NewGoserverServiceClient(dConn)
+		_, err = c.IsAlive(context.Background(), &pbs.Alive{})
+		com.details.Running = (err == nil)
 	}
-
-	defer dConn.Close()
-	c := pbs.NewGoserverServiceClient(dConn)
-	_, err = c.IsAlive(context.Background(), &pbs.Alive{})
-	com.details.Running = (err == nil)
 }
 
 // BuildJob builds out a job
