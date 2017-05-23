@@ -56,6 +56,9 @@ func updateState(com *runnerCommand) {
 		c := pbs.NewGoserverServiceClient(dConn)
 		_, err = c.IsAlive(context.Background(), &pbs.Alive{})
 		com.details.Running = (err == nil)
+	} else {
+		//Mark as false if we can't locate the job
+		com.details.Running = false
 	}
 }
 
