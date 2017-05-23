@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"os/exec"
 	"runtime"
 	"strconv"
@@ -151,6 +152,11 @@ func (r *Runner) Checkout(repo string) string {
 func (r *Runner) Run(spec *pb.JobSpec) {
 	elems := strings.Split(spec.Name, "/")
 	command := elems[len(elems)-1]
+
+	if _, err := os.Stat("$GOPATH/bin/" + command); os.IsNotExist(err) {
+		r.Checkout(spec.Name)
+	}
+
 	com := &runnerCommand{command: exec.Command("$GOPATH/bin/" + command), background: true, details: &pb.JobDetails{Spec: spec}}
 	r.addCommand(com)
 }
