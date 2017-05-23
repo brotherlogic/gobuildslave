@@ -48,10 +48,11 @@ func (s *Server) GetConfig(ctx context.Context, in *pb.Empty) (*pb.Config, error
 	dir := "/media/disk" + strconv.Itoa(pcount)
 	found := false
 	for !found {
-		log.Printf("Checking %v", dir)
 		diskadd := int64(s.disk.diskUsage(dir))
 		if diskadd < 0 {
 			found = true
+		} else {
+			disk += diskadd
 		}
 		pcount++
 		dir = "/media/disk" + strconv.Itoa(pcount)
