@@ -78,7 +78,7 @@ func TestRun(t *testing.T) {
 	r := InitTest()
 	r.Run(&pb.JobSpec{Name: "testrepo"})
 	r.LameDuck(true)
-	if r.commandsRun != 1 {
+	if r.commandsRun != 3 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
 	}
 	if len(r.backgroundTasks) != 1 {
@@ -92,7 +92,7 @@ func TestKill(t *testing.T) {
 	r.LameDuck(true)
 	r.kill(&pb.JobSpec{Name: "testrepols"})
 
-	if r.commandsRun != 1 {
+	if r.commandsRun != 3 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
 	}
 	if len(r.backgroundTasks) != 0 {
