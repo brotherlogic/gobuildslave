@@ -80,6 +80,7 @@ type runnerCommand struct {
 	complete   bool
 	background bool
 	details    *pb.JobDetails
+	started    time.Time
 }
 
 func (r *Runner) run() {
@@ -154,13 +155,13 @@ func (r *Runner) Run(spec *pb.JobSpec) {
 	elems := strings.Split(spec.Name, "/")
 	command := elems[len(elems)-1]
 
-	if _, err := os.Stat("$GOPATH/bin/" + command); os.IsNotExist(err) {
+	if stat, err := os.Stat("$GOPATH/bin/" + command); os.IsNotExist(err) || time.Since(stat.ModTime()).Hours() > 1 {
 		r.Checkout(spec.Name)
 	}
 
 	//Kill any currently running tasks
 	r.kill(spec)
 
-	com := &runnerCommand{command: exec.Command("$GOPATH/bin/" + command), background: true, details: &pb.JobDetails{Spec: spec}}
+	com := &runnerCommand{command: exec.Command("$GOPATH/bin/" + command), background: true, details: &pb.JobDetails{Spec: spec}, started: time.Now()}
 	r.addCommand(com)
 }
