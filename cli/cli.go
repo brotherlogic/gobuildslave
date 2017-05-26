@@ -23,6 +23,7 @@ func findServer(name, server string) (string, int) {
 
 	for _, r := range rs.Services {
 		if r.Identifier == server && r.Name == name {
+			log.Printf("%v,%v -> %v", server, name, r)
 			return r.Ip, int(r.Port)
 		}
 	}
