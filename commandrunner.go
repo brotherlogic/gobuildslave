@@ -106,6 +106,7 @@ func (r *Runner) kill(spec *pb.JobSpec) {
 			if t.command.Process != nil {
 				t.command.Process.Kill()
 			}
+			r.commandsRun++
 			r.backgroundTasks = append(r.backgroundTasks[:i], r.backgroundTasks[i+1:]...)
 		}
 	}
@@ -156,6 +157,9 @@ func (r *Runner) Run(spec *pb.JobSpec) {
 	if _, err := os.Stat("$GOPATH/bin/" + command); os.IsNotExist(err) {
 		r.Checkout(spec.Name)
 	}
+
+	//Kill any currently running tasks
+	r.kill(spec)
 
 	com := &runnerCommand{command: exec.Command("$GOPATH/bin/" + command), background: true, details: &pb.JobDetails{Spec: spec}}
 	r.addCommand(com)
