@@ -60,7 +60,7 @@ func TestGetMachineCapabilities(t *testing.T) {
 
 func testRunCommand(c *runnerCommand) {
 	//We do nothing
-	log.Printf("WHAT %v", c.command.Path)
+	log.Printf("RUNNING COMMAND %v", c.command.Path)
 	if strings.Contains(c.command.Path, "repols") {
 		c.command.Path = "/bin/sleep"
 		c.command.Args = []string{"10"}
@@ -79,6 +79,20 @@ func TestRun(t *testing.T) {
 	r.Run(&pb.JobSpec{Name: "testrepo"})
 	r.LameDuck(true)
 	if r.commandsRun != 3 {
+		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
+	}
+	if len(r.backgroundTasks) != 1 {
+		t.Errorf("Not enough background tasks running %v", len(r.backgroundTasks))
+	}
+}
+
+func TestRebuild(t *testing.T) {
+	r := InitTest()
+	r.Run(&pb.JobSpec{Name: "testrepo-rebuild"})
+	log.Printf("Requesting rebuild")
+	r.Rebuild(&pb.JobSpec{Name: "testrepo-rebuild"})
+	r.LameDuck(true)
+	if r.commandsRun != 9 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
 	}
 	if len(r.backgroundTasks) != 1 {
