@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/brotherlogic/goserver"
 	"golang.org/x/net/context"
@@ -47,12 +48,11 @@ func updateState(com *runnerCommand) {
 
 	if dPort > 0 {
 		dConn, err := grpc.Dial(dServer+":"+strconv.Itoa(dPort), grpc.WithInsecure())
-
 		if err != nil {
 			panic(err)
 		}
-
 		defer dConn.Close()
+
 		c := pbs.NewGoserverServiceClient(dConn)
 		_, err = c.IsAlive(context.Background(), &pbs.Alive{})
 		com.details.Running = (err == nil)
@@ -178,10 +178,28 @@ func (diskChecker prodDiskChecker) diskUsage(path string) int64 {
 	return diskUsage(path)
 }
 
+func (s *Server) rebuildLoop() {
+	for true {
+		time.Sleep(time.Minute)
+
+		var rebuildList []*pb.JobSpec
+		for _, job := range s.runner.backgroundTasks {
+			if time.Since(job.started) > time.Hour {
+				rebuildList = append(rebuildList, job.details.Spec)
+			}
+		}
+
+		for _, job := range rebuildList {
+			s.runner.Rebuild(job)
+		}
+	}
+}
+
 func main() {
 	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}}
 	s.Register = s
 	s.PrepServer()
+	s.RegisterServingTask(s.rebuildLoop)
 	s.RegisterServer("gobuildslave", false)
 	s.Serve()
 }

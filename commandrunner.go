@@ -100,6 +100,7 @@ func (r *Runner) run() {
 }
 
 func (r *Runner) kill(spec *pb.JobSpec) {
+	log.Printf("KILL %v", spec)
 	for i, t := range r.backgroundTasks {
 		log.Printf("HERE : %v, %v", i, t)
 		if t.details.GetSpec().Name == spec.Name {
@@ -116,6 +117,7 @@ func (r *Runner) kill(spec *pb.JobSpec) {
 // BlockUntil blocks on this until the command has run
 func (r *Runner) BlockUntil(command *runnerCommand) {
 	for !command.complete {
+		log.Printf("Waiting for command to finish: %v", r.commands)
 		time.Sleep(waitTime)
 	}
 }
@@ -150,8 +152,16 @@ func (r *Runner) Checkout(repo string) string {
 	return readCommand.output
 }
 
+// Rebuild and rerun a JobSpec
+func (r *Runner) Rebuild(spec *pb.JobSpec) {
+	r.kill(spec)
+	r.Checkout(spec.Name)
+	r.Run(spec)
+}
+
 // Run the specified server specified in the repo
 func (r *Runner) Run(spec *pb.JobSpec) {
+	log.Printf("RUN = %v", spec)
 	elems := strings.Split(spec.Name, "/")
 	command := elems[len(elems)-1]
 
