@@ -184,7 +184,7 @@ func (s *Server) rebuildLoop() {
 
 		var rebuildList []*pb.JobSpec
 		for _, job := range s.runner.backgroundTasks {
-			log.Printf("Job %v", job)
+			log.Printf("Job (started %v, now %v) %v", job.started, time.Now(), job)
 			if time.Since(job.started) > time.Hour {
 				log.Printf("Added to rebuild list (%v)", job)
 				rebuildList = append(rebuildList, job.details.Spec)
