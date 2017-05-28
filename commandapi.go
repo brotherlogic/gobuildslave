@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"crypto/md5"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -23,6 +25,21 @@ type Server struct {
 	*goserver.GoServer
 	runner *Runner
 	disk   diskChecker
+}
+
+func getHash(file string) (string, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	h := md5.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", err
+	}
+
+	return string(h.Sum(nil)), nil
 }
 
 func getIP(name string, server string) (string, int) {
@@ -183,17 +200,19 @@ func (s *Server) rebuildLoop() {
 		time.Sleep(time.Minute)
 
 		var rebuildList []*pb.JobSpec
+		var hashList []string
 		for _, job := range s.runner.backgroundTasks {
 			log.Printf("Job (started %v, now %v) %v", job.started, time.Now(), job)
 			if time.Since(job.started) > time.Hour {
 				log.Printf("Added to rebuild list (%v)", job)
 				rebuildList = append(rebuildList, job.details.Spec)
+				hashList = append(hashList, job.hash)
 			}
 		}
 
 		log.Printf("Rebuilding %v", rebuildList)
-		for _, job := range rebuildList {
-			s.runner.Rebuild(job)
+		for i := range rebuildList {
+			s.runner.Rebuild(rebuildList[i], hashList[i])
 		}
 	}
 }
