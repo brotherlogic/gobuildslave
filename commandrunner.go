@@ -81,6 +81,7 @@ type runnerCommand struct {
 	background bool
 	details    *pb.JobDetails
 	started    time.Time
+	hash       string
 }
 
 func (r *Runner) run() {
@@ -153,10 +154,19 @@ func (r *Runner) Checkout(repo string) string {
 }
 
 // Rebuild and rerun a JobSpec
-func (r *Runner) Rebuild(spec *pb.JobSpec) {
-	r.kill(spec)
+func (r *Runner) Rebuild(spec *pb.JobSpec, currentHash string) {
 	r.Checkout(spec.Name)
-	r.Run(spec)
+	elems := strings.Split(spec.Name, "/")
+	command := elems[len(elems)-1]
+	hash, err := getHash("$GOPATH/bin/" + command)
+	if err != nil {
+		log.Printf("Unable to has file: %v", err)
+		hash = "nohash"
+	}
+	if hash != currentHash {
+		r.kill(spec)
+		r.Run(spec)
+	}
 }
 
 // Run the specified server specified in the repo
@@ -172,6 +182,11 @@ func (r *Runner) Run(spec *pb.JobSpec) {
 	//Kill any currently running tasks
 	r.kill(spec)
 
-	com := &runnerCommand{command: exec.Command("$GOPATH/bin/" + command), background: true, details: &pb.JobDetails{Spec: spec}, started: time.Now()}
+	hash, err := getHash("$GOPATH/bin/" + command)
+	if err != nil {
+		log.Printf("Unable to hash file: %v", err)
+		hash = "nohash"
+	}
+	com := &runnerCommand{command: exec.Command("$GOPATH/bin/" + command), background: true, details: &pb.JobDetails{Spec: spec}, started: time.Now(), hash: hash}
 	r.addCommand(com)
 }

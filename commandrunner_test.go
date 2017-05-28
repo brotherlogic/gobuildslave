@@ -90,7 +90,7 @@ func TestRebuild(t *testing.T) {
 	r := InitTest()
 	r.Run(&pb.JobSpec{Name: "testrepo-rebuild"})
 	log.Printf("Requesting rebuild")
-	r.Rebuild(&pb.JobSpec{Name: "testrepo-rebuild"})
+	r.Rebuild(&pb.JobSpec{Name: "testrepo-rebuild"}, "madeuphash")
 	r.LameDuck(true)
 	if r.commandsRun != 9 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
