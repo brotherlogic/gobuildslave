@@ -65,6 +65,7 @@ func (s *Server) GetConfig(ctx context.Context, in *pb.Empty) (*pb.Config, error
 // Runner is the server that runs commands
 type Runner struct {
 	commands        []*runnerCommand
+	runCommands     []*runnerCommand
 	runner          func(*runnerCommand)
 	gopath          string
 	running         bool
@@ -94,6 +95,8 @@ func (r *Runner) run() {
 			if r.commands[0].background {
 				r.backgroundTasks = append(r.backgroundTasks, r.commands[0])
 			}
+			log.Printf("ADDING HERE: %v", r.runCommands)
+			r.runCommands = append(r.runCommands, r.commands[0])
 			r.commands = r.commands[1:]
 			r.commandsRun++
 		}
@@ -187,6 +190,6 @@ func (r *Runner) Run(spec *pb.JobSpec) {
 		log.Printf("Unable to hash file: %v", err)
 		hash = "nohash"
 	}
-	com := &runnerCommand{command: exec.Command("$GOPATH/bin/" + command), background: true, details: &pb.JobDetails{Spec: spec}, started: time.Now(), hash: hash}
+	com := &runnerCommand{command: exec.Command("$GOPATH/bin/"+command, spec.Args...), background: true, details: &pb.JobDetails{Spec: spec}, started: time.Now(), hash: hash}
 	r.addCommand(com)
 }

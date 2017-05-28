@@ -8,6 +8,7 @@ message JobSpec {
 	string name = 1;
 	string server = 2;
 	int64 disk = 3;
+	repeated string args = 4;
 }
 
 message JobDetails {

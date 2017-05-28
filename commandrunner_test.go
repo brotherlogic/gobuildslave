@@ -59,9 +59,12 @@ func TestGetMachineCapabilities(t *testing.T) {
 }
 
 func testRunCommand(c *runnerCommand) {
+	oldPath := c.command.Path
+	oldArgs := c.command.Args
 	//We do nothing
 	log.Printf("RUNNING COMMAND %v", c.command.Path)
 	if strings.Contains(c.command.Path, "repols") {
+
 		c.command.Path = "/bin/sleep"
 		c.command.Args = []string{"10"}
 		log.Printf("RUNNING %v", c.command)
@@ -71,6 +74,8 @@ func testRunCommand(c *runnerCommand) {
 
 	time.Sleep(200 * time.Millisecond)
 	log.Printf("SLEPT")
+	c.command.Path = oldPath
+	c.command.Args = oldArgs
 	c.complete = true
 }
 
@@ -80,6 +85,25 @@ func TestRun(t *testing.T) {
 	r.LameDuck(true)
 	if r.commandsRun != 3 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
+	}
+	if len(r.backgroundTasks) != 1 {
+		t.Errorf("Not enough background tasks running %v", len(r.backgroundTasks))
+	}
+}
+
+func TestRunWithAtuguments(t *testing.T) {
+	r := InitTest()
+	r.Run(&pb.JobSpec{Name: "testrepo", Args: []string{"--argkey", "argvalue"}})
+	r.LameDuck(true)
+	if r.commandsRun != 3 {
+		t.Fatalf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
+	}
+	log.Printf("HERE = %v, %v", r.commands, len(r.commands))
+	if len(r.commands) != 3 {
+		log.Printf("HALP")
+	}
+	if len(r.runCommands) != 3 || len(r.runCommands[2].command.Args) != 3 || r.runCommands[2].command.Args[1] != "--argkey" {
+		t.Fatalf("Command has wrong args: %v", r.runCommands[2].command.Args[1])
 	}
 	if len(r.backgroundTasks) != 1 {
 		t.Errorf("Not enough background tasks running %v", len(r.backgroundTasks))
