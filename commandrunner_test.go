@@ -139,6 +139,26 @@ func TestDoubleRun(t *testing.T) {
 	}
 }
 
+func TestUpdate(t *testing.T) {
+	r := InitTest()
+	r.Run(&pb.JobSpec{Name: "testrepo"})
+	r.Update(&pb.JobSpec{Name: "testrepo", Args: []string{"arg1"}})
+	r.LameDuck(true)
+
+	if r.commandsRun != 7 {
+		t.Errorf("Wrong number of commands: (%v) %v", r.commandsRun, r.commands)
+	}
+
+	if len(r.backgroundTasks) != 1 {
+		t.Fatalf("Wrong number of tasks runnning %v", r.backgroundTasks)
+	}
+
+	if len(r.backgroundTasks[0].command.Args) != 2 {
+		t.Errorf("No args: %v", r.backgroundTasks[0].command.Args)
+	}
+
+}
+
 func TestKill(t *testing.T) {
 	r := InitTest()
 	r.Run(&pb.JobSpec{Name: "testrepols"})
