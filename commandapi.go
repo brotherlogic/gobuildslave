@@ -102,6 +102,12 @@ func (s *Server) Run(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
 	return &pb.Empty{}, nil
 }
 
+//Update restarts a job with new settings
+func (s *Server) Update(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
+	s.runner.Update(in)
+	return &pb.Empty{}, nil
+}
+
 // Kill a background task
 func (s *Server) Kill(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
 	s.runner.kill(in)

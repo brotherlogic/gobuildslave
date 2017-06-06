@@ -172,6 +172,12 @@ func (r *Runner) Rebuild(spec *pb.JobSpec, currentHash string) {
 	}
 }
 
+//Update the job with new cl args
+func (r *Runner) Update(spec *pb.JobSpec) {
+	r.kill(spec)
+	r.Run(spec)
+}
+
 // Run the specified server specified in the repo
 func (r *Runner) Run(spec *pb.JobSpec) {
 	log.Printf("RUN = %v", spec)
