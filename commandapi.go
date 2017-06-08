@@ -43,7 +43,7 @@ func getHash(file string) (string, error) {
 }
 
 func getIP(name string, server string) (string, int) {
-	conn, _ := grpc.Dial("192.168.86.34:50055", grpc.WithInsecure())
+	conn, _ := grpc.Dial("192.168.86.64:50055", grpc.WithInsecure())
 	defer conn.Close()
 
 	registry := pbd.NewDiscoveryServiceClient(conn)
