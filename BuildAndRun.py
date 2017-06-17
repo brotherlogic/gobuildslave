@@ -5,7 +5,9 @@ name = "gobuildslave"
 
 current_hash = ""
 if os.path.isfile('hash'):
-    current_hash = open('hash').readlines()[0]
+    lines = open('hash').readlines()
+    if len(lines) > 0:
+        current_hash = lines[0]
 new_hash = os.popen('git rev-parse HEAD').readlines()[0]
 open('hash','w').write(new_hash)
     
