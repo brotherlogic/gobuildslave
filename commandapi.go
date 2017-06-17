@@ -3,8 +3,10 @@ package main
 import (
 	"bytes"
 	"crypto/md5"
+	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -229,6 +231,14 @@ func (s *Server) rebuildLoop() {
 }
 
 func main() {
+	var quiet = flag.Bool("quiet", true, "Show all output")
+	flag.Parse()
+
+	if *quiet {
+		log.SetFlags(0)
+		log.SetOutput(ioutil.Discard)
+	}
+
 	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}}
 	s.Register = s
 	s.PrepServer()
