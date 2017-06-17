@@ -124,6 +124,11 @@ func (s Server) ReportHealth() bool {
 	return true
 }
 
+// Mote promotes/demotes this server
+func (s Server) Mote(master bool) error {
+	return nil
+}
+
 //Init builds the default runner framework
 func Init() *Runner {
 	r := &Runner{gopath: "goautobuild"}
