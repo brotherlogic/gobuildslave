@@ -65,6 +65,7 @@ func updateState(com *runnerCommand) {
 	elems := strings.Split(com.details.Spec.Name, "/")
 	dServer, dPort := getIP(elems[len(elems)-1], com.details.Spec.Server)
 
+	log.Printf("Unable to find: %v -> %v", elems, dPort)
 	if dPort > 0 {
 		dConn, err := grpc.Dial(dServer+":"+strconv.Itoa(dPort), grpc.WithInsecure())
 		if err != nil {
@@ -74,6 +75,7 @@ func updateState(com *runnerCommand) {
 
 		c := pbs.NewGoserverServiceClient(dConn)
 		_, err = c.IsAlive(context.Background(), &pbs.Alive{})
+		log.Printf("UPDATED: %v,%v -> %v", dServer, dPort, err)
 		com.details.Running = (err == nil)
 	} else {
 		//Mark as false if we can't locate the job
