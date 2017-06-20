@@ -111,6 +111,7 @@ func (r *Runner) kill(spec *pb.JobSpec) {
 			log.Printf("KILL: %v", t.command.Process)
 			if t.command.Process != nil {
 				t.command.Process.Kill()
+				t.command.Process.Wait()
 			}
 			r.commandsRun++
 			r.backgroundTasks = append(r.backgroundTasks[:i], r.backgroundTasks[i+1:]...)
