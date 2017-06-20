@@ -152,7 +152,7 @@ func runCommand(c *runnerCommand) {
 	}
 
 	if len(home) == 0 {
-
+		log.Printf("Error in home: %v", home)
 	}
 	gpath := home + "/gobuild"
 	c.command.Path = strings.Replace(c.command.Path, "$GOPATH", gpath, -1)
