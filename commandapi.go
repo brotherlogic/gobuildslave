@@ -143,6 +143,11 @@ func Init() *Runner {
 
 func runCommand(c *runnerCommand) {
 	log.Printf("RUNNING COMMAND: %v", c)
+
+	if c.command == nil {
+		return
+	}
+
 	env := os.Environ()
 	home := ""
 	for _, s := range env {
