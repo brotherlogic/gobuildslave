@@ -1,1 +1,1 @@
-Builds go code for you. Wooohooo.
+Builds go code for you. Wooohooo. Also runs it. Sometimes kills it.
