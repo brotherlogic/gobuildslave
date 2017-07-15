@@ -162,7 +162,7 @@ func (r *Runner) Rebuild(spec *pb.JobSpec, currentHash string) {
 	r.Checkout(spec.Name)
 	elems := strings.Split(spec.Name, "/")
 	command := elems[len(elems)-1]
-	hash, err := getHash("$GOPATH/bin/" + command)
+	hash, err := getHash("/bin/" + command)
 	if err != nil {
 		log.Printf("Unable to has file: %v", err)
 		hash = "nohash"

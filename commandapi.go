@@ -30,7 +30,20 @@ type Server struct {
 }
 
 func getHash(file string) (string, error) {
-	f, err := os.Open(file)
+	env := os.Environ()
+	home := ""
+	for _, s := range env {
+		if strings.HasPrefix(s, "HOME=") {
+			home = s[5:]
+		}
+	}
+
+	if len(home) == 0 {
+		log.Printf("Error in home: %v", home)
+	}
+	gpath := home + "/gobuild"
+
+	f, err := os.Open(strings.Replace(file, "$GOPATH", gpath, 1))
 	if err != nil {
 		return "", err
 	}
