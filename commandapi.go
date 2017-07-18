@@ -63,6 +63,7 @@ func getIP(name string, server string) (string, int) {
 
 	registry := pbd.NewDiscoveryServiceClient(conn)
 	entry := pbd.RegistryEntry{Name: name, Identifier: server}
+	log.Printf("Searching for %v", entry)
 	r, err := registry.Discover(context.Background(), &entry)
 
 	if err != nil {
