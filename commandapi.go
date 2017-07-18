@@ -257,7 +257,7 @@ func (s *Server) rebuildLoop() {
 }
 
 func main() {
-	var quiet = flag.Bool("quiet", true, "Show all output")
+	var quiet = flag.Bool("quiet", false, "Show all output")
 	flag.Parse()
 
 	if *quiet {
