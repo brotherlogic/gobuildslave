@@ -63,6 +63,7 @@ func getIP(name string, server string) (string, int) {
 
 	registry := pbd.NewDiscoveryServiceClient(conn)
 	entry := pbd.RegistryEntry{Name: name, Identifier: server}
+	log.Printf("Searching for %v", entry)
 	r, err := registry.Discover(context.Background(), &entry)
 
 	if err != nil {
@@ -115,7 +116,7 @@ func (s *Server) List(ctx context.Context, in *pb.Empty) (*pb.JobList, error) {
 
 // Run runs a background task
 func (s *Server) Run(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
-	s.runner.Run(in)
+	s.runner.Run(in, s.GoServer.Servername)
 	return &pb.Empty{}, nil
 }
 
@@ -257,7 +258,7 @@ func (s *Server) rebuildLoop() {
 }
 
 func main() {
-	var quiet = flag.Bool("quiet", true, "Show all output")
+	var quiet = flag.Bool("quiet", false, "Show all output")
 	flag.Parse()
 
 	if *quiet {
