@@ -169,18 +169,18 @@ func (r *Runner) Rebuild(spec *pb.JobSpec, currentHash string) {
 	}
 	if hash != currentHash {
 		r.kill(spec)
-		r.Run(spec)
+		r.Run(spec, spec.Server)
 	}
 }
 
 //Update the job with new cl args
 func (r *Runner) Update(spec *pb.JobSpec) {
 	r.kill(spec)
-	r.Run(spec)
+	r.Run(spec, spec.Server)
 }
 
 // Run the specified server specified in the repo
-func (r *Runner) Run(spec *pb.JobSpec) {
+func (r *Runner) Run(spec *pb.JobSpec, server string) {
 	log.Printf("RUN = %v", spec)
 	elems := strings.Split(spec.Name, "/")
 	command := elems[len(elems)-1]
