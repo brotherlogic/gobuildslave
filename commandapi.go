@@ -116,7 +116,7 @@ func (s *Server) List(ctx context.Context, in *pb.Empty) (*pb.JobList, error) {
 
 // Run runs a background task
 func (s *Server) Run(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
-	s.runner.Run(in)
+	s.runner.Run(in, s.GoServer.Servername)
 	return &pb.Empty{}, nil
 }
 
