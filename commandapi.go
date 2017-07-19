@@ -268,6 +268,7 @@ func main() {
 	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}}
 	s.Register = s
 	s.PrepServer()
+	s.GoServer.Killme = false
 	s.RegisterServingTask(s.rebuildLoop)
 	s.RegisterServer("gobuildslave", false)
 	s.Serve()
