@@ -13,7 +13,18 @@ message JobSpec {
 
 message JobDetails {
 	JobSpec spec = 1;
-	bool running = 2;
+
+	enum State {
+		ACKNOWLEDGED = 0;
+		BUILDING = 1;
+		BUILT = 2;
+		RUNNING = 3;
+		UPDATE_STARTING = 4;
+		UPDATING = 5;
+		KILLING = 6;
+		DEAD = 7;
+	}
+	State state = 2;
 }
 
 message JobList {

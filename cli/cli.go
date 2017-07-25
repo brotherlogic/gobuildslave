@@ -92,7 +92,7 @@ func main() {
 					log.Printf("Error building job: %v", err)
 				}
 				for _, r := range res.Details {
-					log.Printf("RUNNING: %v (%v)", r, r.Running)
+					log.Printf("RUNNING: %v (%v)", r, r.State)
 				}
 			}
 		}
