@@ -31,26 +31,28 @@ type Server struct {
 }
 
 func (s *Server) monitor(job *pb.JobDetails) {
-	switch job.State {
-	case pb.JobDetails_ACKNOWLEDGED:
-		job.State = pb.JobDetails_BUILDING
-		s.runner.Checkout(job.GetSpec().GetName())
-		job.State = pb.JobDetails_BUILT
-	case pb.JobDetails_BUILT:
-		s.runner.Run(job.GetSpec())
-		job.State = pb.JobDetails_RUNNING
-	case pb.JobDetails_KILLING:
-		s.runner.kill(job.GetSpec())
-		if !isAlive(job.GetSpec()) {
-			job.State = pb.JobDetails_DEAD
-		}
-	case pb.JobDetails_UPDATE_STARTING:
-		s.runner.Update(job.GetSpec())
-		job.State = pb.JobDetails_RUNNING
-	case pb.JobDetails_RUNNING:
-		time.Sleep(waitTime)
-		if !isAlive(job.GetSpec()) {
-			job.State = pb.JobDetails_DEAD
+	for true {
+		switch job.State {
+		case pb.JobDetails_ACKNOWLEDGED:
+			job.State = pb.JobDetails_BUILDING
+			s.runner.Checkout(job.GetSpec().GetName())
+			job.State = pb.JobDetails_BUILT
+		case pb.JobDetails_BUILT:
+			s.runner.Run(job.GetSpec())
+			job.State = pb.JobDetails_RUNNING
+		case pb.JobDetails_KILLING:
+			s.runner.kill(job.GetSpec())
+			if !isAlive(job.GetSpec()) {
+				job.State = pb.JobDetails_DEAD
+			}
+		case pb.JobDetails_UPDATE_STARTING:
+			s.runner.Update(job.GetSpec())
+			job.State = pb.JobDetails_RUNNING
+		case pb.JobDetails_RUNNING:
+			time.Sleep(waitTime)
+			if !isAlive(job.GetSpec()) {
+				job.State = pb.JobDetails_DEAD
+			}
 		}
 	}
 }
