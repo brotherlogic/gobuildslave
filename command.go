@@ -198,7 +198,7 @@ func runCommand(c *runnerCommand) {
 		log.Printf("Blah2: %v", err)
 	}
 
-	log.Printf("%v, %v and %v", c.command.Path, c.command.Args, c.command.Env)
+	log.Printf("RUNNING %v, %v and %v", c.command.Path, c.command.Args, c.command.Env)
 	c.command.Start()
 
 	if !c.background {
