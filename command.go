@@ -259,7 +259,7 @@ func main() {
 	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails)}
 	s.Register = s
 	s.PrepServer()
-	//s.GoServer.Killme = false
+	s.GoServer.Killme = false
 	s.RegisterServingTask(s.rebuildLoop)
 	s.RegisterServer("gobuildslave", false)
 	s.Serve()
