@@ -218,7 +218,9 @@ func runCommand(c *runnerCommand) {
 			log.Printf("%v and %v", str, str2)
 
 		}
+		log.Print("RUN HAS STARTING TO WAIT")
 		c.command.Wait()
+		log.Printf("RUN DONE WAITING")
 		c.output = str
 		c.complete = true
 	}
