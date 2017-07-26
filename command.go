@@ -221,7 +221,7 @@ func runCommand(c *runnerCommand) {
 		c.output = str
 		c.complete = true
 	}
-	log.Printf("DONE")
+	log.Printf("RUN IS DONE")
 }
 
 func (diskChecker prodDiskChecker) diskUsage(path string) int64 {
