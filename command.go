@@ -38,6 +38,7 @@ func (s *Server) monitor(job *pb.JobDetails) {
 		job.State = pb.JobDetails_BUILT
 	case pb.JobDetails_BUILT:
 		s.runner.Run(job.GetSpec())
+		job.State = pb.JobDetails_RUNNING
 	case pb.JobDetails_KILLING:
 		s.runner.kill(job.GetSpec())
 		if !isAlive(job.GetSpec()) {
