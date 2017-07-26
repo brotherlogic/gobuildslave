@@ -200,6 +200,7 @@ func runCommand(c *runnerCommand) {
 
 	log.Printf("RUNNING %v, %v and %v", c.command.Path, c.command.Args, c.command.Env)
 	c.command.Start()
+	log.Printf("RUN STARTED:  %v", c.background)
 
 	if !c.background {
 		str := ""
