@@ -207,7 +207,7 @@ func runCommand(c *runnerCommand) {
 
 		if out != nil {
 			buf := new(bytes.Buffer)
-			log.Printf("RUN READING 1")
+			log.Printf("RUN READING 1:%v", out)
 			buf.ReadFrom(out)
 			str = buf.String()
 			log.Printf("RUN IS HERE: %v", str)
