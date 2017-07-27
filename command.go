@@ -32,7 +32,7 @@ type Server struct {
 
 func (s *Server) monitor(job *pb.JobDetails) {
 	for true {
-		log.Print("MONITOR %v", job)
+		log.Printf("MONITOR RUN %v", job)
 		switch job.State {
 		case pb.JobDetails_ACKNOWLEDGED:
 			job.State = pb.JobDetails_BUILDING
