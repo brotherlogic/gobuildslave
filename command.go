@@ -54,6 +54,8 @@ func (s *Server) monitor(job *pb.JobDetails) {
 			if !isAlive(job.GetSpec()) {
 				job.State = pb.JobDetails_DEAD
 			}
+		case pb.JobDetails_DEAD:
+			time.Sleep(waitTime)
 		}
 	}
 }
