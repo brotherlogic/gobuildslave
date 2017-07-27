@@ -55,7 +55,7 @@ func (s *Server) monitor(job *pb.JobDetails) {
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_DEAD:
-			time.Sleep(waitTime)
+			job.State = pb.JobDetails_ACKNOWLEDGED
 		}
 	}
 }
