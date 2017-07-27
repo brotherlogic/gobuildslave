@@ -32,7 +32,6 @@ type Server struct {
 
 func (s *Server) monitor(job *pb.JobDetails) {
 	for true {
-		log.Printf("MONITOR RUN %v", job)
 		switch job.State {
 		case pb.JobDetails_ACKNOWLEDGED:
 			job.State = pb.JobDetails_BUILDING
@@ -260,7 +259,7 @@ func (s *Server) rebuildLoop() {
 }
 
 func main() {
-	var quiet = flag.Bool("quiet", false, "Show all output")
+	var quiet = flag.Bool("quiet", true, "Show all output")
 	flag.Parse()
 
 	if *quiet {

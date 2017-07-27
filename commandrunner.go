@@ -90,7 +90,6 @@ func (r *Runner) run() {
 
 	for r.running {
 		time.Sleep(pauseTime)
-		log.Printf("COMMANDS BEING RUN: %v", r.commands)
 		if len(r.commands) > 0 {
 			r.runner(r.commands[0])
 			if r.commands[0].background {
