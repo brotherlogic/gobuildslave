@@ -49,9 +49,11 @@ func (s *Server) monitor(job *pb.JobDetails) {
 			s.runner.Update(job.GetSpec())
 			job.State = pb.JobDetails_RUNNING
 		case pb.JobDetails_PENDING:
-			time.Sleep(waitTime)
+			time.Sleep(time.Minute * 5)
 			if isAlive(job.GetSpec()) {
 				job.State = pb.JobDetails_RUNNING
+			} else {
+				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_RUNNING:
 			time.Sleep(waitTime)
