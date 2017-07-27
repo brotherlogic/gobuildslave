@@ -209,13 +209,14 @@ func runCommand(c *runnerCommand) {
 			buf := new(bytes.Buffer)
 			buf.ReadFrom(out)
 			str = buf.String()
+			log.Printf("RUN IS HERE: %v", str)
 		}
 
 		if out2 != nil {
 			buf2 := new(bytes.Buffer)
 			buf2.ReadFrom(out2)
 			str2 := buf2.String()
-			log.Printf("%v and %v", str, str2)
+			log.Printf("RUN NOW %v and %v", str, str2)
 
 		}
 		log.Print("RUN HAS STARTING TO WAIT")
