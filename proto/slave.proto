@@ -23,6 +23,7 @@ message JobDetails {
 		UPDATING = 5;
 		KILLING = 6;
 		DEAD = 7;
+		PENDING = 8;
 	}
 	State state = 2;
 }
