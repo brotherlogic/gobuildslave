@@ -59,7 +59,8 @@ func (s *Server) GetConfig(ctx context.Context, in *pb.Empty) (*pb.Config, error
 		dir = "/media/disk" + strconv.Itoa(pcount)
 
 	}
-	return &pb.Config{Memory: int64(m.Sys), Disk: int64(disk)}, nil
+	log.Printf("SERVERNAME %v", s.Servername)
+	return &pb.Config{Memory: int64(m.Sys), Disk: int64(disk), External: s.Servername == "raspberrypi"}, nil
 }
 
 // Runner is the server that runs commands
