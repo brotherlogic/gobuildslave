@@ -9,6 +9,7 @@ import (
 	"golang.org/x/net/context"
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
+	"github.com/brotherlogic/goserver"
 )
 
 type testDiskChecker struct{}
@@ -47,6 +48,7 @@ func TestDiskUsageFail(t *testing.T) {
 func TestGetMachineCapabilities(t *testing.T) {
 	s := Server{}
 	s.disk = testDiskChecker{}
+	s.GoServer = &goserver.GoServer{}
 	props, err := s.GetConfig(context.Background(), &pb.Empty{})
 
 	if err != nil {
@@ -55,6 +57,23 @@ func TestGetMachineCapabilities(t *testing.T) {
 
 	if props.Disk == 0 || props.Memory == 0 {
 		t.Errorf("Failed to pull machine details: %v", props)
+	}
+}
+
+func TestGetExternalFunc(t *testing.T) {
+	s := Server{}
+	s.GoServer = &goserver.GoServer{}
+	s.disk = testDiskChecker{}
+	s.Servername = "raspberrypi"
+
+	props, err := s.GetConfig(context.Background(), &pb.Empty{})
+
+	if err != nil {
+		t.Fatalf("Get Config has error'd: %v", err)
+	}
+
+	if !props.External {
+		t.Errorf("Server has not returned that it can run external")
 	}
 }
 
