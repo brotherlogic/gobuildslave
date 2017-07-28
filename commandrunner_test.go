@@ -8,6 +8,7 @@ import (
 
 	"golang.org/x/net/context"
 
+	pbd "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	"github.com/brotherlogic/goserver"
 )
@@ -64,7 +65,7 @@ func TestGetExternalFunc(t *testing.T) {
 	s := Server{}
 	s.GoServer = &goserver.GoServer{}
 	s.disk = testDiskChecker{}
-	s.Servername = "raspberrypi"
+	s.Registry = pbd.RegistryEntry{Identifier: "raspberrypi"}
 
 	props, err := s.GetConfig(context.Background(), &pb.Empty{})
 
