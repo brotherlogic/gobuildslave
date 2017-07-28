@@ -9,6 +9,7 @@ message JobSpec {
 	string server = 2;
 	int64 disk = 3;
 	repeated string args = 4;
+	bool external = 5;
 }
 
 message JobDetails {
