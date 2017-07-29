@@ -59,7 +59,6 @@ func (s *Server) GetConfig(ctx context.Context, in *pb.Empty) (*pb.Config, error
 		dir = "/media/disk" + strconv.Itoa(pcount)
 
 	}
-	log.Printf("SERVERNAME %v", s.Servername)
 	return &pb.Config{Memory: int64(m.Sys), Disk: int64(disk), External: s.Registry.GetIdentifier() == "raspberrypi"}, nil
 }
 
@@ -123,7 +122,6 @@ func (r *Runner) kill(spec *pb.JobSpec) {
 // BlockUntil blocks on this until the command has run
 func (r *Runner) BlockUntil(command *runnerCommand) {
 	for !command.complete {
-		log.Printf("Waiting for command to finish: %v", r.commands)
 		time.Sleep(waitTime)
 	}
 }
@@ -169,6 +167,7 @@ func (r *Runner) Rebuild(spec *pb.JobSpec, currentHash string) {
 		hash = "nohash"
 	}
 	if hash != currentHash {
+		log.Printf("KILL ON REBUILD")
 		r.kill(spec)
 		r.Run(spec)
 	}
@@ -176,6 +175,7 @@ func (r *Runner) Rebuild(spec *pb.JobSpec, currentHash string) {
 
 //Update the job with new cl args
 func (r *Runner) Update(spec *pb.JobSpec) {
+	log.Printf("KILL ON UPDATE")
 	r.kill(spec)
 	r.Run(spec)
 }
@@ -191,6 +191,7 @@ func (r *Runner) Run(spec *pb.JobSpec) {
 	}
 
 	//Kill any currently running tasks
+	log.Printf("KILL TO RUN NEW")
 	r.kill(spec)
 
 	hash, err := getHash("$GOPATH/bin/" + command)

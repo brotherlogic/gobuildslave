@@ -41,6 +41,7 @@ func (s *Server) monitor(job *pb.JobDetails) {
 			s.runner.Run(job.GetSpec())
 			job.State = pb.JobDetails_PENDING
 		case pb.JobDetails_KILLING:
+			log.Printf("MONITOR STEP: KILL")
 			s.runner.kill(job.GetSpec())
 			if !isAlive(job.GetSpec()) {
 				job.State = pb.JobDetails_DEAD
@@ -49,7 +50,7 @@ func (s *Server) monitor(job *pb.JobDetails) {
 			s.runner.Update(job.GetSpec())
 			job.State = pb.JobDetails_RUNNING
 		case pb.JobDetails_PENDING:
-			time.Sleep(time.Second * 10)
+			time.Sleep(time.Minute)
 			if isAlive(job.GetSpec()) {
 				job.State = pb.JobDetails_RUNNING
 			} else {
@@ -61,6 +62,7 @@ func (s *Server) monitor(job *pb.JobDetails) {
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_DEAD:
+			log.Printf("RERUNNING BECAUSE WERE DEAD")
 			job.State = pb.JobDetails_ACKNOWLEDGED
 		}
 	}
