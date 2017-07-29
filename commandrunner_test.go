@@ -101,7 +101,7 @@ func testRunCommand(c *runnerCommand) {
 
 func TestRun(t *testing.T) {
 	r := InitTest()
-	r.Run(&pb.JobSpec{Name: "testrepo"})
+	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo"}})
 	r.LameDuck(true)
 	if r.commandsRun != 3 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
@@ -113,7 +113,7 @@ func TestRun(t *testing.T) {
 
 func TestRunWithAtuguments(t *testing.T) {
 	r := InitTest()
-	r.Run(&pb.JobSpec{Name: "testrepo", Args: []string{"--argkey", "argvalue"}})
+	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo", Args: []string{"--argkey", "argvalue"}}})
 	r.LameDuck(true)
 	if r.commandsRun != 3 {
 		t.Fatalf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
@@ -132,9 +132,9 @@ func TestRunWithAtuguments(t *testing.T) {
 
 func TestRebuild(t *testing.T) {
 	r := InitTest()
-	r.Run(&pb.JobSpec{Name: "testrepo-rebuild"})
+	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo-rebuild"}})
 	log.Printf("Requesting rebuild")
-	r.Rebuild(&pb.JobSpec{Name: "testrepo-rebuild"}, "madeuphash")
+	r.Rebuild(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo-rebuild"}}, "madeuphash")
 	r.LameDuck(true)
 	if r.commandsRun != 9 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
@@ -146,8 +146,8 @@ func TestRebuild(t *testing.T) {
 
 func TestDoubleRun(t *testing.T) {
 	r := InitTest()
-	r.Run(&pb.JobSpec{Name: "testrepo"})
-	r.Run(&pb.JobSpec{Name: "testrepo"})
+	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo"}})
+	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo"}})
 	r.LameDuck(true)
 
 	if r.commandsRun != 7 {
@@ -161,8 +161,8 @@ func TestDoubleRun(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	r := InitTest()
-	r.Run(&pb.JobSpec{Name: "testrepo"})
-	r.Update(&pb.JobSpec{Name: "testrepo", Args: []string{"arg1"}})
+	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo"}})
+	r.Update(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo", Args: []string{"arg1"}}})
 	r.LameDuck(true)
 
 	if r.commandsRun != 7 {
@@ -181,9 +181,9 @@ func TestUpdate(t *testing.T) {
 
 func TestKill(t *testing.T) {
 	r := InitTest()
-	r.Run(&pb.JobSpec{Name: "testrepols"})
+	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepols"}})
 	r.LameDuck(true)
-	r.kill(&pb.JobSpec{Name: "testrepols"})
+	r.kill(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepols"}})
 
 	if r.commandsRun != 4 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)

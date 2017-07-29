@@ -34,22 +34,31 @@ func (s *Server) monitor(job *pb.JobDetails) {
 	for true {
 		switch job.State {
 		case pb.JobDetails_ACKNOWLEDGED:
+			job.StartTime = 0
 			job.State = pb.JobDetails_BUILDING
 			s.runner.Checkout(job.GetSpec().Name)
 			job.State = pb.JobDetails_BUILT
 		case pb.JobDetails_BUILT:
-			s.runner.Run(job.GetSpec())
+			log.Printf("PREPARING TO RUN %v", job)
+			s.runner.Run(job)
+			for job.StartTime == 0 {
+				log.Printf("WAITING FOR job to start %v", job)
+				time.Sleep(waitTime)
+			}
 			job.State = pb.JobDetails_PENDING
 		case pb.JobDetails_KILLING:
-			s.runner.kill(job.GetSpec())
+			log.Printf("MONITOR STEP: KILL")
+			s.runner.kill(job)
 			if !isAlive(job.GetSpec()) {
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_UPDATE_STARTING:
-			s.runner.Update(job.GetSpec())
+			s.runner.Update(job)
 			job.State = pb.JobDetails_RUNNING
 		case pb.JobDetails_PENDING:
+			log.Printf("PENDING WAIT %v", job.GetSpec())
 			time.Sleep(time.Second * 10)
+			log.Printf("CHECKING LIVENESS %v (%v)", job.GetSpec(), job.StartTime)
 			if isAlive(job.GetSpec()) {
 				job.State = pb.JobDetails_RUNNING
 			} else {
@@ -61,6 +70,7 @@ func (s *Server) monitor(job *pb.JobDetails) {
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_DEAD:
+			log.Printf("RERUNNING BECAUSE WERE DEAD %v", job)
 			job.State = pb.JobDetails_ACKNOWLEDGED
 		}
 	}
@@ -100,11 +110,9 @@ func getIP(name string, server string) (string, int) {
 
 	registry := pbd.NewDiscoveryServiceClient(conn)
 	entry := pbd.RegistryEntry{Name: name, Identifier: server}
-	log.Printf("Searching for %v", entry)
 	r, err := registry.Discover(context.Background(), &entry)
 
 	if err != nil {
-		log.Printf("Lookup failed for %v,%v -> %v", name, server, err)
 		return "", -1
 	}
 
@@ -116,7 +124,8 @@ func isAlive(spec *pb.JobSpec) bool {
 	elems := strings.Split(spec.Name, "/")
 	dServer, dPort := getIP(elems[len(elems)-1], spec.Server)
 
-	log.Printf("Unable to find: %v -> %v", elems, dPort)
+	log.Printf("FOUND %v,%v for %v", dServer, dPort, spec.Server)
+
 	if dPort > 0 {
 		dConn, err := grpc.Dial(dServer+":"+strconv.Itoa(dPort), grpc.WithInsecure())
 		if err != nil {
@@ -126,7 +135,10 @@ func isAlive(spec *pb.JobSpec) bool {
 
 		c := pbs.NewGoserverServiceClient(dConn)
 		_, err = c.IsAlive(context.Background(), &pbs.Alive{})
-		log.Printf("UPDATED: %v,%v -> %v", dServer, dPort, err)
+		log.Printf("HEALTH CHECK OF %v on %v = %v", spec, dServer, err)
+		if err != nil {
+			log.Printf("UPDATED: %v,%v -> %v", dServer, dPort, err)
+		}
 		return err == nil
 	}
 
@@ -235,6 +247,9 @@ func runCommand(c *runnerCommand) {
 		log.Printf("RUN DONE WAITING")
 		c.output = str
 		c.complete = true
+	} else {
+		log.Printf("SETTING LIVENESS RUN: %v", c.details)
+		c.details.StartTime = time.Now().Unix()
 	}
 	log.Printf("RUN IS DONE")
 }
@@ -247,13 +262,13 @@ func (s *Server) rebuildLoop() {
 	for true {
 		time.Sleep(time.Minute)
 
-		var rebuildList []*pb.JobSpec
+		var rebuildList []*pb.JobDetails
 		var hashList []string
 		for _, job := range s.runner.backgroundTasks {
 			log.Printf("Job (started %v, now %v) %v", job.started, time.Now(), job)
 			if time.Since(job.started) > time.Hour {
 				log.Printf("Added to rebuild list (%v)", job)
-				rebuildList = append(rebuildList, job.details.Spec)
+				rebuildList = append(rebuildList, job.details)
 				hashList = append(hashList, job.hash)
 			}
 		}
