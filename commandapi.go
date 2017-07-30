@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"time"
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
@@ -9,6 +10,7 @@ import (
 
 // BuildJob builds out a job
 func (s *Server) BuildJob(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
+	log.Printf("BUILD: %v", in)
 	s.runner.Checkout(in.Name)
 	return &pb.Empty{}, nil
 }
@@ -25,6 +27,7 @@ func (s *Server) List(ctx context.Context, in *pb.Empty) (*pb.JobList, error) {
 
 // Run starts up a job
 func (s *Server) Run(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
+	log.Printf("RUN: %v", in)
 	t := time.Now()
 	if _, ok := s.jobs[in.GetName()]; ok {
 		s.LogFunction("Run-found", int32(time.Now().Sub(t).Nanoseconds()/1000000))

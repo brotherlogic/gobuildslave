@@ -27,6 +27,7 @@ message JobDetails {
 		PENDING = 8;
 	}
 	State state = 2;
+	int64 start_time = 3;
 }
 
 message JobList {

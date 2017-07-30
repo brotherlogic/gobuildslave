@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	waitTime  = 100 * time.Millisecond
+	waitTime  = time.Second
 	pauseTime = 10 * time.Millisecond
 )
 
@@ -59,7 +59,6 @@ func (s *Server) GetConfig(ctx context.Context, in *pb.Empty) (*pb.Config, error
 		dir = "/media/disk" + strconv.Itoa(pcount)
 
 	}
-	log.Printf("SERVERNAME %v", s.Servername)
 	return &pb.Config{Memory: int64(m.Sys), Disk: int64(disk), External: s.Registry.GetIdentifier() == "raspberrypi"}, nil
 }
 
@@ -104,11 +103,11 @@ func (r *Runner) run() {
 	}
 }
 
-func (r *Runner) kill(spec *pb.JobSpec) {
-	log.Printf("KILL %v", spec)
+func (r *Runner) kill(details *pb.JobDetails) {
+	log.Printf("KILL %v", details.Spec)
 	for i, t := range r.backgroundTasks {
 		log.Printf("HERE : %v, %v", i, t)
-		if t.details.GetSpec().Name == spec.Name {
+		if t.details.GetSpec().Name == details.Spec.Name {
 			log.Printf("KILL: %v", t.command.Process)
 			if t.command.Process != nil {
 				t.command.Process.Kill()
@@ -123,7 +122,6 @@ func (r *Runner) kill(spec *pb.JobSpec) {
 // BlockUntil blocks on this until the command has run
 func (r *Runner) BlockUntil(command *runnerCommand) {
 	for !command.complete {
-		log.Printf("Waiting for command to finish: %v", r.commands)
 		time.Sleep(waitTime)
 	}
 }
@@ -159,9 +157,9 @@ func (r *Runner) Checkout(repo string) string {
 }
 
 // Rebuild and rerun a JobSpec
-func (r *Runner) Rebuild(spec *pb.JobSpec, currentHash string) {
-	r.Checkout(spec.Name)
-	elems := strings.Split(spec.Name, "/")
+func (r *Runner) Rebuild(details *pb.JobDetails, currentHash string) {
+	r.Checkout(details.Spec.GetName())
+	elems := strings.Split(details.Spec.Name, "/")
 	command := elems[len(elems)-1]
 	hash, err := getHash("/bin/" + command)
 	if err != nil {
@@ -169,35 +167,38 @@ func (r *Runner) Rebuild(spec *pb.JobSpec, currentHash string) {
 		hash = "nohash"
 	}
 	if hash != currentHash {
-		r.kill(spec)
-		r.Run(spec)
+		log.Printf("KILL ON REBUILD")
+		r.kill(details)
+		r.Run(details)
 	}
 }
 
 //Update the job with new cl args
-func (r *Runner) Update(spec *pb.JobSpec) {
+func (r *Runner) Update(spec *pb.JobDetails) {
+	log.Printf("KILL ON UPDATE")
 	r.kill(spec)
 	r.Run(spec)
 }
 
 // Run the specified server specified in the repo
-func (r *Runner) Run(spec *pb.JobSpec) {
-	log.Printf("RUN = %v", spec)
-	elems := strings.Split(spec.Name, "/")
+func (r *Runner) Run(details *pb.JobDetails) {
+	log.Printf("RUN = %v", details.Spec)
+	elems := strings.Split(details.Spec.Name, "/")
 	command := elems[len(elems)-1]
 
 	if stat, err := os.Stat("$GOPATH/bin/" + command); os.IsNotExist(err) || time.Since(stat.ModTime()).Hours() > 1 {
-		r.Checkout(spec.Name)
+		r.Checkout(details.Spec.Name)
 	}
 
 	//Kill any currently running tasks
-	r.kill(spec)
+	log.Printf("KILL TO RUN NEW")
+	r.kill(details)
 
 	hash, err := getHash("$GOPATH/bin/" + command)
 	if err != nil {
 		log.Printf("Unable to hash file: %v", err)
 		hash = "nohash"
 	}
-	com := &runnerCommand{command: exec.Command("$GOPATH/bin/"+command, spec.Args...), background: true, details: &pb.JobDetails{Spec: spec}, started: time.Now(), hash: hash}
+	com := &runnerCommand{command: exec.Command("$GOPATH/bin/"+command, details.Spec.Args...), background: true, details: details, started: time.Now(), hash: hash}
 	r.addCommand(com)
 }
