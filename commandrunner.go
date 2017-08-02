@@ -164,8 +164,7 @@ func (r *Runner) Rebuild(details *pb.JobDetails, currentHash string) {
 		hash = "nohash"
 	}
 	if hash != currentHash {
-		r.kill(details)
-		r.Run(details)
+		details.State = pb.JobDetails_BUILT
 	}
 }
 
@@ -193,6 +192,11 @@ func (r *Runner) Run(details *pb.JobDetails) {
 	if err != nil {
 		hash = "nohash"
 	}
+
+	//Prepare to runnerCommand
+	details.StartTime = 0
+	details.State = pb.JobDetails_BUILT
+
 	com := &runnerCommand{command: exec.Command("$GOPATH/bin/"+command, details.Spec.Args...), background: true, details: details, started: time.Now(), hash: hash}
 	r.addCommand(com)
 }
