@@ -43,6 +43,7 @@ func (s *Server) Run(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
 
 //Update restarts a job with new settings
 func (s *Server) Update(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
+	log.Printf("UPDATE: %v", in)
 	t := time.Now()
 	//Only update if we're running
 	if j, ok := s.jobs[in.GetName()]; !ok || j.State == pb.JobDetails_RUNNING {

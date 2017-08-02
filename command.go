@@ -39,15 +39,12 @@ func (s *Server) monitor(job *pb.JobDetails) {
 			s.runner.Checkout(job.GetSpec().Name)
 			job.State = pb.JobDetails_BUILT
 		case pb.JobDetails_BUILT:
-			log.Printf("PREPARING TO RUN %v", job)
 			s.runner.Run(job)
 			for job.StartTime == 0 {
-				log.Printf("WAITING FOR job to start %v", job)
 				time.Sleep(waitTime)
 			}
 			job.State = pb.JobDetails_PENDING
 		case pb.JobDetails_KILLING:
-			log.Printf("MONITOR STEP: KILL")
 			s.runner.kill(job)
 			if !isAlive(job.GetSpec()) {
 				job.State = pb.JobDetails_DEAD
@@ -56,9 +53,7 @@ func (s *Server) monitor(job *pb.JobDetails) {
 			s.runner.Update(job)
 			job.State = pb.JobDetails_RUNNING
 		case pb.JobDetails_PENDING:
-			log.Printf("PENDING WAIT %v", job.GetSpec())
 			time.Sleep(time.Second * 10)
-			log.Printf("CHECKING LIVENESS %v (%v)", job.GetSpec(), job.StartTime)
 			if isAlive(job.GetSpec()) {
 				job.State = pb.JobDetails_RUNNING
 			} else {
@@ -70,7 +65,6 @@ func (s *Server) monitor(job *pb.JobDetails) {
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_DEAD:
-			log.Printf("RERUNNING BECAUSE WERE DEAD %v", job)
 			job.State = pb.JobDetails_ACKNOWLEDGED
 		}
 	}
@@ -85,9 +79,6 @@ func getHash(file string) (string, error) {
 		}
 	}
 
-	if len(home) == 0 {
-		log.Printf("Error in home: %v", home)
-	}
 	gpath := home + "/gobuild"
 
 	f, err := os.Open(strings.Replace(file, "$GOPATH", gpath, 1))
@@ -124,8 +115,6 @@ func isAlive(spec *pb.JobSpec) bool {
 	elems := strings.Split(spec.Name, "/")
 	dServer, dPort := getIP(elems[len(elems)-1], spec.Server)
 
-	log.Printf("FOUND %v,%v for %v", dServer, dPort, spec.Server)
-
 	if dPort > 0 {
 		dConn, err := grpc.Dial(dServer+":"+strconv.Itoa(dPort), grpc.WithInsecure())
 		if err != nil {
@@ -135,10 +124,6 @@ func isAlive(spec *pb.JobSpec) bool {
 
 		c := pbs.NewGoserverServiceClient(dConn)
 		_, err = c.IsAlive(context.Background(), &pbs.Alive{})
-		log.Printf("HEALTH CHECK OF %v on %v = %v", spec, dServer, err)
-		if err != nil {
-			log.Printf("UPDATED: %v,%v -> %v", dServer, dPort, err)
-		}
 		return err == nil
 	}
 
@@ -170,8 +155,6 @@ func Init() *Runner {
 }
 
 func runCommand(c *runnerCommand) {
-	log.Printf("RUNNING COMMAND: %v", c)
-
 	if c.command == nil {
 		return
 	}
@@ -184,9 +167,6 @@ func runCommand(c *runnerCommand) {
 		}
 	}
 
-	if len(home) == 0 {
-		log.Printf("Error in home: %v", home)
-	}
 	gpath := home + "/gobuild"
 	c.command.Path = strings.Replace(c.command.Path, "$GOPATH", gpath, -1)
 	for i := range c.command.Args {
@@ -195,7 +175,6 @@ func runCommand(c *runnerCommand) {
 
 	path := fmt.Sprintf("GOPATH=" + home + "/gobuild")
 	found := false
-	log.Printf("HERE = %v", c.command.Env)
 	envl := os.Environ()
 	for i, blah := range envl {
 		if strings.HasPrefix(blah, "GOPATH") {
@@ -206,52 +185,27 @@ func runCommand(c *runnerCommand) {
 	if !found {
 		envl = append(envl, path)
 	}
-	log.Printf("ENV = %v", envl)
 	c.command.Env = envl
 
-	out, err := c.command.StdoutPipe()
-	out2, err2 := c.command.StderrPipe()
-	if err != nil {
-		log.Printf("Blah: %v", err)
-	}
+	out, _ := c.command.StdoutPipe()
 
-	if err2 != nil {
-		log.Printf("Blah2: %v", err)
-	}
-
-	log.Printf("RUNNING %v, %v and %v", c.command.Path, c.command.Args, c.command.Env)
 	c.command.Start()
-	log.Printf("RUN STARTED:  %v", c.background)
 
 	if !c.background {
 		str := ""
 
 		if out != nil {
 			buf := new(bytes.Buffer)
-			log.Printf("RUN READING 1:%v", out)
 			buf.ReadFrom(out)
 			str = buf.String()
-			log.Printf("RUN IS HERE: %v", str)
 		}
 
-		if out2 != nil {
-			buf2 := new(bytes.Buffer)
-			log.Printf("RUN READING 2")
-			buf2.ReadFrom(out2)
-			str2 := buf2.String()
-			log.Printf("RUN NOW %v and %v", str, str2)
-
-		}
-		log.Print("RUN HAS STARTING TO WAIT")
 		c.command.Wait()
-		log.Printf("RUN DONE WAITING")
 		c.output = str
 		c.complete = true
 	} else {
-		log.Printf("SETTING LIVENESS RUN: %v", c.details)
 		c.details.StartTime = time.Now().Unix()
 	}
-	log.Printf("RUN IS DONE")
 }
 
 func (diskChecker prodDiskChecker) diskUsage(path string) int64 {
@@ -265,15 +219,12 @@ func (s *Server) rebuildLoop() {
 		var rebuildList []*pb.JobDetails
 		var hashList []string
 		for _, job := range s.runner.backgroundTasks {
-			log.Printf("Job (started %v, now %v) %v", job.started, time.Now(), job)
 			if time.Since(job.started) > time.Hour {
-				log.Printf("Added to rebuild list (%v)", job)
 				rebuildList = append(rebuildList, job.details)
 				hashList = append(hashList, job.hash)
 			}
 		}
 
-		log.Printf("Rebuilding %v", rebuildList)
 		for i := range rebuildList {
 			s.runner.Rebuild(rebuildList[i], hashList[i])
 		}
