@@ -163,6 +163,7 @@ func (r *Runner) Rebuild(details *pb.JobDetails, currentHash string) {
 	if err != nil {
 		hash = "nohash"
 	}
+	log.Printf("COMPARE %v and %v", hash, currentHash)
 	if hash != currentHash {
 		details.State = pb.JobDetails_BUILT
 	}
