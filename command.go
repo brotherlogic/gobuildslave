@@ -155,7 +155,7 @@ func Init() *Runner {
 }
 
 func runCommand(c *runnerCommand) {
-	if c.command == nil {
+	if c == nil || c.command == nil {
 		return
 	}
 
