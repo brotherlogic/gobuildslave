@@ -22,11 +22,14 @@ for line in os.popen('go build').readlines():
 size_1 = os.path.getsize('./old' + name)
 size_2 = os.path.getsize('./' + name)
 
-running = len(os.popen('ps -ef | grep ' + name).readlines()) > 3
 
+lines = os.popen('ps -ef | grep ' + name).readlines()
+running = len(lines) > 3
               
 if size_1 != size_2 or new_hash != current_hash or not running:
     if not running:
+        for line in lines:
+            os.popen('echo "LINE = ' + line.strip() + '" >> out.txt').readlines()
         for line in os.popen('cat out.txt | mail -s "Crash Report ' + name + '" brotherlogic@gmail.com').readlines():
             pass
     for line in os.popen('echo "" > out.txt').readlines():
