@@ -191,6 +191,7 @@ func (r *Runner) Run(details *pb.JobDetails) {
 
 	hash, err := getHash("$GOPATH/bin/" + command)
 	if err != nil {
+		log.Printf("Hash error: %v", err)
 		hash = "nohash"
 	}
 
