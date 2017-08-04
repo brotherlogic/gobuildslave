@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -72,6 +73,7 @@ type Runner struct {
 	lameDuck        bool
 	commandsRun     int
 	backgroundTasks []*runnerCommand
+	m               *sync.Mutex
 }
 
 type runnerCommand struct {
@@ -86,6 +88,7 @@ type runnerCommand struct {
 }
 
 func (r *Runner) run() {
+	r.m.Lock()
 	r.running = true
 
 	for r.running {
@@ -100,6 +103,7 @@ func (r *Runner) run() {
 			r.commandsRun++
 		}
 	}
+	r.m.Unlock()
 }
 
 func (r *Runner) kill(details *pb.JobDetails) {
