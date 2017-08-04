@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/brotherlogic/goserver"
@@ -149,7 +150,7 @@ func (s Server) Mote(master bool) error {
 
 //Init builds the default runner framework
 func Init() *Runner {
-	r := &Runner{gopath: "goautobuild"}
+	r := &Runner{gopath: "goautobuild", m: &sync.Mutex{}}
 	r.runner = runCommand
 	go r.run()
 	return r

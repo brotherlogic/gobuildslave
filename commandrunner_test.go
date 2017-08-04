@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -24,7 +25,7 @@ func (diskChecker testDiskChecker) diskUsage(path string) int64 {
 }
 
 func InitTest() *Runner {
-	r := &Runner{}
+	r := &Runner{m: &sync.Mutex{}}
 	r.runner = testRunCommand
 
 	go r.run()
@@ -136,7 +137,7 @@ func TestRebuild(t *testing.T) {
 	log.Printf("Requesting rebuild")
 	r.Rebuild(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo-rebuild"}}, "madeuphash")
 	r.LameDuck(true)
-	if r.commandsRun != 9 {
+	if r.commandsRun != 5 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
 	}
 	if len(r.backgroundTasks) != 1 {
