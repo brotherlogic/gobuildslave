@@ -163,8 +163,9 @@ func (r *Runner) Rebuild(details *pb.JobDetails, currentHash string) {
 	r.Checkout(details.Spec.GetName())
 	elems := strings.Split(details.Spec.Name, "/")
 	command := elems[len(elems)-1]
-	hash, err := getHash("/bin/" + command)
+	hash, err := getHash("$GOPATH/bin/" + command)
 	if err != nil {
+		log.Printf("HASHESH: %v", err)
 		hash = "nohash"
 	}
 	log.Printf("COMPARE %v and %v", hash, currentHash)
