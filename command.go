@@ -216,7 +216,7 @@ func (diskChecker prodDiskChecker) diskUsage(path string) int64 {
 
 func (s *Server) rebuildLoop() {
 	for true {
-		time.Sleep(time.Minute)
+		time.Sleep(time.Minute * 60)
 
 		var rebuildList []*pb.JobDetails
 		var hashList []string
