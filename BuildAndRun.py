@@ -24,11 +24,12 @@ size_2 = os.path.getsize('./' + name)
 
 
 lines = os.popen('ps -ef | grep ' + name).readlines()
-running = len(lines) > 2
+for line in lines:
+    if "./" + name in line:
+        running = true
               
 if size_1 != size_2 or new_hash != current_hash or not running:
     if not running:
-        os.popen('echo "BUTBUTBUT ' + `len(lines)` + '" >> out.txt').readlines()
         for i in range(len(lines)):
             os.popen('echo "LINE ['+`i`+']= ' + lines[i].strip() + '" >> out.txt').readlines()
         for line in os.popen('cat out.txt | mail -s "Crash Report ' + name + '" brotherlogic@gmail.com').readlines():
