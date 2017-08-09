@@ -24,6 +24,7 @@ size_2 = os.path.getsize('./' + name)
 
 
 lines = os.popen('ps -ef | grep ' + name).readlines()
+running = false
 for line in lines:
     if "./" + name in line:
         running = true
