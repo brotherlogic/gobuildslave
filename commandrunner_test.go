@@ -66,7 +66,7 @@ func TestGetExternalFunc(t *testing.T) {
 	s := Server{}
 	s.GoServer = &goserver.GoServer{}
 	s.disk = testDiskChecker{}
-	s.Registry = pbd.RegistryEntry{Identifier: "raspberrypi"}
+	s.Registry = &pbd.RegistryEntry{Identifier: "raspberrypi"}
 
 	props, err := s.GetConfig(context.Background(), &pb.Empty{})
 
