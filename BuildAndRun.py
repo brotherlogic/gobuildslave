@@ -24,10 +24,10 @@ size_2 = os.path.getsize('./' + name)
 
 
 lines = os.popen('ps -ef | grep ' + name).readlines()
-running = false
+running = False
 for line in lines:
     if "./" + name in line:
-        running = true
+        running = True
               
 if size_1 != size_2 or new_hash != current_hash or not running:
     if not running:
