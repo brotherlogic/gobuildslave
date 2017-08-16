@@ -126,6 +126,11 @@ func isAlive(spec *pb.JobSpec) bool {
 
 		c := pbs.NewGoserverServiceClient(dConn)
 		_, err = c.IsAlive(context.Background(), &pbs.Alive{})
+
+		if err != nil {
+			log.Printf("FOUND DEAD SERVER: %v", err)
+		}
+
 		return err == nil
 	}
 
