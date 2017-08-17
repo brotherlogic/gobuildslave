@@ -168,8 +168,8 @@ func (r *Runner) Rebuild(details *pb.JobDetails, currentHash string) {
 		log.Printf("HASHESH: %v", err)
 		hash = "nohash"
 	}
-	log.Printf("COMPARE %v and %v", hash, currentHash)
 	if hash != currentHash {
+		log.Printf("HASH mismatch %v and %v", hash, currentHash)
 		details.State = pb.JobDetails_BUILT
 	}
 }
