@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -92,7 +93,7 @@ func main() {
 					log.Printf("Error building job: %v", err)
 				}
 				for _, r := range res.Details {
-					log.Printf("RUNNING: %v (%v)", r, r.State)
+					fmt.Printf("RUNNING: %v (%v)", r.Spec.Name, time.Unix(r.StartTime, 0).Format("02/01 15:04"))
 				}
 			}
 		}
