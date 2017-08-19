@@ -125,10 +125,10 @@ func isAlive(spec *pb.JobSpec) bool {
 		defer dConn.Close()
 
 		c := pbs.NewGoserverServiceClient(dConn)
-		_, err = c.IsAlive(context.Background(), &pbs.Alive{})
+		resp, err := c.IsAlive(context.Background(), &pbs.Alive{})
 
-		if err != nil {
-			log.Printf("FOUND DEAD SERVER: (%v) %v", spec, err)
+		if err != nil || resp.Name != elems[len(elems)-1] {
+			log.Printf("FOUND DEAD SERVER: (%v) %v -> %v", spec, err, resp)
 		}
 
 		return err == nil
