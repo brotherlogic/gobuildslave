@@ -66,7 +66,7 @@ func (s *Server) monitor(job *pb.JobDetails) {
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_DEAD:
-			log.Printf("RERUNNING BECAUSE WERE DEAD")
+			log.Printf("RERUNNING BECAUSE WERE DEAD (%v)", job)
 			job.State = pb.JobDetails_ACKNOWLEDGED
 		}
 	}
