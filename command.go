@@ -129,9 +129,10 @@ func isAlive(spec *pb.JobSpec) bool {
 
 		if err != nil || resp.Name != elems[len(elems)-1] {
 			log.Printf("FOUND DEAD SERVER: (%v) %v -> %v", spec, err, resp)
+			return false
 		}
 
-		return err == nil
+		return true
 	}
 
 	//Mark as false if we can't locate the job
