@@ -138,6 +138,7 @@ func isAlive(spec *pb.JobSpec) bool {
 		return true
 	}
 
+	log.Printf("Failed to locate %v ->%v (%v, %v)", spec, elems[len(elems)-1], dServer, dPort)
 	//Mark as false if we can't locate the job
 	return false
 }
