@@ -66,6 +66,7 @@ func (s *Server) Kill(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
 		return &pb.Empty{}, nil
 	}
 
+	log.Printf("REQUEST TO KILL %v", in)
 	s.jobs[in.GetName()].State = pb.JobDetails_KILLING
 
 	s.LogFunction("Kill", t)

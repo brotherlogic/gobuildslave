@@ -48,6 +48,7 @@ func (s *Server) monitor(job *pb.JobDetails) {
 		case pb.JobDetails_KILLING:
 			s.runner.kill(job)
 			if !isAlive(job.GetSpec()) {
+				log.Printf("SET TO DEAD BECAUSE WE'RE KILLING: %v", job)
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_UPDATE_STARTING:
@@ -58,11 +59,13 @@ func (s *Server) monitor(job *pb.JobDetails) {
 			if isAlive(job.GetSpec()) {
 				job.State = pb.JobDetails_RUNNING
 			} else {
+				log.Printf("FOUND DEAD ON PENDING: %v", job)
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_RUNNING:
 			time.Sleep(waitTime)
 			if !isAlive(job.GetSpec()) {
+				log.Printf("FOUND DEAD WHEN RUNNING: %v", job)
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_DEAD:
