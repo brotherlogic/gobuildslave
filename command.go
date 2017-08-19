@@ -128,7 +128,7 @@ func isAlive(spec *pb.JobSpec) bool {
 		_, err = c.IsAlive(context.Background(), &pbs.Alive{})
 
 		if err != nil {
-			log.Printf("FOUND DEAD SERVER: %v", err)
+			log.Printf("FOUND DEAD SERVER: (%v) %v", spec, err)
 		}
 
 		return err == nil
