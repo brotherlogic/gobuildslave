@@ -148,7 +148,6 @@ func (r *Runner) addCommand(command *runnerCommand) {
 
 // Checkout a repo - returns the repo version
 func (r *Runner) Checkout(repo string) string {
-	log.Printf("Checkout %v", repo)
 	r.addCommand(&runnerCommand{command: exec.Command("go", "get", "-u", repo)})
 	readCommand := &runnerCommand{command: exec.Command("cat", "$GOPATH/src/"+repo+"/.git/refs/heads/master"), discard: false}
 	r.addCommand(readCommand)
@@ -159,7 +158,6 @@ func (r *Runner) Checkout(repo string) string {
 
 // Rebuild and rerun a JobSpec
 func (r *Runner) Rebuild(details *pb.JobDetails, currentHash string) {
-	log.Printf("REBUILD %v", details)
 	r.Checkout(details.Spec.GetName())
 	elems := strings.Split(details.Spec.Name, "/")
 	command := elems[len(elems)-1]
