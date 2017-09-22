@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/md5"
 	"flag"
@@ -19,6 +20,7 @@ import (
 	"google.golang.org/grpc"
 
 	pbd "github.com/brotherlogic/discovery/proto"
+	pbgh "github.com/brotherlogic/githubcard/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	pbs "github.com/brotherlogic/goserver/proto"
 )
@@ -29,6 +31,17 @@ type Server struct {
 	runner *Runner
 	disk   diskChecker
 	jobs   map[string]*pb.JobDetails
+}
+
+func deliverCrashReport(job *runnerCommand, getter func(name string) (string, int)) {
+	ip, port := getter("githubcard")
+	if port > 0 {
+		conn, _ := grpc.Dial(ip+":"+strconv.Itoa(port), grpc.WithInsecure())
+		defer conn.Close()
+		client := pbgh.NewGithubClient(conn)
+		elems := strings.Split(job.details.Spec.GetName(), "/")
+		client.AddIssue(context.Background(), &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output})
+	}
 }
 
 func (s *Server) monitor(job *pb.JobDetails) {
@@ -199,9 +212,25 @@ func runCommand(c *runnerCommand) {
 	}
 	c.command.Env = envl
 
-	out, _ := c.command.StdoutPipe()
+	out, err := c.command.StderrPipe()
+	if err != nil {
+		log.Printf("Problem getting stderr: %v", err)
+	}
 
-	c.command.Start()
+	log.Printf("RUNNING %v", c.command.Path)
+
+	scanner := bufio.NewScanner(out)
+	go func() {
+		log.Printf("HERE")
+		for scanner.Scan() {
+			log.Printf("SCANNING!")
+			c.output += scanner.Text()
+		}
+		log.Printf("Done scanning")
+	}()
+
+	err = c.command.Start()
+	log.Printf("ERR = %v", err)
 
 	if !c.background {
 		str := ""
@@ -216,6 +245,7 @@ func runCommand(c *runnerCommand) {
 		c.output = str
 		c.complete = true
 	} else {
+		log.Printf("Starting to track stuff %v", out)
 		c.details.StartTime = time.Now().Unix()
 	}
 }
@@ -253,6 +283,7 @@ func main() {
 	}
 
 	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails)}
+	s.runner.getip = s.GetIP
 	s.Register = s
 	s.PrepServer()
 	s.GoServer.Killme = false
