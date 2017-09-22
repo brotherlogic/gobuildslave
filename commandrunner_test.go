@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os/exec"
 	"strings"
 	"sync"
 	"testing"
@@ -25,7 +26,9 @@ func (diskChecker testDiskChecker) diskUsage(path string) int64 {
 }
 
 func InitTest() *Runner {
-	r := &Runner{m: &sync.Mutex{}}
+	r := &Runner{m: &sync.Mutex{}, getip: func(blah string) (string, int) {
+		return "", -1
+	}}
 	r.runner = testRunCommand
 
 	go r.run()
@@ -178,6 +181,20 @@ func TestUpdate(t *testing.T) {
 		t.Errorf("No args: %v", r.backgroundTasks[0].command.Args)
 	}
 
+}
+
+func TestGetCrashReport(t *testing.T) {
+	rc := &runnerCommand{background: true, command: exec.Command("ls", "/blahblahblah"), details: &pb.JobDetails{}}
+	runCommand(rc)
+
+	// Wait for the command to finish
+	time.Sleep(time.Second)
+
+	if rc.output == "" {
+		t.Errorf("Failed to get stderr")
+	}
+
+	log.Printf("GOT: %v", rc.output)
 }
 
 func TestKill(t *testing.T) {
