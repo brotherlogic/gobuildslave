@@ -114,10 +114,9 @@ func (r *Runner) kill(details *pb.JobDetails) {
 			if t.command.Process != nil {
 				t.command.Process.Kill()
 				t.command.Process.Wait()
-
-				// Now deliver the crash Report
-				deliverCrashReport(t, r.getip)
 			}
+			// Now deliver the crash Report
+			deliverCrashReport(t, r.getip)
 			r.commandsRun++
 			r.backgroundTasks = append(r.backgroundTasks[:i], r.backgroundTasks[i+1:]...)
 		}
