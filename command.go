@@ -40,7 +40,9 @@ func deliverCrashReport(job *runnerCommand, getter func(name string) (string, in
 		defer conn.Close()
 		client := pbgh.NewGithubClient(conn)
 		elems := strings.Split(job.details.Spec.GetName(), "/")
-		client.AddIssue(context.Background(), &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output})
+		if len(job.output) > 0 {
+			client.AddIssue(context.Background(), &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output})
+		}
 	}
 }
 
