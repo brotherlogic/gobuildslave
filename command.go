@@ -35,15 +35,19 @@ type Server struct {
 }
 
 func deliverCrashReport(job *runnerCommand, getter func(name string) (string, int)) {
+     log.Printf("Crash Report sending")
 	ip, port := getter("githubcard")
+	log.Printf("Found %v", port)
 	if port > 0 {
 		conn, _ := grpc.Dial(ip+":"+strconv.Itoa(port), grpc.WithInsecure())
 		defer conn.Close()
 		client := pbgh.NewGithubClient(conn)
 		elems := strings.Split(job.details.Spec.GetName(), "/")
+		log.Printf("SENDING: %v", &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output})	
 		if len(job.output) > 0 {
 			client.AddIssue(context.Background(), &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output})
 		}
+
 	}
 }
 
