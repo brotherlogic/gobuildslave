@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"crypto/md5"
 	"flag"
 	"fmt"
@@ -51,6 +50,14 @@ func deliverCrashReport(job *runnerCommand, getter func(name string) (string, in
 	}
 }
 
+func (s *Server) addMessage(details *pb.JobDetails, message string) {
+	for _, t := range s.runner.backgroundTasks {
+		if t.details.GetSpec().Name == details.Spec.Name {
+			t.output += message
+		}
+	}
+}
+
 func (s *Server) monitor(job *pb.JobDetails) {
 	for true {
 		switch job.State {
@@ -80,12 +87,14 @@ func (s *Server) monitor(job *pb.JobDetails) {
 				job.State = pb.JobDetails_RUNNING
 			} else {
 				log.Printf("FOUND DEAD ON PENDING: %v", job)
+				s.addMessage(job, "Found Dead When Pending")
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_RUNNING:
 			time.Sleep(waitTime)
 			if !isAlive(job.GetSpec()) {
 				log.Printf("FOUND DEAD WHEN RUNNING: %v", job)
+				s.addMessage(job, "Found Dead When Running")
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_DEAD:
@@ -219,7 +228,7 @@ func runCommand(c *runnerCommand) {
 	}
 	c.command.Env = envl
 
-	out, err := c.command.StdoutPipe()
+	out, err := c.command.StderrPipe()
 	if err != nil {
 		log.Printf("Problem getting stderr: %v", err)
 	}
@@ -239,16 +248,7 @@ func runCommand(c *runnerCommand) {
 	log.Printf("ERR = %v", err)
 
 	if !c.background {
-		str := ""
-
-		if out != nil {
-			buf := new(bytes.Buffer)
-			buf.ReadFrom(out)
-			str = buf.String()
-		}
-
 		c.command.Wait()
-		c.output = str
 		c.complete = true
 	} else {
 		log.Printf("Starting to track stuff %v", out)
