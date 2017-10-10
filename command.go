@@ -93,6 +93,11 @@ func (s *Server) monitor(job *pb.JobDetails) {
 		case pb.JobDetails_RUNNING:
 			time.Sleep(waitTime)
 			if !isAlive(job.GetSpec()) {
+				job.TestCount++
+			} else {
+				job.TestCount = 0
+			}
+			if job.TestCount > 3 {
 				log.Printf("FOUND DEAD WHEN RUNNING: %v", job)
 				s.addMessage(job, "Found Dead When Running")
 				job.State = pb.JobDetails_DEAD

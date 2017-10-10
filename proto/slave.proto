@@ -28,6 +28,7 @@ message JobDetails {
 	}
 	State state = 2;
 	int64 start_time = 3;
+	int32 test_count = 4;
 }
 
 message JobList {
