@@ -228,12 +228,11 @@ func runCommand(c *runnerCommand) {
 
 	scanner := bufio.NewScanner(out)
 	go func() {
-		log.Printf("HERE")
+		c.output += "Starting Scan"
 		for scanner.Scan() {
-			log.Printf("SCANNING!")
 			c.output += scanner.Text()
 		}
-		log.Printf("Done scanning")
+		c.output += "Finishing Scan"
 	}()
 
 	err = c.command.Start()
