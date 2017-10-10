@@ -50,6 +50,14 @@ func deliverCrashReport(job *runnerCommand, getter func(name string) (string, in
 	}
 }
 
+func (s *Server) addMessage(details *pb.JobDetails, message string) {
+	for _, t := range s.runner.backgroundTasks {
+		if t.details.GetSpec().Name == details.Spec.Name {
+			t.output += message
+		}
+	}
+}
+
 func (s *Server) monitor(job *pb.JobDetails) {
 	for true {
 		switch job.State {
