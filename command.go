@@ -160,7 +160,7 @@ func isAlive(spec *pb.JobSpec) bool {
 		resp, err := c.IsAlive(context.Background(), &pbs.Alive{})
 
 		if err != nil || resp.Name != elems[len(elems)-1] {
-			log.Printf("FOUND DEAD SERVER: (%v) %v -> %v", spec, err, resp)
+			log.Printf("FOUND DEAD SERVER: (%v with %v:%v) %v -> %v", dServer, dPort, spec, err, resp)
 			return false
 		}
 
