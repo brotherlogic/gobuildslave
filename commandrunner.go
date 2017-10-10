@@ -107,6 +107,14 @@ func (r *Runner) run() {
 	r.m.Unlock()
 }
 
+func (s *Server) addMessage(details *pb.JobDetails, message string) {
+	for _, t := range s.runner.backgroundTasks {
+		if t.details.GetSpec().Name == details.Spec.Name {
+			t.output += message
+		}
+	}
+}
+
 func (r *Runner) kill(details *pb.JobDetails) {
 	log.Printf("KILL %v", details)
 	for i, t := range r.backgroundTasks {
