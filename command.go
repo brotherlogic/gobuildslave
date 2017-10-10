@@ -35,7 +35,7 @@ type Server struct {
 }
 
 func deliverCrashReport(job *runnerCommand, getter func(name string) (string, int)) {
-     log.Printf("Crash Report sending")
+	log.Printf("Crash Report sending")
 	ip, port := getter("githubcard")
 	log.Printf("Found %v", port)
 	if port > 0 {
@@ -43,7 +43,7 @@ func deliverCrashReport(job *runnerCommand, getter func(name string) (string, in
 		defer conn.Close()
 		client := pbgh.NewGithubClient(conn)
 		elems := strings.Split(job.details.Spec.GetName(), "/")
-		log.Printf("SENDING: %v", &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output})	
+		log.Printf("SENDING: %v", &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output})
 		if len(job.output) > 0 {
 			client.AddIssue(context.Background(), &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output})
 		}
@@ -219,7 +219,7 @@ func runCommand(c *runnerCommand) {
 	}
 	c.command.Env = envl
 
-	out, err := c.command.StderrPipe()
+	out, err := c.command.StdoutPipe()
 	if err != nil {
 		log.Printf("Problem getting stderr: %v", err)
 	}
@@ -228,11 +228,11 @@ func runCommand(c *runnerCommand) {
 
 	scanner := bufio.NewScanner(out)
 	go func() {
-		c.output += "Starting Scan"
+		c.output += "Starting Scan\n"
 		for scanner.Scan() {
 			c.output += scanner.Text()
 		}
-		c.output += "Finishing Scan"
+		c.output += "Finishing Scan\n"
 	}()
 
 	err = c.command.Start()
