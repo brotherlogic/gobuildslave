@@ -87,7 +87,6 @@ func (s *Server) monitor(job *pb.JobDetails) {
 				job.State = pb.JobDetails_RUNNING
 			} else {
 				log.Printf("FOUND DEAD ON PENDING: %v", job)
-				s.addMessage(job, "Found Dead When Pending")
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_RUNNING:
@@ -99,7 +98,6 @@ func (s *Server) monitor(job *pb.JobDetails) {
 			}
 			if job.TestCount > 3 {
 				log.Printf("FOUND DEAD WHEN RUNNING: %v", job)
-				s.addMessage(job, "Found Dead When Running")
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_DEAD:
@@ -242,11 +240,9 @@ func runCommand(c *runnerCommand) {
 
 	scanner := bufio.NewScanner(out)
 	go func() {
-		c.output += "Starting Scan\n"
 		for scanner.Scan() {
 			c.output += scanner.Text()
 		}
-		c.output += "Finishing Scan\n"
 	}()
 
 	err = c.command.Start()
