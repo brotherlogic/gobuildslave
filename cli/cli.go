@@ -16,11 +16,13 @@ import (
 )
 
 func findServer(name, server string) (string, int) {
-	conn, _ := grpc.Dial("192.168.86.42:50055", grpc.WithInsecure())
+	conn, _ := grpc.Dial("192.168.86.26:50055", grpc.WithInsecure())
 	defer conn.Close()
 
 	registry := pbdi.NewDiscoveryServiceClient(conn)
-	rs, _ := registry.ListAllServices(context.Background(), &pbdi.Empty{})
+	rs, err := registry.ListAllServices(context.Background(), &pbdi.Empty{})
+
+	log.Printf("ERR %v", err)
 
 	for _, r := range rs.Services {
 		if r.Identifier == server && r.Name == name {
@@ -83,6 +85,7 @@ func main() {
 		case "list":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
 				host, port := findServer("gobuildslave", *server)
+				log.Printf("HERE %v, %v", host, port)
 
 				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
 				defer conn.Close()

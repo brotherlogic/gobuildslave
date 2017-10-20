@@ -38,15 +38,18 @@ func deliverCrashReport(job *runnerCommand, getter func(name string) (string, in
 	ip, port := getter("githubcard")
 	log.Printf("Found %v", port)
 	if port > 0 {
-		conn, _ := grpc.Dial(ip+":"+strconv.Itoa(port), grpc.WithInsecure())
-		defer conn.Close()
-		client := pbgh.NewGithubClient(conn)
-		elems := strings.Split(job.details.Spec.GetName(), "/")
-		log.Printf("SENDING: %v", &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output})
-		if len(job.output) > 0 {
-			client.AddIssue(context.Background(), &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output}, grpc.FailFast(false))
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		conn, err := grpc.Dial(ip+":"+strconv.Itoa(port), grpc.WithInsecure())
+		if err != nil {
+			defer conn.Close()
+			client := pbgh.NewGithubClient(conn)
+			elems := strings.Split(job.details.Spec.GetName(), "/")
+			log.Printf("SENDING: %v", &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output})
+			if len(job.output) > 0 {
+				client.AddIssue(ctx, &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output}, grpc.FailFast(false))
+			}
 		}
-
 	}
 }
 
@@ -133,18 +136,21 @@ func getHash(file string) (string, error) {
 }
 
 func getIP(name string, server string) (string, int) {
-	conn, _ := grpc.Dial(utils.RegistryIP+":"+strconv.Itoa(utils.RegistryPort), grpc.WithInsecure())
-	defer conn.Close()
-
-	registry := pbd.NewDiscoveryServiceClient(conn)
-	entry := pbd.RegistryEntry{Name: name, Identifier: server}
-	r, err := registry.Discover(context.Background(), &entry, grpc.FailFast(false))
-
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	conn, err := grpc.Dial(utils.RegistryIP+":"+strconv.Itoa(utils.RegistryPort), grpc.WithInsecure())
 	if err != nil {
-		return "", -1
-	}
+		defer conn.Close()
 
-	return r.Ip, int(r.Port)
+		registry := pbd.NewDiscoveryServiceClient(conn)
+		entry := pbd.RegistryEntry{Name: name, Identifier: server}
+		r, err := registry.Discover(ctx, &entry, grpc.FailFast(false))
+
+		if err == nil {
+			return r.Ip, int(r.Port)
+		}
+	}
+	return "", -1
 }
 
 // updateState of the runner command
@@ -153,6 +159,8 @@ func isAlive(spec *pb.JobSpec) bool {
 	dServer, dPort := getIP(elems[len(elems)-1], spec.Server)
 
 	if dPort > 0 {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
 		dConn, err := grpc.Dial(dServer+":"+strconv.Itoa(dPort), grpc.WithInsecure())
 		if err != nil {
 			return false
@@ -160,7 +168,7 @@ func isAlive(spec *pb.JobSpec) bool {
 		defer dConn.Close()
 
 		c := pbs.NewGoserverServiceClient(dConn)
-		resp, err := c.IsAlive(context.Background(), &pbs.Alive{}, grpc.FailFast(false))
+		resp, err := c.IsAlive(ctx, &pbs.Alive{}, grpc.FailFast(false))
 
 		if err != nil || resp.Name != elems[len(elems)-1] {
 			log.Printf("FOUND DEAD SERVER: (%v with %v:%v) %v -> %v", dServer, dPort, spec, err, resp)
