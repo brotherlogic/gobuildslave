@@ -44,7 +44,7 @@ func deliverCrashReport(job *runnerCommand, getter func(name string) (string, in
 		elems := strings.Split(job.details.Spec.GetName(), "/")
 		log.Printf("SENDING: %v", &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output})
 		if len(job.output) > 0 {
-			client.AddIssue(context.Background(), &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output})
+			client.AddIssue(context.Background(), &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output}, grpc.FailFast(false))
 		}
 
 	}
@@ -138,7 +138,7 @@ func getIP(name string, server string) (string, int) {
 
 	registry := pbd.NewDiscoveryServiceClient(conn)
 	entry := pbd.RegistryEntry{Name: name, Identifier: server}
-	r, err := registry.Discover(context.Background(), &entry)
+	r, err := registry.Discover(context.Background(), &entry, grpc.FailFast(false))
 
 	if err != nil {
 		return "", -1
@@ -160,7 +160,7 @@ func isAlive(spec *pb.JobSpec) bool {
 		defer dConn.Close()
 
 		c := pbs.NewGoserverServiceClient(dConn)
-		resp, err := c.IsAlive(context.Background(), &pbs.Alive{})
+		resp, err := c.IsAlive(context.Background(), &pbs.Alive{}, grpc.FailFast(false))
 
 		if err != nil || resp.Name != elems[len(elems)-1] {
 			log.Printf("FOUND DEAD SERVER: (%v with %v:%v) %v -> %v", dServer, dPort, spec, err, resp)
