@@ -240,8 +240,10 @@ func runCommand(c *runnerCommand) {
 
 	scanner := bufio.NewScanner(out)
 	go func() {
-		for scanner.Scan() {
-			c.output += scanner.Text()
+		if scanner != nil {
+			for scanner.Scan() {
+				c.output += scanner.Text()
+			}
 		}
 	}()
 
