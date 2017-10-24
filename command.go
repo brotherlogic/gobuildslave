@@ -139,7 +139,7 @@ func getIP(name string, server string) (string, int) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	conn, err := grpc.Dial(utils.RegistryIP+":"+strconv.Itoa(utils.RegistryPort), grpc.WithInsecure())
-	if err != nil {
+	if err == nil {
 		defer conn.Close()
 
 		registry := pbd.NewDiscoveryServiceClient(conn)
