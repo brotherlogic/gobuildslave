@@ -144,12 +144,14 @@ func getIP(name string, server string) (string, int) {
 
 		registry := pbd.NewDiscoveryServiceClient(conn)
 		entry := pbd.RegistryEntry{Name: name, Identifier: server}
-		r, err := registry.Discover(ctx, &entry, grpc.FailFast(false))
+		r, err2 := registry.Discover(ctx, &entry, grpc.FailFast(false))
 
-		if err == nil {
+		if err2 == nil {
 			return r.Ip, int(r.Port)
 		}
+		log.Printf("ERROR IN GET IP %v", err2)
 	}
+	log.Printf("MORE ERRORS %v", err)
 	return "", -1
 }
 
