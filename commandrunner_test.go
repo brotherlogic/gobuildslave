@@ -26,7 +26,7 @@ func (diskChecker testDiskChecker) diskUsage(path string) int64 {
 }
 
 func InitTest() *Runner {
-	r := &Runner{m: &sync.Mutex{}, getip: func(blah string) (string, int) {
+	r := &Runner{bm: &sync.Mutex{}, m: &sync.Mutex{}, getip: func(blah string) (string, int) {
 		return "", -1
 	}}
 	r.runner = testRunCommand
