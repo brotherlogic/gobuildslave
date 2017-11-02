@@ -74,6 +74,7 @@ type Runner struct {
 	commandsRun     int
 	backgroundTasks []*runnerCommand
 	m               *sync.Mutex
+	bm              *sync.Mutex
 	getip           func(string) (string, int)
 }
 
@@ -97,7 +98,9 @@ func (r *Runner) run() {
 		if len(r.commands) > 0 {
 			r.runner(r.commands[0])
 			if r.commands[0].background {
+				r.bm.Lock()
 				r.backgroundTasks = append(r.backgroundTasks, r.commands[0])
+				r.bm.Unlock()
 			}
 			r.runCommands = append(r.runCommands, r.commands[0])
 			r.commands = r.commands[1:]
@@ -108,6 +111,7 @@ func (r *Runner) run() {
 }
 
 func (r *Runner) kill(details *pb.JobDetails) {
+	r.bm.Lock()
 	log.Printf("KILL %v", details)
 	for i, t := range r.backgroundTasks {
 		if t.details.GetSpec().Name == details.Spec.Name {
@@ -121,6 +125,7 @@ func (r *Runner) kill(details *pb.JobDetails) {
 			r.backgroundTasks = append(r.backgroundTasks[:i], r.backgroundTasks[i+1:]...)
 		}
 	}
+	r.bm.Unlock()
 }
 
 // BlockUntil blocks on this until the command has run

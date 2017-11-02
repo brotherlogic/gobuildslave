@@ -202,7 +202,7 @@ func (s Server) Mote(master bool) error {
 
 //Init builds the default runner framework
 func Init() *Runner {
-	r := &Runner{gopath: "goautobuild", m: &sync.Mutex{}}
+	r := &Runner{gopath: "goautobuild", m: &sync.Mutex{}, bm: &sync.Mutex{}}
 	r.runner = runCommand
 	go r.run()
 	return r
