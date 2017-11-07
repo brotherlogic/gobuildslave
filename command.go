@@ -33,9 +33,10 @@ type Server struct {
 	jobs   map[string]*pb.JobDetails
 }
 
-func deliverCrashReport(job *runnerCommand, getter func(name string) (string, int)) {
+func deliverCrashReport(job *runnerCommand, getter func(name string) (string, int), logger func(text string)) {
 	log.Printf("Crash Report sending")
 	ip, port := getter("githubcard")
+	logger(fmt.Sprintf("Sending %v to %v : %v", job.output, ip, port))
 	log.Printf("Found %v", port)
 	if port > 0 {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -308,6 +309,7 @@ func main() {
 
 	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails)}
 	s.runner.getip = s.GetIP
+	s.runner.logger = s.Log
 	s.Register = s
 	s.PrepServer()
 	s.GoServer.Killme = false
