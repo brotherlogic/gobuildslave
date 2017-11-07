@@ -76,6 +76,7 @@ type Runner struct {
 	m               *sync.Mutex
 	bm              *sync.Mutex
 	getip           func(string) (string, int)
+	logger          func(string)
 }
 
 type runnerCommand struct {
@@ -120,7 +121,7 @@ func (r *Runner) kill(details *pb.JobDetails) {
 				t.command.Process.Wait()
 			}
 			// Now deliver the crash Report
-			deliverCrashReport(t, r.getip)
+			deliverCrashReport(t, r.getip, r.logger)
 			r.commandsRun++
 			r.backgroundTasks = append(r.backgroundTasks[:i], r.backgroundTasks[i+1:]...)
 		}
