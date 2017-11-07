@@ -200,6 +200,11 @@ func (s Server) Mote(master bool) error {
 	return nil
 }
 
+// GetState gets the state of the server
+func (s Server) GetState() []*pbs.State {
+	return []*pbs.State{}
+}
+
 //Init builds the default runner framework
 func Init() *Runner {
 	r := &Runner{gopath: "goautobuild", m: &sync.Mutex{}, bm: &sync.Mutex{}}
