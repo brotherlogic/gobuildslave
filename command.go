@@ -42,7 +42,7 @@ func deliverCrashReport(job *runnerCommand, getter func(name string) (string, in
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 		conn, err := grpc.Dial(ip+":"+strconv.Itoa(port), grpc.WithInsecure())
-		if err != nil {
+		if err == nil {
 			defer conn.Close()
 			client := pbgh.NewGithubClient(conn)
 			elems := strings.Split(job.details.Spec.GetName(), "/")
