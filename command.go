@@ -48,7 +48,8 @@ func deliverCrashReport(job *runnerCommand, getter func(name string) (string, in
 			elems := strings.Split(job.details.Spec.GetName(), "/")
 			log.Printf("SENDING: %v", &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output})
 			if len(job.output) > 0 {
-				client.AddIssue(ctx, &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output}, grpc.FailFast(false))
+				_, err := client.AddIssue(ctx, &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output}, grpc.FailFast(false))
+				logger(fmt.Sprintf("CRASH REPORT ERROR: %v", err))
 			}
 		}
 	}
