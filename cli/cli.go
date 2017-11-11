@@ -13,10 +13,11 @@ import (
 
 	pbdi "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
+	"github.com/brotherlogic/goserver/utils"
 )
 
 func findServer(name, server string) (string, int) {
-	conn, _ := grpc.Dial("192.168.86.26:50055", grpc.WithInsecure())
+	conn, _ := grpc.Dial(utils.Discover, grpc.WithInsecure())
 	defer conn.Close()
 
 	registry := pbdi.NewDiscoveryServiceClient(conn)
@@ -25,6 +26,7 @@ func findServer(name, server string) (string, int) {
 	log.Printf("ERR %v", err)
 
 	for _, r := range rs.Services {
+		log.Printf("Trying %v -> %v", r, server)
 		if r.Identifier == server && r.Name == name {
 			log.Printf("%v,%v -> %v", server, name, r)
 			return r.Ip, int(r.Port)
