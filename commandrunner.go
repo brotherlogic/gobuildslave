@@ -60,7 +60,7 @@ func (s *Server) GetConfig(ctx context.Context, in *pb.Empty) (*pb.Config, error
 		dir = "/media/disk" + strconv.Itoa(pcount)
 
 	}
-	return &pb.Config{Memory: int64(m.Sys), Disk: int64(disk), External: s.Registry.GetIdentifier() == "serverstatus"}, nil
+	return &pb.Config{Memory: int64(m.Sys), Disk: int64(disk), External: s.Registry.GetIdentifier() == "stable"}, nil
 }
 
 // Runner is the server that runs commands
