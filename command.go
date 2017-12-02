@@ -17,6 +17,8 @@ import (
 	"github.com/brotherlogic/goserver"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	pbd "github.com/brotherlogic/discovery/proto"
 	pbgh "github.com/brotherlogic/githubcard/proto"
@@ -176,7 +178,10 @@ func isAlive(spec *pb.JobSpec) bool {
 
 		if err != nil || resp.Name != elems[len(elems)-1] {
 			log.Printf("FOUND DEAD SERVER: (%v with %v:%v) %v -> %v", dServer, dPort, spec, err, resp)
-			return false
+			e, ok := status.FromError(err)
+			if ok && e.Code() != codes.Unavailable {
+				return false
+			}
 		}
 
 		return true
