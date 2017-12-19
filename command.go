@@ -255,17 +255,19 @@ func runCommand(c *runnerCommand) {
 
 	out, err := c.command.StderrPipe()
 	if err != nil {
-		log.Printf("Problem getting stderr: %v", err)
+		log.Fatalf("Problem getting stderr: %v", err)
 	}
 
 	log.Printf("RUNNING %v", c.command.Path)
 
-	scanner := bufio.NewScanner(out)
-	go func() {
-		for scanner != nil && scanner.Scan() {
-			c.output += scanner.Text()
-		}
-	}()
+	if out != nil {
+		scanner := bufio.NewScanner(out)
+		go func() {
+			for scanner != nil && scanner.Scan() {
+				c.output += scanner.Text()
+			}
+		}()
+	}
 
 	err = c.command.Start()
 	log.Printf("ERR = %v", err)
