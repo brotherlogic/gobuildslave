@@ -37,7 +37,6 @@ type Server struct {
 
 func deliverCrashReport(job *runnerCommand, getter func(name string) (string, int), logger func(text string)) {
 	ip, port := getter("githubcard")
-	logger(fmt.Sprintf("Sending %v to %v : %v", job.output, ip, port))
 	if port > 0 {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
@@ -47,8 +46,7 @@ func deliverCrashReport(job *runnerCommand, getter func(name string) (string, in
 			client := pbgh.NewGithubClient(conn)
 			elems := strings.Split(job.details.Spec.GetName(), "/")
 			if len(job.output) > 0 {
-				_, err := client.AddIssue(ctx, &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output}, grpc.FailFast(false))
-				logger(fmt.Sprintf("CRASH REPORT ERROR: %v", err))
+				client.AddIssue(ctx, &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output}, grpc.FailFast(false))
 			}
 		}
 	}
@@ -99,6 +97,7 @@ func (s *Server) monitor(job *pb.JobDetails) {
 				job.TestCount = 0
 			}
 			if job.TestCount > 3 {
+				s.Log(fmt.Sprintf("Killing beacuse we couldn't reach 3 times: %v", job))
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_DEAD:
