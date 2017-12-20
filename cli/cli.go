@@ -21,14 +21,10 @@ func findServer(name, server string) (string, int) {
 	defer conn.Close()
 
 	registry := pbdi.NewDiscoveryServiceClient(conn)
-	rs, err := registry.ListAllServices(context.Background(), &pbdi.Empty{})
-
-	log.Printf("ERR %v", err)
+	rs, _ := registry.ListAllServices(context.Background(), &pbdi.Empty{})
 
 	for _, r := range rs.Services {
-		log.Printf("Trying %v -> %v", r, server)
 		if r.Identifier == server && r.Name == name {
-			log.Printf("%v,%v -> %v", server, name, r)
 			return r.Ip, int(r.Port)
 		}
 	}
@@ -55,7 +51,7 @@ func main() {
 				registry := pb.NewGoBuildSlaveClient(conn)
 				_, err := registry.BuildJob(context.Background(), &pb.JobSpec{Name: *name})
 				if err != nil {
-					log.Printf("Error building job: %v", err)
+					log.Fatalf("Error building job: %v", err)
 				}
 			}
 		case "run":
@@ -68,7 +64,7 @@ func main() {
 				registry := pb.NewGoBuildSlaveClient(conn)
 				_, err := registry.Run(context.Background(), &pb.JobSpec{Name: *name, Server: *server})
 				if err != nil {
-					log.Printf("Error building job: %v", err)
+					log.Fatalf("Error building job: %v", err)
 				}
 			}
 		case "kill":
@@ -81,13 +77,12 @@ func main() {
 				registry := pb.NewGoBuildSlaveClient(conn)
 				_, err := registry.Kill(context.Background(), &pb.JobSpec{Name: *name, Server: *server})
 				if err != nil {
-					log.Printf("Error building job: %v", err)
+					log.Fatalf("Error building job: %v", err)
 				}
 			}
 		case "list":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
 				host, port := findServer("gobuildslave", *server)
-				log.Printf("HERE %v, %v", host, port)
 
 				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
 				defer conn.Close()
@@ -95,7 +90,7 @@ func main() {
 				registry := pb.NewGoBuildSlaveClient(conn)
 				res, err := registry.List(context.Background(), &pb.Empty{})
 				if err != nil {
-					log.Printf("Error building job: %v", err)
+					log.Fatalf("Error building job: %v", err)
 				}
 				for _, r := range res.Details {
 					fmt.Printf("%v (%v)\n", r.Spec.Name, time.Unix(r.StartTime, 0).Format("02/01 15:04"))

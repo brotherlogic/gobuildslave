@@ -36,10 +36,8 @@ type Server struct {
 }
 
 func deliverCrashReport(job *runnerCommand, getter func(name string) (string, int), logger func(text string)) {
-	log.Printf("Crash Report sending")
 	ip, port := getter("githubcard")
 	logger(fmt.Sprintf("Sending %v to %v : %v", job.output, ip, port))
-	log.Printf("Found %v", port)
 	if port > 0 {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
@@ -48,7 +46,6 @@ func deliverCrashReport(job *runnerCommand, getter func(name string) (string, in
 			defer conn.Close()
 			client := pbgh.NewGithubClient(conn)
 			elems := strings.Split(job.details.Spec.GetName(), "/")
-			log.Printf("SENDING: %v", &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output})
 			if len(job.output) > 0 {
 				_, err := client.AddIssue(ctx, &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output}, grpc.FailFast(false))
 				logger(fmt.Sprintf("CRASH REPORT ERROR: %v", err))
@@ -82,7 +79,6 @@ func (s *Server) monitor(job *pb.JobDetails) {
 		case pb.JobDetails_KILLING:
 			s.runner.kill(job)
 			if !isAlive(job.GetSpec()) {
-				log.Printf("SET TO DEAD BECAUSE WE'RE KILLING: %v", job)
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_UPDATE_STARTING:
@@ -93,7 +89,6 @@ func (s *Server) monitor(job *pb.JobDetails) {
 			if isAlive(job.GetSpec()) {
 				job.State = pb.JobDetails_RUNNING
 			} else {
-				log.Printf("FOUND DEAD ON PENDING: %v", job)
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_RUNNING:
@@ -104,11 +99,9 @@ func (s *Server) monitor(job *pb.JobDetails) {
 				job.TestCount = 0
 			}
 			if job.TestCount > 3 {
-				log.Printf("FOUND DEAD WHEN RUNNING: %v", job)
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_DEAD:
-			log.Printf("RERUNNING BECAUSE WERE DEAD (%v)", job)
 			job.State = pb.JobDetails_ACKNOWLEDGED
 		}
 	}
@@ -153,9 +146,7 @@ func getIP(name string, server string) (string, int) {
 		if err2 == nil {
 			return r.Ip, int(r.Port)
 		}
-		log.Printf("ERROR IN GET IP %v", err2)
 	}
-	log.Printf("MORE ERRORS %v", err)
 	return "", -1
 }
 
@@ -177,7 +168,6 @@ func isAlive(spec *pb.JobSpec) bool {
 		resp, err := c.IsAlive(ctx, &pbs.Alive{}, grpc.FailFast(false))
 
 		if err != nil || resp.Name != elems[len(elems)-1] {
-			log.Printf("FOUND DEAD SERVER: (%v with %v:%v) %v -> %v", dServer, dPort, spec, err, resp)
 			e, ok := status.FromError(err)
 			if ok && e.Code() != codes.Unavailable {
 				return false
@@ -187,7 +177,6 @@ func isAlive(spec *pb.JobSpec) bool {
 		return true
 	}
 
-	log.Printf("Failed to locate %v ->%v (%v, %v)", spec, elems[len(elems)-1], dServer, dPort)
 	//Mark as false if we can't locate the job
 	return false
 }
@@ -258,8 +247,6 @@ func runCommand(c *runnerCommand) {
 		log.Fatalf("Problem getting stderr: %v", err)
 	}
 
-	log.Printf("RUNNING %v", c.command.Path)
-
 	if out != nil {
 		scanner := bufio.NewScanner(out)
 		go func() {
@@ -269,14 +256,12 @@ func runCommand(c *runnerCommand) {
 		}()
 	}
 
-	err = c.command.Start()
-	log.Printf("ERR = %v", err)
+	c.command.Start()
 
 	if !c.background {
 		c.command.Wait()
 		c.complete = true
 	} else {
-		log.Printf("Starting to track stuff %v", out)
 		c.details.StartTime = time.Now().Unix()
 	}
 }
