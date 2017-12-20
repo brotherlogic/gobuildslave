@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"os/exec"
 	"runtime"
@@ -113,7 +112,6 @@ func (r *Runner) run() {
 
 func (r *Runner) kill(details *pb.JobDetails) {
 	r.bm.Lock()
-	log.Printf("KILL %v", details)
 	for i, t := range r.backgroundTasks {
 		if t.details.GetSpec().Name == details.Spec.Name {
 			if t.command.Process != nil {
@@ -172,25 +170,21 @@ func (r *Runner) Rebuild(details *pb.JobDetails, currentHash string) {
 	command := elems[len(elems)-1]
 	hash, err := getHash("$GOPATH/bin/" + command)
 	if err != nil {
-		log.Printf("HASHESH: %v", err)
 		hash = "nohash"
 	}
 	if hash != currentHash {
-		log.Printf("HASH mismatch %v and %v", hash, currentHash)
 		details.State = pb.JobDetails_BUILT
 	}
 }
 
 //Update the job with new cl args
 func (r *Runner) Update(spec *pb.JobDetails) {
-	log.Printf("Update %v", spec)
 	r.kill(spec)
 	r.Run(spec)
 }
 
 // Run the specified server specified in the repo
 func (r *Runner) Run(details *pb.JobDetails) {
-	log.Printf("RUN SERVER %v", details)
 	elems := strings.Split(details.Spec.Name, "/")
 	command := elems[len(elems)-1]
 
@@ -203,7 +197,6 @@ func (r *Runner) Run(details *pb.JobDetails) {
 
 	hash, err := getHash("$GOPATH/bin/" + command)
 	if err != nil {
-		log.Printf("Hash error: %v", err)
 		hash = "nohash"
 	}
 

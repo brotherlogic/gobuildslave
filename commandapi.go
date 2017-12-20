@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"time"
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
@@ -10,7 +9,6 @@ import (
 
 // BuildJob builds out a job
 func (s *Server) BuildJob(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
-	log.Printf("BUILD: %v", in)
 	s.runner.Checkout(in.Name)
 	return &pb.Empty{}, nil
 }
@@ -27,7 +25,6 @@ func (s *Server) List(ctx context.Context, in *pb.Empty) (*pb.JobList, error) {
 
 // Run starts up a job
 func (s *Server) Run(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
-	log.Printf("RUN: %v", in)
 	t := time.Now()
 	if _, ok := s.jobs[in.GetName()]; ok {
 		s.LogFunction("Run-found", t)
@@ -43,7 +40,6 @@ func (s *Server) Run(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
 
 //Update restarts a job with new settings
 func (s *Server) Update(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
-	log.Printf("UPDATE: %v", in)
 	t := time.Now()
 	//Only update if we're running
 	if j, ok := s.jobs[in.GetName()]; !ok || j.State == pb.JobDetails_RUNNING {
@@ -66,7 +62,6 @@ func (s *Server) Kill(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
 		return &pb.Empty{}, nil
 	}
 
-	log.Printf("REQUEST TO KILL %v", in)
 	s.jobs[in.GetName()].State = pb.JobDetails_KILLING
 
 	s.LogFunction("Kill", t)
