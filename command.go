@@ -305,5 +305,6 @@ func main() {
 	s.GoServer.Killme = false
 	s.RegisterServingTask(s.rebuildLoop)
 	s.RegisterServer("gobuildslave", false)
-	s.Serve()
+	err := s.Serve()
+	log.Fatalf("Unable to serve: %v", err)
 }
