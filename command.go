@@ -96,8 +96,8 @@ func (s *Server) monitor(job *pb.JobDetails) {
 			} else {
 				job.TestCount = 0
 			}
-			if job.TestCount > 3 {
-				s.Log(fmt.Sprintf("Killing beacuse we couldn't reach 3 times: %v", job))
+			if job.TestCount > 300 {
+				s.Log(fmt.Sprintf("Killing beacuse we couldn't reach 300 times: %v", job))
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_DEAD:
@@ -131,53 +131,61 @@ func getHash(file string) (string, error) {
 	return string(h.Sum(nil)), nil
 }
 
-func getIP(name string, server string) (string, int) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+func getIP(name string, server string) (string, int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 	conn, err := grpc.Dial(utils.RegistryIP+":"+strconv.Itoa(utils.RegistryPort), grpc.WithInsecure())
-	if err == nil {
-		defer conn.Close()
+	defer conn.Close()
 
-		registry := pbd.NewDiscoveryServiceClient(conn)
-		entry := pbd.RegistryEntry{Name: name, Identifier: server}
-		r, err2 := registry.Discover(ctx, &entry, grpc.FailFast(false))
-
-		if err2 == nil {
-			return r.Ip, int(r.Port)
-		}
+	if err != nil {
+		return "", -1, err
 	}
-	return "", -1
+
+	registry := pbd.NewDiscoveryServiceClient(conn)
+	entry := pbd.RegistryEntry{Name: name, Identifier: server}
+	r, err := registry.Discover(ctx, &entry, grpc.FailFast(false))
+
+	if err != nil {
+		return "", -1, err
+	}
+
+	return r.Ip, int(r.Port), nil
 }
 
 // updateState of the runner command
 func isAlive(spec *pb.JobSpec) bool {
 	elems := strings.Split(spec.Name, "/")
-	dServer, dPort := getIP(elems[len(elems)-1], spec.Server)
+	dServer, dPort, err := getIP(elems[len(elems)-1], spec.Server)
 
-	if dPort > 0 {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
-		dConn, err := grpc.Dial(dServer+":"+strconv.Itoa(dPort), grpc.WithInsecure())
-		if err != nil {
-			return false
-		}
-		defer dConn.Close()
-
-		c := pbs.NewGoserverServiceClient(dConn)
-		resp, err := c.IsAlive(ctx, &pbs.Alive{}, grpc.FailFast(false))
-
-		if err != nil || resp.Name != elems[len(elems)-1] {
-			e, ok := status.FromError(err)
-			if ok && e.Code() != codes.Unavailable {
-				return false
-			}
-		}
-
+	e, ok := status.FromError(err)
+	if ok && e.Code() == codes.DeadlineExceeded {
+		//Ignore deadline exceeds on discover
 		return true
 	}
 
-	//Mark as false if we can't locate the job
-	return false
+	if err != nil {
+		return false
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	dConn, err := grpc.Dial(dServer+":"+strconv.Itoa(dPort), grpc.WithInsecure())
+	if err != nil {
+		return false
+	}
+	defer dConn.Close()
+
+	c := pbs.NewGoserverServiceClient(dConn)
+	resp, err := c.IsAlive(ctx, &pbs.Alive{}, grpc.FailFast(false))
+
+	if err != nil || resp.Name != elems[len(elems)-1] {
+		e, ok := status.FromError(err)
+		if ok && e.Code() != codes.Unavailable {
+			return false
+		}
+	}
+
+	return true
 }
 
 // DoRegister Registers this server
