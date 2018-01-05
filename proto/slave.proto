@@ -10,6 +10,8 @@ message JobSpec {
 	int64 disk = 3;
 	repeated string args = 4;
 	bool external = 5;
+	string host = 6;
+	int32 port = 7;
 }
 
 message JobDetails {
