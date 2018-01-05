@@ -131,7 +131,7 @@ func getHash(file string) (string, error) {
 	return string(h.Sum(nil)), nil
 }
 
-func getIP(name string, server string) (string, int, error) {
+func getIP(name string, server string) (string, int32, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 	conn, err := grpc.Dial(utils.RegistryIP+":"+strconv.Itoa(utils.RegistryPort), grpc.WithInsecure())
@@ -149,27 +149,32 @@ func getIP(name string, server string) (string, int, error) {
 		return "", -1, err
 	}
 
-	return r.Ip, int(r.Port), nil
+	return r.Ip, r.Port, nil
 }
 
 // updateState of the runner command
 func isAlive(spec *pb.JobSpec) bool {
 	elems := strings.Split(spec.Name, "/")
-	dServer, dPort, err := getIP(elems[len(elems)-1], spec.Server)
+	if spec.GetPort() == 0 {
+		dServer, dPort, err := getIP(elems[len(elems)-1], spec.Server)
 
-	e, ok := status.FromError(err)
-	if ok && e.Code() == codes.DeadlineExceeded {
-		//Ignore deadline exceeds on discover
-		return true
-	}
+		e, ok := status.FromError(err)
+		if ok && e.Code() == codes.DeadlineExceeded {
+			//Ignore deadline exceeds on discover
+			return true
+		}
 
-	if err != nil {
-		return false
+		if err != nil {
+			return false
+		}
+
+		spec.Host = dServer
+		spec.Port = dPort
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	dConn, err := grpc.Dial(dServer+":"+strconv.Itoa(dPort), grpc.WithInsecure())
+	dConn, err := grpc.Dial(spec.Host+":"+strconv.Itoa(int(spec.Port)), grpc.WithInsecure())
 	if err != nil {
 		return false
 	}
