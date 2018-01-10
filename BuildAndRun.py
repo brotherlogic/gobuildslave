@@ -22,7 +22,6 @@ for line in os.popen('go build').readlines():
 size_1 = os.path.getsize('./old' + name)
 size_2 = os.path.getsize('./' + name)
 
-
 lines = os.popen('ps -ef | grep ' + name).readlines()
 running = False
 for line in lines:

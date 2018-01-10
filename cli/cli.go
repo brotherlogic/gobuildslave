@@ -14,6 +14,9 @@ import (
 	pbdi "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	"github.com/brotherlogic/goserver/utils"
+
+	//Needed to pull in gzip encoding init
+	_ "google.golang.org/grpc/encoding/gzip"
 )
 
 func findServer(name, server string) (string, int) {
@@ -93,7 +96,7 @@ func main() {
 					log.Fatalf("Error building job: %v", err)
 				}
 				for _, r := range res.Details {
-					fmt.Printf("%v (%v)\n", r.Spec.Name, time.Unix(r.StartTime, 0).Format("02/01 15:04"))
+					fmt.Printf("%v (%v) - %v\n", r.Spec.Name, time.Unix(r.StartTime, 0).Format("02/01 15:04"), r)
 				}
 			}
 		}
