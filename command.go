@@ -96,8 +96,8 @@ func (s *Server) monitor(job *pb.JobDetails) {
 			} else {
 				job.TestCount = 0
 			}
-			if job.TestCount > 300 {
-				s.Log(fmt.Sprintf("Killing beacuse we couldn't reach 300 times: %v", job))
+			if job.TestCount > 60 {
+				s.Log(fmt.Sprintf("Killing beacuse we couldn't reach 60 times: %v", job))
 				job.State = pb.JobDetails_DEAD
 			}
 		case pb.JobDetails_DEAD:
