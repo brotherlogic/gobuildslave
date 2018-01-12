@@ -96,7 +96,7 @@ func main() {
 					log.Fatalf("Error building job: %v", err)
 				}
 				for _, r := range res.Details {
-					fmt.Printf("%v (%v)\n", r.Spec.Name, time.Unix(r.StartTime, 0).Format("02/01 15:04"))
+					fmt.Printf("%v (%v) - %v\n", r.Spec.Name, time.Unix(r.StartTime, 0).Format("02/01 15:04"), r)
 				}
 			}
 		}
