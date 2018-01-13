@@ -156,7 +156,7 @@ func (r *Runner) addCommand(command *runnerCommand) {
 
 // Checkout a repo - returns the repo version
 func (r *Runner) Checkout(repo string) string {
-	r.addCommand(&runnerCommand{command: exec.Command("go", "get", repo)})
+	r.addCommand(&runnerCommand{command: exec.Command("go", "get", "-u", repo)})
 	readCommand := &runnerCommand{command: exec.Command("cat", "$GOPATH/src/"+repo+"/.git/refs/heads/master"), discard: false}
 	r.addCommand(readCommand)
 	r.BlockUntil(readCommand)
