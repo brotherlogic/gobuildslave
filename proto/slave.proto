@@ -42,6 +42,7 @@ message Config {
 	int64 disk = 2;
 	bool external = 3;
 	string go_version = 4;
+	bool supports_cds = 5;
 }
 
 service GoBuildSlave {
