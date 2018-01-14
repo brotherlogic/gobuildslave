@@ -96,5 +96,8 @@ func (s *Server) GetConfig(ctx context.Context, in *pb.Empty) (*pb.Config, error
 	//Get the go version
 	version := runtime.Version()
 
-	return &pb.Config{GoVersion: version, Memory: int64(m.Sys), Disk: int64(disk), External: s.Registry.GetIdentifier() == "stable"}, nil
+	d1 := s.disk.diskUsage("/media/music")
+	d2 := s.disk.diskUsage("/Users/simon/Music/home")
+
+	return &pb.Config{SupportsCds: (d1 > 0 || d2 > 0), GoVersion: version, Memory: int64(m.Sys), Disk: int64(disk), External: s.Registry.GetIdentifier() == "stable"}, nil
 }
