@@ -3,14 +3,10 @@ package main
 import (
 	"os"
 	"os/exec"
-	"runtime"
-	"strconv"
 	"strings"
 	"sync"
 	"syscall"
 	"time"
-
-	"golang.org/x/net/context"
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
 )
@@ -33,33 +29,6 @@ func diskUsage(path string) int64 {
 		return -1
 	}
 	return int64(fs.Bfree * uint64(fs.Bsize))
-}
-
-// GetConfig gets the status of the server
-func (s *Server) GetConfig(ctx context.Context, in *pb.Empty) (*pb.Config, error) {
-
-	m := &runtime.MemStats{}
-	runtime.ReadMemStats(m)
-
-	// Basic disk allowance is 100 bytes
-	disk := int64(100)
-
-	// Disks should be mounted disk1, disk2, disk3, ...
-	pcount := 1
-	dir := "/media/disk" + strconv.Itoa(pcount)
-	found := false
-	for !found {
-		diskadd := int64(s.disk.diskUsage(dir))
-		if diskadd < 0 {
-			found = true
-		} else {
-			disk += diskadd
-		}
-		pcount++
-		dir = "/media/disk" + strconv.Itoa(pcount)
-
-	}
-	return &pb.Config{Memory: int64(m.Sys), Disk: int64(disk), External: s.Registry.GetIdentifier() == "stable"}, nil
 }
 
 // Runner is the server that runs commands
