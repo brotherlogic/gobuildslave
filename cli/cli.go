@@ -44,7 +44,7 @@ func findServers() []*pbdi.RegistryEntry {
 
 	list := make([]*pbdi.RegistryEntry, 0)
 	for _, r := range rs.Services {
-		if r.Name == "gobuildserver" {
+		if r.Name == "gobuildslave" {
 			list = append(list, r)
 		}
 	}
@@ -117,8 +117,11 @@ func main() {
 				}
 			}
 		case "config":
-			if err := buildFlags.Parse(os.Args[2:]); err == nil {
-				servers := findServers()
+			servers := findServers()
+
+			if len(servers) == 0 {
+				log.Printf("No Servers found!")
+			}
 
 				for _, s := range servers {
 					conn, _ := grpc.Dial(s.GetIp()+":"+strconv.Itoa(int(s.GetPort())), grpc.WithInsecure())
@@ -130,7 +133,6 @@ func main() {
 						log.Fatalf("Error building job: %v", err)
 					}
 					fmt.Printf("%v - %v\n", s.GetIdentifier(), res)
-				}
 			}
 		}
 	}
