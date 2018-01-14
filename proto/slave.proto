@@ -41,6 +41,7 @@ message Config {
 	int64 memory = 1;
 	int64 disk = 2;
 	bool external = 3;
+	string go_version = 4;
 }
 
 service GoBuildSlave {

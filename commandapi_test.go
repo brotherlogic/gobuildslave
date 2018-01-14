@@ -17,6 +17,7 @@ func getTestServer() *Server {
 	s.jobs = make(map[string]*pb.JobDetails)
 	s.Register = s
 	s.SkipLog = true
+	s.disk = prodDiskChecker{}
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".testfolder")
 	return &s
 }
@@ -117,5 +118,18 @@ func TestKillNonJob(t *testing.T) {
 
 	if len(list.Details) != 1 {
 		t.Errorf("Wrong number of jobs listed: %v", list)
+	}
+}
+
+func TestGetConfig(t *testing.T) {
+	s := getTestServer()
+	config, err := s.GetConfig(context.Background(), &pb.Empty{})
+
+	if err != nil {
+		t.Fatalf("Unable to get server config: %v", err)
+	}
+
+	if config.GetGoVersion() == "" {
+		t.Errorf("Unable to get go version: %v", config)
 	}
 }
