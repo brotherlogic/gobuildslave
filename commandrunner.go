@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -143,6 +144,7 @@ func (r *Runner) Rebuild(details *pb.JobDetails, currentHash string) {
 		hash = "nohash"
 	}
 	if hash != currentHash {
+		r.logger(fmt.Sprintf("Rebuilding %v for hash difference %v->%v", details, hash, currentHash))
 		details.State = pb.JobDetails_BUILT
 	}
 }
