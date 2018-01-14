@@ -120,7 +120,7 @@ func main() {
 			servers := findServers()
 
 			if len(servers) == 0 {
-				log.Printf("No Servers found!")
+				log.Fatalf("No Servers found!")
 			}
 
 				for _, s := range servers {
