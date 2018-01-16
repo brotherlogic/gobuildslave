@@ -65,6 +65,7 @@ func (s *Server) monitor(job *pb.JobDetails) {
 		switch job.State {
 		case pb.JobDetails_ACKNOWLEDGED:
 			job.StartTime = 0
+			job.GetSpec().Port = 0
 			job.State = pb.JobDetails_BUILDING
 			s.runner.Checkout(job.GetSpec().Name)
 			job.State = pb.JobDetails_BUILT
