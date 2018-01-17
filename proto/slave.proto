@@ -12,6 +12,7 @@ message JobSpec {
 	bool external = 5;
 	string host = 6;
 	int32 port = 7;
+	bool cds = 8;
 }
 
 message JobDetails {
