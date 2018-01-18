@@ -241,12 +241,17 @@ func runCommand(c *runnerCommand) {
 		c.command.Args[i] = strings.Replace(c.command.Args[i], "$GOPATH", gpath, -1)
 	}
 
-	path := fmt.Sprintf("GOPATH=" + home + "/gobuild")
+	path := fmt.Sprintf("GOPATH=" + home + "/gobuild/")
+	pathbin := fmt.Sprintf("GOBIN=" + home + "/gobuild/bin/")
 	found := false
 	envl := os.Environ()
 	for i, blah := range envl {
 		if strings.HasPrefix(blah, "GOPATH") {
 			envl[i] = path
+			found = true
+		}
+		if strings.HasPrefix(blah, "GOBIN") {
+			envl[i] = pathbin
 			found = true
 		}
 	}
