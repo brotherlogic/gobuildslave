@@ -271,6 +271,7 @@ func runCommand(c *runnerCommand) {
 			for scanner != nil && scanner.Scan() {
 				c.output += scanner.Text()
 			}
+			out.Close()
 		}()
 	}
 
