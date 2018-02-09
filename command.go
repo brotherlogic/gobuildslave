@@ -144,13 +144,13 @@ func getIP(name string, server string) (string, int32, error) {
 
 	registry := pbd.NewDiscoveryServiceClient(conn)
 	entry := pbd.RegistryEntry{Name: name, Identifier: server}
-	r, err := registry.Discover(ctx, &entry, grpc.FailFast(false))
+	r, err := registry.Discover(ctx, &pbd.DiscoverRequest{Request: &entry}, grpc.FailFast(false))
 
 	if err != nil {
 		return "", -1, err
 	}
 
-	return r.Ip, r.Port, nil
+	return r.GetService().Ip, r.GetService().Port, nil
 }
 
 // updateState of the runner command
