@@ -24,9 +24,9 @@ func findServer(name, server string) (string, int) {
 	defer conn.Close()
 
 	registry := pbdi.NewDiscoveryServiceClient(conn)
-	rs, _ := registry.ListAllServices(context.Background(), &pbdi.Empty{})
+	rs, _ := registry.ListAllServices(context.Background(), &pbdi.ListRequest{})
 
-	for _, r := range rs.Services {
+	for _, r := range rs.GetServices().Services {
 		if r.Identifier == server && r.Name == name {
 			return r.Ip, int(r.Port)
 		}
@@ -40,10 +40,10 @@ func findServers() []*pbdi.RegistryEntry {
 	defer conn.Close()
 
 	registry := pbdi.NewDiscoveryServiceClient(conn)
-	rs, _ := registry.ListAllServices(context.Background(), &pbdi.Empty{})
+	rs, _ := registry.ListAllServices(context.Background(), &pbdi.ListRequest{})
 
 	list := make([]*pbdi.RegistryEntry, 0)
-	for _, r := range rs.Services {
+	for _, r := range rs.GetServices().Services {
 		if r.Name == "gobuildslave" {
 			list = append(list, r)
 		}
