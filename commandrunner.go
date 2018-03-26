@@ -145,7 +145,7 @@ func (r *Runner) Rebuild(details *pb.JobDetails, currentHash string) {
 	}
 	if hash != currentHash {
 		r.logger(fmt.Sprintf("Rebuilding %v for hash difference %v->%v", details, hash, currentHash))
-		details.State = pb.JobDetails_BUILT
+		details.State = pb.State_BUILT
 	}
 }
 
@@ -174,7 +174,7 @@ func (r *Runner) Run(details *pb.JobDetails) {
 
 	//Prepare to runnerCommand
 	details.StartTime = 0
-	details.State = pb.JobDetails_BUILT
+	details.State = pb.State_BUILT
 
 	com := &runnerCommand{command: exec.Command("$GOPATH/bin/"+command, details.Spec.Args...), background: true, details: details, started: time.Now(), hash: hash}
 	r.addCommand(com)

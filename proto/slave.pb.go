@@ -9,10 +9,24 @@ It is generated from these files:
 
 It has these top-level messages:
 	Empty
+	Requirement
+	Job
+	JobAssignment
+	SlaveConfig
 	JobSpec
 	JobDetails
 	JobList
 	Config
+	RunRequest
+	RunResponse
+	UpdateRequest
+	UpdateResponse
+	KillRequest
+	KillResponse
+	ListRequest
+	ListResponse
+	ConfigRequest
+	ConfigResponse
 */
 package gobuildslave
 
@@ -36,21 +50,45 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-type JobDetails_State int32
+type RequirementCategory int32
 
 const (
-	JobDetails_ACKNOWLEDGED    JobDetails_State = 0
-	JobDetails_BUILDING        JobDetails_State = 1
-	JobDetails_BUILT           JobDetails_State = 2
-	JobDetails_RUNNING         JobDetails_State = 3
-	JobDetails_UPDATE_STARTING JobDetails_State = 4
-	JobDetails_UPDATING        JobDetails_State = 5
-	JobDetails_KILLING         JobDetails_State = 6
-	JobDetails_DEAD            JobDetails_State = 7
-	JobDetails_PENDING         JobDetails_State = 8
+	RequirementCategory_UNKNOWN  RequirementCategory = 0
+	RequirementCategory_DISK     RequirementCategory = 1
+	RequirementCategory_EXTERNAL RequirementCategory = 2
 )
 
-var JobDetails_State_name = map[int32]string{
+var RequirementCategory_name = map[int32]string{
+	0: "UNKNOWN",
+	1: "DISK",
+	2: "EXTERNAL",
+}
+var RequirementCategory_value = map[string]int32{
+	"UNKNOWN":  0,
+	"DISK":     1,
+	"EXTERNAL": 2,
+}
+
+func (x RequirementCategory) String() string {
+	return proto.EnumName(RequirementCategory_name, int32(x))
+}
+func (RequirementCategory) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+
+type State int32
+
+const (
+	State_ACKNOWLEDGED    State = 0
+	State_BUILDING        State = 1
+	State_BUILT           State = 2
+	State_RUNNING         State = 3
+	State_UPDATE_STARTING State = 4
+	State_UPDATING        State = 5
+	State_KILLING         State = 6
+	State_DEAD            State = 7
+	State_PENDING         State = 8
+)
+
+var State_name = map[int32]string{
 	0: "ACKNOWLEDGED",
 	1: "BUILDING",
 	2: "BUILT",
@@ -61,7 +99,7 @@ var JobDetails_State_name = map[int32]string{
 	7: "DEAD",
 	8: "PENDING",
 }
-var JobDetails_State_value = map[string]int32{
+var State_value = map[string]int32{
 	"ACKNOWLEDGED":    0,
 	"BUILDING":        1,
 	"BUILT":           2,
@@ -73,10 +111,10 @@ var JobDetails_State_value = map[string]int32{
 	"PENDING":         8,
 }
 
-func (x JobDetails_State) String() string {
-	return proto.EnumName(JobDetails_State_name, int32(x))
+func (x State) String() string {
+	return proto.EnumName(State_name, int32(x))
 }
-func (JobDetails_State) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{2, 0} }
+func (State) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
 type Empty struct {
 }
@@ -85,6 +123,118 @@ func (m *Empty) Reset()                    { *m = Empty{} }
 func (m *Empty) String() string            { return proto.CompactTextString(m) }
 func (*Empty) ProtoMessage()               {}
 func (*Empty) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+
+type Requirement struct {
+	Category   RequirementCategory `protobuf:"varint,1,opt,name=category,enum=gobuildslave.RequirementCategory" json:"category,omitempty"`
+	Properties string              `protobuf:"bytes,2,opt,name=properties" json:"properties,omitempty"`
+}
+
+func (m *Requirement) Reset()                    { *m = Requirement{} }
+func (m *Requirement) String() string            { return proto.CompactTextString(m) }
+func (*Requirement) ProtoMessage()               {}
+func (*Requirement) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+
+func (m *Requirement) GetCategory() RequirementCategory {
+	if m != nil {
+		return m.Category
+	}
+	return RequirementCategory_UNKNOWN
+}
+
+func (m *Requirement) GetProperties() string {
+	if m != nil {
+		return m.Properties
+	}
+	return ""
+}
+
+type Job struct {
+	Name         string         `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	GoPath       string         `protobuf:"bytes,2,opt,name=go_path,json=goPath" json:"go_path,omitempty"`
+	Requirements []*Requirement `protobuf:"bytes,3,rep,name=requirements" json:"requirements,omitempty"`
+}
+
+func (m *Job) Reset()                    { *m = Job{} }
+func (m *Job) String() string            { return proto.CompactTextString(m) }
+func (*Job) ProtoMessage()               {}
+func (*Job) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+
+func (m *Job) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *Job) GetGoPath() string {
+	if m != nil {
+		return m.GoPath
+	}
+	return ""
+}
+
+func (m *Job) GetRequirements() []*Requirement {
+	if m != nil {
+		return m.Requirements
+	}
+	return nil
+}
+
+type JobAssignment struct {
+	Job    *Job   `protobuf:"bytes,1,opt,name=job" json:"job,omitempty"`
+	Server string `protobuf:"bytes,2,opt,name=server" json:"server,omitempty"`
+	Port   int32  `protobuf:"varint,3,opt,name=port" json:"port,omitempty"`
+	State  State  `protobuf:"varint,4,opt,name=state,enum=gobuildslave.State" json:"state,omitempty"`
+}
+
+func (m *JobAssignment) Reset()                    { *m = JobAssignment{} }
+func (m *JobAssignment) String() string            { return proto.CompactTextString(m) }
+func (*JobAssignment) ProtoMessage()               {}
+func (*JobAssignment) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+
+func (m *JobAssignment) GetJob() *Job {
+	if m != nil {
+		return m.Job
+	}
+	return nil
+}
+
+func (m *JobAssignment) GetServer() string {
+	if m != nil {
+		return m.Server
+	}
+	return ""
+}
+
+func (m *JobAssignment) GetPort() int32 {
+	if m != nil {
+		return m.Port
+	}
+	return 0
+}
+
+func (m *JobAssignment) GetState() State {
+	if m != nil {
+		return m.State
+	}
+	return State_ACKNOWLEDGED
+}
+
+type SlaveConfig struct {
+	Requirements []*Requirement `protobuf:"bytes,1,rep,name=requirements" json:"requirements,omitempty"`
+}
+
+func (m *SlaveConfig) Reset()                    { *m = SlaveConfig{} }
+func (m *SlaveConfig) String() string            { return proto.CompactTextString(m) }
+func (*SlaveConfig) ProtoMessage()               {}
+func (*SlaveConfig) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+
+func (m *SlaveConfig) GetRequirements() []*Requirement {
+	if m != nil {
+		return m.Requirements
+	}
+	return nil
+}
 
 type JobSpec struct {
 	Name     string   `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
@@ -100,7 +250,7 @@ type JobSpec struct {
 func (m *JobSpec) Reset()                    { *m = JobSpec{} }
 func (m *JobSpec) String() string            { return proto.CompactTextString(m) }
 func (*JobSpec) ProtoMessage()               {}
-func (*JobSpec) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+func (*JobSpec) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
 
 func (m *JobSpec) GetName() string {
 	if m != nil {
@@ -159,16 +309,16 @@ func (m *JobSpec) GetCds() bool {
 }
 
 type JobDetails struct {
-	Spec      *JobSpec         `protobuf:"bytes,1,opt,name=spec" json:"spec,omitempty"`
-	State     JobDetails_State `protobuf:"varint,2,opt,name=state,enum=gobuildslave.JobDetails_State" json:"state,omitempty"`
-	StartTime int64            `protobuf:"varint,3,opt,name=start_time,json=startTime" json:"start_time,omitempty"`
-	TestCount int32            `protobuf:"varint,4,opt,name=test_count,json=testCount" json:"test_count,omitempty"`
+	Spec      *JobSpec `protobuf:"bytes,1,opt,name=spec" json:"spec,omitempty"`
+	State     State    `protobuf:"varint,2,opt,name=state,enum=gobuildslave.State" json:"state,omitempty"`
+	StartTime int64    `protobuf:"varint,3,opt,name=start_time,json=startTime" json:"start_time,omitempty"`
+	TestCount int32    `protobuf:"varint,4,opt,name=test_count,json=testCount" json:"test_count,omitempty"`
 }
 
 func (m *JobDetails) Reset()                    { *m = JobDetails{} }
 func (m *JobDetails) String() string            { return proto.CompactTextString(m) }
 func (*JobDetails) ProtoMessage()               {}
-func (*JobDetails) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+func (*JobDetails) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
 
 func (m *JobDetails) GetSpec() *JobSpec {
 	if m != nil {
@@ -177,11 +327,11 @@ func (m *JobDetails) GetSpec() *JobSpec {
 	return nil
 }
 
-func (m *JobDetails) GetState() JobDetails_State {
+func (m *JobDetails) GetState() State {
 	if m != nil {
 		return m.State
 	}
-	return JobDetails_ACKNOWLEDGED
+	return State_ACKNOWLEDGED
 }
 
 func (m *JobDetails) GetStartTime() int64 {
@@ -205,7 +355,7 @@ type JobList struct {
 func (m *JobList) Reset()                    { *m = JobList{} }
 func (m *JobList) String() string            { return proto.CompactTextString(m) }
 func (*JobList) ProtoMessage()               {}
-func (*JobList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+func (*JobList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
 
 func (m *JobList) GetDetails() []*JobDetails {
 	if m != nil {
@@ -225,7 +375,7 @@ type Config struct {
 func (m *Config) Reset()                    { *m = Config{} }
 func (m *Config) String() string            { return proto.CompactTextString(m) }
 func (*Config) ProtoMessage()               {}
-func (*Config) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+func (*Config) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
 
 func (m *Config) GetMemory() int64 {
 	if m != nil {
@@ -262,13 +412,148 @@ func (m *Config) GetSupportsCds() bool {
 	return false
 }
 
+type RunRequest struct {
+	Job *Job `protobuf:"bytes,1,opt,name=job" json:"job,omitempty"`
+}
+
+func (m *RunRequest) Reset()                    { *m = RunRequest{} }
+func (m *RunRequest) String() string            { return proto.CompactTextString(m) }
+func (*RunRequest) ProtoMessage()               {}
+func (*RunRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
+
+func (m *RunRequest) GetJob() *Job {
+	if m != nil {
+		return m.Job
+	}
+	return nil
+}
+
+type RunResponse struct {
+}
+
+func (m *RunResponse) Reset()                    { *m = RunResponse{} }
+func (m *RunResponse) String() string            { return proto.CompactTextString(m) }
+func (*RunResponse) ProtoMessage()               {}
+func (*RunResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
+
+type UpdateRequest struct {
+	Job *Job `protobuf:"bytes,1,opt,name=job" json:"job,omitempty"`
+}
+
+func (m *UpdateRequest) Reset()                    { *m = UpdateRequest{} }
+func (m *UpdateRequest) String() string            { return proto.CompactTextString(m) }
+func (*UpdateRequest) ProtoMessage()               {}
+func (*UpdateRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
+
+func (m *UpdateRequest) GetJob() *Job {
+	if m != nil {
+		return m.Job
+	}
+	return nil
+}
+
+type UpdateResponse struct {
+}
+
+func (m *UpdateResponse) Reset()                    { *m = UpdateResponse{} }
+func (m *UpdateResponse) String() string            { return proto.CompactTextString(m) }
+func (*UpdateResponse) ProtoMessage()               {}
+func (*UpdateResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
+
+type KillRequest struct {
+	Job *Job `protobuf:"bytes,1,opt,name=job" json:"job,omitempty"`
+}
+
+func (m *KillRequest) Reset()                    { *m = KillRequest{} }
+func (m *KillRequest) String() string            { return proto.CompactTextString(m) }
+func (*KillRequest) ProtoMessage()               {}
+func (*KillRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
+
+func (m *KillRequest) GetJob() *Job {
+	if m != nil {
+		return m.Job
+	}
+	return nil
+}
+
+type KillResponse struct {
+}
+
+func (m *KillResponse) Reset()                    { *m = KillResponse{} }
+func (m *KillResponse) String() string            { return proto.CompactTextString(m) }
+func (*KillResponse) ProtoMessage()               {}
+func (*KillResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
+
+type ListRequest struct {
+}
+
+func (m *ListRequest) Reset()                    { *m = ListRequest{} }
+func (m *ListRequest) String() string            { return proto.CompactTextString(m) }
+func (*ListRequest) ProtoMessage()               {}
+func (*ListRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{15} }
+
+type ListResponse struct {
+	Jobs []*JobAssignment `protobuf:"bytes,1,rep,name=jobs" json:"jobs,omitempty"`
+}
+
+func (m *ListResponse) Reset()                    { *m = ListResponse{} }
+func (m *ListResponse) String() string            { return proto.CompactTextString(m) }
+func (*ListResponse) ProtoMessage()               {}
+func (*ListResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{16} }
+
+func (m *ListResponse) GetJobs() []*JobAssignment {
+	if m != nil {
+		return m.Jobs
+	}
+	return nil
+}
+
+type ConfigRequest struct {
+}
+
+func (m *ConfigRequest) Reset()                    { *m = ConfigRequest{} }
+func (m *ConfigRequest) String() string            { return proto.CompactTextString(m) }
+func (*ConfigRequest) ProtoMessage()               {}
+func (*ConfigRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{17} }
+
+type ConfigResponse struct {
+	Config *SlaveConfig `protobuf:"bytes,1,opt,name=config" json:"config,omitempty"`
+}
+
+func (m *ConfigResponse) Reset()                    { *m = ConfigResponse{} }
+func (m *ConfigResponse) String() string            { return proto.CompactTextString(m) }
+func (*ConfigResponse) ProtoMessage()               {}
+func (*ConfigResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{18} }
+
+func (m *ConfigResponse) GetConfig() *SlaveConfig {
+	if m != nil {
+		return m.Config
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*Empty)(nil), "gobuildslave.Empty")
+	proto.RegisterType((*Requirement)(nil), "gobuildslave.Requirement")
+	proto.RegisterType((*Job)(nil), "gobuildslave.Job")
+	proto.RegisterType((*JobAssignment)(nil), "gobuildslave.JobAssignment")
+	proto.RegisterType((*SlaveConfig)(nil), "gobuildslave.SlaveConfig")
 	proto.RegisterType((*JobSpec)(nil), "gobuildslave.JobSpec")
 	proto.RegisterType((*JobDetails)(nil), "gobuildslave.JobDetails")
 	proto.RegisterType((*JobList)(nil), "gobuildslave.JobList")
 	proto.RegisterType((*Config)(nil), "gobuildslave.Config")
-	proto.RegisterEnum("gobuildslave.JobDetails_State", JobDetails_State_name, JobDetails_State_value)
+	proto.RegisterType((*RunRequest)(nil), "gobuildslave.RunRequest")
+	proto.RegisterType((*RunResponse)(nil), "gobuildslave.RunResponse")
+	proto.RegisterType((*UpdateRequest)(nil), "gobuildslave.UpdateRequest")
+	proto.RegisterType((*UpdateResponse)(nil), "gobuildslave.UpdateResponse")
+	proto.RegisterType((*KillRequest)(nil), "gobuildslave.KillRequest")
+	proto.RegisterType((*KillResponse)(nil), "gobuildslave.KillResponse")
+	proto.RegisterType((*ListRequest)(nil), "gobuildslave.ListRequest")
+	proto.RegisterType((*ListResponse)(nil), "gobuildslave.ListResponse")
+	proto.RegisterType((*ConfigRequest)(nil), "gobuildslave.ConfigRequest")
+	proto.RegisterType((*ConfigResponse)(nil), "gobuildslave.ConfigResponse")
+	proto.RegisterEnum("gobuildslave.RequirementCategory", RequirementCategory_name, RequirementCategory_value)
+	proto.RegisterEnum("gobuildslave.State", State_name, State_value)
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -278,6 +563,202 @@ var _ grpc.ClientConn
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
+
+// Client API for BuildSlave service
+
+type BuildSlaveClient interface {
+	RunJob(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (*RunResponse, error)
+	UpdateJob(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error)
+	KillJob(ctx context.Context, in *KillRequest, opts ...grpc.CallOption) (*KillResponse, error)
+	ListJobs(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error)
+	SlaveConfig(ctx context.Context, in *ConfigRequest, opts ...grpc.CallOption) (*ConfigResponse, error)
+}
+
+type buildSlaveClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewBuildSlaveClient(cc *grpc.ClientConn) BuildSlaveClient {
+	return &buildSlaveClient{cc}
+}
+
+func (c *buildSlaveClient) RunJob(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (*RunResponse, error) {
+	out := new(RunResponse)
+	err := grpc.Invoke(ctx, "/gobuildslave.BuildSlave/RunJob", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *buildSlaveClient) UpdateJob(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error) {
+	out := new(UpdateResponse)
+	err := grpc.Invoke(ctx, "/gobuildslave.BuildSlave/UpdateJob", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *buildSlaveClient) KillJob(ctx context.Context, in *KillRequest, opts ...grpc.CallOption) (*KillResponse, error) {
+	out := new(KillResponse)
+	err := grpc.Invoke(ctx, "/gobuildslave.BuildSlave/KillJob", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *buildSlaveClient) ListJobs(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error) {
+	out := new(ListResponse)
+	err := grpc.Invoke(ctx, "/gobuildslave.BuildSlave/ListJobs", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *buildSlaveClient) SlaveConfig(ctx context.Context, in *ConfigRequest, opts ...grpc.CallOption) (*ConfigResponse, error) {
+	out := new(ConfigResponse)
+	err := grpc.Invoke(ctx, "/gobuildslave.BuildSlave/SlaveConfig", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for BuildSlave service
+
+type BuildSlaveServer interface {
+	RunJob(context.Context, *RunRequest) (*RunResponse, error)
+	UpdateJob(context.Context, *UpdateRequest) (*UpdateResponse, error)
+	KillJob(context.Context, *KillRequest) (*KillResponse, error)
+	ListJobs(context.Context, *ListRequest) (*ListResponse, error)
+	SlaveConfig(context.Context, *ConfigRequest) (*ConfigResponse, error)
+}
+
+func RegisterBuildSlaveServer(s *grpc.Server, srv BuildSlaveServer) {
+	s.RegisterService(&_BuildSlave_serviceDesc, srv)
+}
+
+func _BuildSlave_RunJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RunRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BuildSlaveServer).RunJob(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gobuildslave.BuildSlave/RunJob",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BuildSlaveServer).RunJob(ctx, req.(*RunRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BuildSlave_UpdateJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BuildSlaveServer).UpdateJob(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gobuildslave.BuildSlave/UpdateJob",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BuildSlaveServer).UpdateJob(ctx, req.(*UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BuildSlave_KillJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(KillRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BuildSlaveServer).KillJob(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gobuildslave.BuildSlave/KillJob",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BuildSlaveServer).KillJob(ctx, req.(*KillRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BuildSlave_ListJobs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BuildSlaveServer).ListJobs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gobuildslave.BuildSlave/ListJobs",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BuildSlaveServer).ListJobs(ctx, req.(*ListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BuildSlave_SlaveConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BuildSlaveServer).SlaveConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gobuildslave.BuildSlave/SlaveConfig",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BuildSlaveServer).SlaveConfig(ctx, req.(*ConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _BuildSlave_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "gobuildslave.BuildSlave",
+	HandlerType: (*BuildSlaveServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "RunJob",
+			Handler:    _BuildSlave_RunJob_Handler,
+		},
+		{
+			MethodName: "UpdateJob",
+			Handler:    _BuildSlave_UpdateJob_Handler,
+		},
+		{
+			MethodName: "KillJob",
+			Handler:    _BuildSlave_KillJob_Handler,
+		},
+		{
+			MethodName: "ListJobs",
+			Handler:    _BuildSlave_ListJobs_Handler,
+		},
+		{
+			MethodName: "SlaveConfig",
+			Handler:    _BuildSlave_SlaveConfig_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "slave.proto",
+}
 
 // Client API for GoBuildSlave service
 
@@ -511,41 +992,64 @@ var _GoBuildSlave_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("slave.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 562 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x94, 0xcf, 0x6e, 0xd3, 0x40,
-	0x10, 0xc6, 0xeb, 0xf8, 0xff, 0x24, 0x02, 0x6b, 0x0b, 0xc8, 0xaa, 0x54, 0x64, 0x7c, 0x0a, 0x97,
-	0x1c, 0xd2, 0x0a, 0x71, 0xe1, 0x90, 0xc6, 0x56, 0xd4, 0x36, 0x0a, 0xd5, 0x26, 0x81, 0x63, 0xe4,
-	0xc4, 0x4b, 0xb0, 0xb0, 0xbd, 0x96, 0x77, 0x53, 0xd1, 0x17, 0xe0, 0x01, 0x78, 0x15, 0x78, 0x1b,
-	0x5e, 0x06, 0xcd, 0xda, 0xad, 0x5a, 0x5a, 0x0e, 0xb9, 0xcd, 0xfc, 0xf6, 0x9b, 0xc9, 0xce, 0xec,
-	0x17, 0x43, 0x57, 0xe4, 0xc9, 0x35, 0x1b, 0x54, 0x35, 0x97, 0x9c, 0xf4, 0xb6, 0x7c, 0xbd, 0xcb,
-	0xf2, 0x54, 0xb1, 0xd0, 0x06, 0x33, 0x2e, 0x2a, 0x79, 0x13, 0xfe, 0xd2, 0xc0, 0xbe, 0xe0, 0xeb,
-	0x79, 0xc5, 0x36, 0x84, 0x80, 0x51, 0x26, 0x05, 0xf3, 0xb5, 0x40, 0xeb, 0xbb, 0x54, 0xc5, 0xe4,
-	0x15, 0x58, 0x82, 0xd5, 0xd7, 0xac, 0xf6, 0x3b, 0x8a, 0xb6, 0x19, 0x6a, 0xd3, 0x4c, 0x7c, 0xf3,
-	0xf5, 0x40, 0xeb, 0xeb, 0x54, 0xc5, 0xc8, 0x92, 0x7a, 0x2b, 0x7c, 0x23, 0xd0, 0xb1, 0x1e, 0x63,
-	0x72, 0x04, 0x0e, 0xfb, 0x2e, 0x59, 0x5d, 0x26, 0xb9, 0x6f, 0x06, 0x5a, 0xdf, 0xa1, 0x77, 0x39,
-	0xea, 0xbf, 0x72, 0x21, 0x7d, 0xab, 0xf9, 0x3d, 0x8c, 0x91, 0x55, 0xbc, 0x96, 0xbe, 0x1d, 0x68,
-	0x7d, 0x93, 0xaa, 0x98, 0x78, 0xa0, 0x6f, 0x52, 0xe1, 0x3b, 0xaa, 0x1c, 0xc3, 0xf0, 0x77, 0x07,
-	0xe0, 0x82, 0xaf, 0x23, 0x26, 0x93, 0x2c, 0x17, 0xe4, 0x2d, 0x18, 0xa2, 0x62, 0x1b, 0x75, 0xf1,
-	0xee, 0xf0, 0xe5, 0xe0, 0xfe, 0xa8, 0x83, 0x76, 0x3a, 0xaa, 0x24, 0xe4, 0x14, 0x4c, 0x21, 0x13,
-	0xc9, 0xd4, 0x38, 0xcf, 0x86, 0xaf, 0x1f, 0x69, 0xdb, 0x9e, 0x83, 0x39, 0xaa, 0x68, 0x23, 0x26,
-	0xc7, 0x00, 0x42, 0x26, 0xb5, 0x5c, 0xc9, 0xac, 0x60, 0xed, 0xcc, 0xae, 0x22, 0x8b, 0xac, 0x50,
-	0xc7, 0x92, 0x09, 0xb9, 0xda, 0xf0, 0x5d, 0x29, 0x7d, 0x43, 0x5d, 0xdd, 0x45, 0x32, 0x46, 0x10,
-	0xfe, 0xd0, 0xc0, 0x54, 0xed, 0x88, 0x07, 0xbd, 0xd1, 0xf8, 0x72, 0xf6, 0xf1, 0xf3, 0x34, 0x8e,
-	0x26, 0x71, 0xe4, 0x1d, 0x90, 0x1e, 0x38, 0x67, 0xcb, 0xf3, 0x69, 0x74, 0x3e, 0x9b, 0x78, 0x1a,
-	0x71, 0xc1, 0xc4, 0x6c, 0xe1, 0x75, 0x48, 0x17, 0x6c, 0xba, 0x9c, 0xcd, 0x90, 0xeb, 0xe4, 0x10,
-	0x9e, 0x2f, 0xaf, 0xa2, 0xd1, 0x22, 0x5e, 0xcd, 0x17, 0x23, 0xba, 0x40, 0x68, 0x60, 0xa9, 0x82,
-	0x98, 0x99, 0xa8, 0xbf, 0x3c, 0x9f, 0x4e, 0x31, 0xb1, 0x88, 0x03, 0x46, 0x14, 0x8f, 0x22, 0xcf,
-	0x46, 0x7c, 0x15, 0xcf, 0x54, 0x7b, 0x27, 0xfc, 0xa0, 0xde, 0x7a, 0x9a, 0x09, 0x49, 0x86, 0x60,
-	0xa7, 0xcd, 0xa4, 0xbe, 0x16, 0xe8, 0xfd, 0xee, 0xd0, 0xff, 0xdf, 0x26, 0xe8, 0xad, 0x30, 0xfc,
-	0xa9, 0x81, 0x35, 0xe6, 0xe5, 0x97, 0x6c, 0x8b, 0xb6, 0x28, 0x58, 0xc1, 0xeb, 0x1b, 0xb5, 0x73,
-	0x9d, 0xb6, 0xd9, 0x9d, 0x2d, 0x3a, 0xf7, 0x6c, 0x71, 0xdf, 0x02, 0xfa, 0x3f, 0x16, 0x38, 0x06,
-	0xd8, 0xf2, 0xd5, 0x35, 0xab, 0x45, 0xc6, 0x4b, 0xb5, 0x39, 0x97, 0xba, 0x5b, 0xfe, 0xa9, 0x01,
-	0xe4, 0x0d, 0xf4, 0xc4, 0xae, 0x42, 0x13, 0x88, 0x15, 0x5a, 0xa0, 0x71, 0x50, 0xf7, 0x96, 0x8d,
-	0x53, 0x31, 0xfc, 0xd3, 0x81, 0xde, 0x84, 0x9f, 0xe1, 0xcd, 0xe7, 0x78, 0x73, 0xf2, 0x0e, 0xac,
-	0x65, 0x95, 0xe2, 0xb6, 0x9f, 0x36, 0xc2, 0xd1, 0xe1, 0x43, 0xdc, 0xfc, 0x0f, 0x0e, 0xc8, 0x7b,
-	0x70, 0x54, 0x97, 0x0b, 0xbe, 0xde, 0xb3, 0xf2, 0x04, 0x74, 0xba, 0x2b, 0xf7, 0x2c, 0x3a, 0x05,
-	0xe3, 0x32, 0xcb, 0xf3, 0xfd, 0xab, 0xd4, 0xf3, 0x3d, 0x75, 0x7c, 0xf4, 0xb8, 0x15, 0x6a, 0xd5,
-	0x68, 0xee, 0x84, 0xc9, 0xf6, 0xe9, 0x9e, 0x2c, 0x7d, 0xf1, 0x10, 0x36, 0xd2, 0xf0, 0x60, 0x6d,
-	0xa9, 0x8f, 0xc7, 0xc9, 0xdf, 0x00, 0x00, 0x00, 0xff, 0xff, 0xb3, 0xe6, 0x32, 0x8d, 0x4b, 0x04,
-	0x00, 0x00,
+	// 938 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x56, 0x5d, 0x8e, 0xe2, 0x46,
+	0x10, 0xc6, 0x18, 0x0c, 0x94, 0x99, 0x59, 0xa7, 0x27, 0xd9, 0x78, 0x49, 0x36, 0x62, 0x9d, 0x17,
+	0x76, 0x1f, 0x26, 0x5a, 0x76, 0x15, 0x45, 0x91, 0x46, 0x2b, 0x06, 0xd0, 0x64, 0x18, 0x44, 0x46,
+	0x0d, 0x24, 0x79, 0x43, 0x36, 0x74, 0x18, 0x6f, 0xc0, 0xed, 0x75, 0x37, 0xa3, 0xec, 0x05, 0xf2,
+	0x92, 0xb7, 0x9c, 0x20, 0x77, 0xc8, 0x71, 0x72, 0x85, 0x1c, 0x22, 0xaa, 0xb6, 0x61, 0x8c, 0x71,
+	0x7e, 0x78, 0xeb, 0xfe, 0xaa, 0xea, 0x73, 0xd5, 0x57, 0xd5, 0x05, 0x60, 0x8a, 0x95, 0x7b, 0xcf,
+	0xce, 0xc3, 0x88, 0x4b, 0x4e, 0xea, 0x4b, 0xee, 0x6d, 0xfc, 0xd5, 0x42, 0x61, 0x4e, 0x05, 0xca,
+	0xfd, 0x75, 0x28, 0xdf, 0x3b, 0x2b, 0x30, 0x29, 0x7b, 0xb7, 0xf1, 0x23, 0xb6, 0x66, 0x81, 0x24,
+	0x17, 0x50, 0x9d, 0xbb, 0x92, 0x2d, 0x79, 0xf4, 0xde, 0xd6, 0x9a, 0x5a, 0xeb, 0xb4, 0xfd, 0xec,
+	0x3c, 0x1d, 0x78, 0x9e, 0x72, 0xee, 0x26, 0x8e, 0x74, 0x17, 0x42, 0x3e, 0x03, 0x08, 0x23, 0x1e,
+	0xb2, 0x48, 0xfa, 0x4c, 0xd8, 0xc5, 0xa6, 0xd6, 0xaa, 0xd1, 0x14, 0xe2, 0xbc, 0x03, 0x7d, 0xc0,
+	0x3d, 0x42, 0xa0, 0x14, 0xb8, 0x6b, 0xa6, 0xbe, 0x50, 0xa3, 0xea, 0x4c, 0x3e, 0x86, 0xca, 0x92,
+	0xcf, 0x42, 0x57, 0xde, 0x25, 0x71, 0xc6, 0x92, 0xdf, 0xba, 0xf2, 0x8e, 0x5c, 0x40, 0x3d, 0x7a,
+	0xf8, 0xa8, 0xb0, 0xf5, 0xa6, 0xde, 0x32, 0xdb, 0x4f, 0xfe, 0x31, 0x2d, 0xba, 0xe7, 0xee, 0xfc,
+	0xaa, 0xc1, 0xc9, 0x80, 0x7b, 0x1d, 0x21, 0xfc, 0x65, 0xa0, 0x6a, 0xfc, 0x1c, 0xf4, 0xb7, 0xdc,
+	0x53, 0x1f, 0x37, 0xdb, 0x1f, 0xec, 0xf3, 0x0c, 0xb8, 0x47, 0xd1, 0x4a, 0x1e, 0x83, 0x21, 0x58,
+	0x74, 0xcf, 0xa2, 0x6d, 0x36, 0xf1, 0x0d, 0x53, 0x0f, 0x79, 0x24, 0x6d, 0xbd, 0xa9, 0xb5, 0xca,
+	0x54, 0x9d, 0xc9, 0x73, 0x28, 0x0b, 0xe9, 0x4a, 0x66, 0x97, 0x94, 0x62, 0x67, 0xfb, 0x94, 0x63,
+	0x34, 0xd1, 0xd8, 0xc3, 0x19, 0x82, 0x39, 0x46, 0xb4, 0xcb, 0x83, 0x1f, 0xfd, 0xe5, 0x41, 0x6d,
+	0xda, 0x71, 0xb5, 0xfd, 0xa1, 0x41, 0x65, 0xc0, 0xbd, 0x71, 0xc8, 0xe6, 0xb9, 0x9a, 0xfe, 0x4b,
+	0x11, 0x0b, 0x5f, 0xfc, 0xa4, 0x8a, 0xd0, 0xa9, 0x3a, 0x23, 0xe6, 0x46, 0x4b, 0x61, 0x97, 0x9a,
+	0x3a, 0xc6, 0xe3, 0x99, 0x34, 0xa0, 0xca, 0x7e, 0x96, 0x2c, 0x0a, 0xdc, 0x95, 0x5d, 0x6e, 0x6a,
+	0xad, 0x2a, 0xdd, 0xdd, 0xd1, 0xff, 0x8e, 0x0b, 0x69, 0x1b, 0xf1, 0xf7, 0xf0, 0xbc, 0x13, 0xa7,
+	0x92, 0x12, 0xc7, 0x02, 0x7d, 0xbe, 0x10, 0x76, 0x55, 0x85, 0xe3, 0xd1, 0xf9, 0x5d, 0x03, 0x18,
+	0x70, 0xaf, 0xc7, 0xa4, 0xeb, 0xaf, 0x04, 0x79, 0x0e, 0x25, 0x11, 0xb2, 0x79, 0xd2, 0x8f, 0x8f,
+	0x0e, 0xfa, 0x81, 0xd5, 0x51, 0xe5, 0xf2, 0x20, 0x74, 0xf1, 0xbf, 0x84, 0x26, 0x4f, 0x01, 0x84,
+	0x74, 0x23, 0x39, 0x93, 0xfe, 0x9a, 0x25, 0x85, 0xd6, 0x14, 0x32, 0xf1, 0xd7, 0xca, 0x2c, 0x99,
+	0x90, 0xb3, 0x39, 0xdf, 0x04, 0x52, 0xf5, 0xad, 0x4c, 0x6b, 0x88, 0x74, 0x11, 0x70, 0x2e, 0x94,
+	0xae, 0x43, 0x5f, 0x48, 0xd2, 0x86, 0xca, 0x22, 0xce, 0x34, 0xe9, 0x8e, 0x7d, 0x90, 0x61, 0x52,
+	0x09, 0xdd, 0x3a, 0x3a, 0xbf, 0x69, 0x60, 0x24, 0x1d, 0x7e, 0x0c, 0xc6, 0x9a, 0xad, 0xb7, 0xcf,
+	0x49, 0xa7, 0xc9, 0x6d, 0xd7, 0x82, 0x62, 0xaa, 0x05, 0x69, 0xb9, 0xf5, 0x8c, 0xdc, 0x4f, 0x01,
+	0x96, 0x7c, 0x76, 0xcf, 0x22, 0xe1, 0xf3, 0x40, 0x25, 0x5c, 0xa3, 0xb5, 0x25, 0xff, 0x2e, 0x06,
+	0xc8, 0x33, 0xa8, 0x8b, 0x4d, 0x88, 0x82, 0x8b, 0x19, 0xca, 0x1d, 0x77, 0xcb, 0xdc, 0x62, 0xdd,
+	0x85, 0x70, 0x5e, 0x02, 0xd0, 0x4d, 0x80, 0xc3, 0xc4, 0xc4, 0xff, 0x7b, 0x04, 0xce, 0x09, 0x98,
+	0x2a, 0x44, 0x84, 0x3c, 0x10, 0xcc, 0x79, 0x0d, 0x27, 0xd3, 0x70, 0x81, 0x22, 0x1f, 0x43, 0x62,
+	0xc1, 0xe9, 0x36, 0x2a, 0xe1, 0x69, 0x83, 0x79, 0xe3, 0xaf, 0x56, 0x47, 0xb1, 0x9c, 0x42, 0x3d,
+	0x8e, 0x49, 0x38, 0x4e, 0xc0, 0xc4, 0xf6, 0x24, 0x1c, 0xce, 0x1b, 0xa8, 0xc7, 0xd7, 0xd8, 0x4c,
+	0xbe, 0x80, 0xd2, 0x5b, 0xee, 0x6d, 0x5b, 0xf6, 0xc9, 0x01, 0xe9, 0xc3, 0x3a, 0xa0, 0xca, 0xd1,
+	0x79, 0x04, 0x27, 0x71, 0xc7, 0xb6, 0x8c, 0x5d, 0x38, 0xdd, 0x02, 0x09, 0xe7, 0x4b, 0x30, 0xe6,
+	0x0a, 0x49, 0x52, 0xcd, 0x3c, 0xd3, 0xd4, 0xbb, 0xa6, 0x89, 0xe3, 0x8b, 0xaf, 0xe1, 0x2c, 0x67,
+	0x61, 0x12, 0x13, 0x2a, 0xd3, 0xd1, 0xcd, 0xe8, 0xdb, 0xef, 0x47, 0x56, 0x81, 0x54, 0xa1, 0xd4,
+	0xbb, 0x1e, 0xdf, 0x58, 0x1a, 0xa9, 0x43, 0xb5, 0xff, 0xc3, 0xa4, 0x4f, 0x47, 0x9d, 0xa1, 0x55,
+	0x7c, 0xf1, 0x8b, 0x06, 0x65, 0x35, 0xd2, 0xc4, 0x82, 0x7a, 0xa7, 0x8b, 0xee, 0xc3, 0x7e, 0xef,
+	0xaa, 0xdf, 0xb3, 0x0a, 0xe8, 0x79, 0x39, 0xbd, 0x1e, 0xf6, 0xae, 0x47, 0x57, 0x96, 0x46, 0x6a,
+	0x50, 0xc6, 0xdb, 0xc4, 0x2a, 0x22, 0x33, 0x9d, 0x8e, 0x46, 0x88, 0xeb, 0xe4, 0x0c, 0x1e, 0x4d,
+	0x6f, 0x7b, 0x9d, 0x49, 0x7f, 0x36, 0x9e, 0x74, 0xe8, 0x04, 0xc1, 0x12, 0x86, 0x2a, 0x10, 0x6f,
+	0x65, 0xf4, 0xbf, 0xb9, 0x1e, 0x0e, 0xf1, 0x62, 0xa8, 0x4c, 0xfa, 0x9d, 0x9e, 0x55, 0x41, 0xf8,
+	0xb6, 0x3f, 0x52, 0xf4, 0xd5, 0xf6, 0x5f, 0x45, 0x80, 0x4b, 0xac, 0x53, 0x55, 0x48, 0xde, 0x80,
+	0x41, 0x37, 0x01, 0xae, 0xf1, 0xcc, 0x4b, 0x78, 0x98, 0xae, 0xc6, 0x93, 0x1c, 0x4b, 0xd2, 0xb8,
+	0x02, 0xf9, 0x06, 0x6a, 0xf1, 0x40, 0x20, 0x47, 0xa6, 0x35, 0x7b, 0xf3, 0xd5, 0xf8, 0x34, 0xdf,
+	0xb8, 0x63, 0xba, 0x84, 0x0a, 0x0e, 0x05, 0xf2, 0x64, 0xbe, 0x98, 0x9a, 0xaf, 0x46, 0x23, 0xcf,
+	0xb4, 0xe3, 0xe8, 0x42, 0x15, 0x27, 0x67, 0xc0, 0x3d, 0x91, 0x25, 0x49, 0x0d, 0x58, 0x96, 0x24,
+	0x3d, 0x6c, 0x4e, 0x81, 0x0c, 0xf6, 0xd7, 0x7a, 0xa6, 0xa8, 0xbd, 0xc1, 0xca, 0x16, 0xb5, 0x3f,
+	0x64, 0x4e, 0xa1, 0xfd, 0x67, 0x11, 0xea, 0x57, 0x3c, 0x25, 0xf8, 0x97, 0x60, 0xc4, 0x95, 0x93,
+	0xfc, 0xe5, 0xd8, 0xc8, 0xec, 0xc1, 0xf8, 0x87, 0xbd, 0x40, 0xbe, 0x82, 0xaa, 0x62, 0x41, 0x79,
+	0x8e, 0x8b, 0x7c, 0x05, 0x3a, 0xdd, 0x04, 0x47, 0x06, 0xbd, 0x86, 0x12, 0x4a, 0x7b, 0x7c, 0x94,
+	0x5a, 0xb3, 0x79, 0xe6, 0xc6, 0x21, 0x15, 0xfa, 0xaa, 0xd2, 0x6a, 0x57, 0x4c, 0x26, 0x6a, 0xe7,
+	0x86, 0x7e, 0x98, 0xa7, 0xb2, 0x53, 0xf0, 0x0c, 0xf5, 0x6f, 0xe8, 0xd5, 0xdf, 0x01, 0x00, 0x00,
+	0xff, 0xff, 0xe2, 0xc3, 0x29, 0xb9, 0x1c, 0x09, 0x00, 0x00,
 }

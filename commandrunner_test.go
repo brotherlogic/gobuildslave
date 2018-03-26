@@ -71,7 +71,7 @@ func TestGetExternalFunc(t *testing.T) {
 	s := Server{}
 	s.GoServer = &goserver.GoServer{}
 	s.disk = testDiskChecker{}
-	s.Registry = &pbd.RegistryEntry{Identifier: "stable"}
+	s.Registry = &pbd.RegistryEntry{Identifier: "runner"}
 
 	props, err := s.GetConfig(context.Background(), &pb.Empty{})
 

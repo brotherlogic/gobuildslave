@@ -63,34 +63,34 @@ func (s *Server) addMessage(details *pb.JobDetails, message string) {
 func (s *Server) monitor(job *pb.JobDetails) {
 	for true {
 		switch job.State {
-		case pb.JobDetails_ACKNOWLEDGED:
+		case pb.State_ACKNOWLEDGED:
 			job.StartTime = 0
 			job.GetSpec().Port = 0
-			job.State = pb.JobDetails_BUILDING
+			job.State = pb.State_BUILDING
 			s.runner.Checkout(job.GetSpec().Name)
-			job.State = pb.JobDetails_BUILT
-		case pb.JobDetails_BUILT:
+			job.State = pb.State_BUILT
+		case pb.State_BUILT:
 			s.runner.Run(job)
 			for job.StartTime == 0 {
 				time.Sleep(waitTime)
 			}
-			job.State = pb.JobDetails_PENDING
-		case pb.JobDetails_KILLING:
+			job.State = pb.State_PENDING
+		case pb.State_KILLING:
 			s.runner.kill(job)
 			if !isAlive(job.GetSpec()) {
-				job.State = pb.JobDetails_DEAD
+				job.State = pb.State_DEAD
 			}
-		case pb.JobDetails_UPDATE_STARTING:
+		case pb.State_UPDATE_STARTING:
 			s.runner.Update(job)
-			job.State = pb.JobDetails_RUNNING
-		case pb.JobDetails_PENDING:
+			job.State = pb.State_UPDATE_STARTING
+		case pb.State_PENDING:
 			time.Sleep(time.Minute)
 			if isAlive(job.GetSpec()) {
-				job.State = pb.JobDetails_RUNNING
+				job.State = pb.State_RUNNING
 			} else {
-				job.State = pb.JobDetails_DEAD
+				job.State = pb.State_DEAD
 			}
-		case pb.JobDetails_RUNNING:
+		case pb.State_RUNNING:
 			time.Sleep(waitTime)
 			if !isAlive(job.GetSpec()) {
 				job.TestCount++
@@ -99,10 +99,10 @@ func (s *Server) monitor(job *pb.JobDetails) {
 			}
 			if job.TestCount > 60 {
 				s.Log(fmt.Sprintf("Killing beacuse we couldn't reach 60 times: %v", job))
-				job.State = pb.JobDetails_DEAD
+				job.State = pb.State_DEAD
 			}
-		case pb.JobDetails_DEAD:
-			job.State = pb.JobDetails_ACKNOWLEDGED
+		case pb.State_DEAD:
+			job.State = pb.State_ACKNOWLEDGED
 		}
 	}
 }

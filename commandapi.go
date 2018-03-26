@@ -33,7 +33,7 @@ func (s *Server) Run(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
 		return &pb.Empty{}, nil
 	}
 
-	s.jobs[in.GetName()] = &pb.JobDetails{Spec: in, State: pb.JobDetails_ACKNOWLEDGED}
+	s.jobs[in.GetName()] = &pb.JobDetails{Spec: in, State: pb.State_ACKNOWLEDGED}
 	go s.monitor(s.jobs[in.GetName()])
 
 	s.LogFunction("Run-notfound", t)
@@ -44,12 +44,12 @@ func (s *Server) Run(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
 func (s *Server) Update(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
 	t := time.Now()
 	//Only update if we're running
-	if j, ok := s.jobs[in.GetName()]; !ok || j.State == pb.JobDetails_RUNNING {
+	if j, ok := s.jobs[in.GetName()]; !ok || j.State == pb.State_RUNNING {
 		s.LogFunction("Update-notrunning", t)
 		return &pb.Empty{}, nil
 	}
 
-	s.jobs[in.GetName()].State = pb.JobDetails_UPDATE_STARTING
+	s.jobs[in.GetName()].State = pb.State_UPDATE_STARTING
 
 	s.LogFunction("Update", t)
 	return &pb.Empty{}, nil
@@ -59,12 +59,12 @@ func (s *Server) Update(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) 
 func (s *Server) Kill(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
 	t := time.Now()
 	//Only update if we're running
-	if j, ok := s.jobs[in.GetName()]; !ok || j.State == pb.JobDetails_RUNNING {
+	if j, ok := s.jobs[in.GetName()]; !ok || j.State == pb.State_RUNNING {
 		s.LogFunction("Kill-notrunning", t)
 		return &pb.Empty{}, nil
 	}
 
-	s.jobs[in.GetName()].State = pb.JobDetails_KILLING
+	s.jobs[in.GetName()].State = pb.State_KILLING
 
 	s.LogFunction("Kill", t)
 	return &pb.Empty{}, nil
