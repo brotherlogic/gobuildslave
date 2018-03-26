@@ -4,6 +4,47 @@ package gobuildslave;
 
 message Empty {}
 
+enum RequirementCategory {
+  UNKNOWN = 0;
+  DISK = 1;
+  EXTERNAL = 2;
+}
+
+enum State {
+  ACKNOWLEDGED = 0;
+  BUILDING = 1;
+  BUILT = 2;
+  RUNNING = 3;
+  UPDATE_STARTING = 4;
+  UPDATING = 5;
+  KILLING = 6;
+  DEAD = 7;
+  PENDING = 8;
+}
+
+
+message Requirement {
+  RequirementCategory category = 1;
+  string properties = 2;
+}
+
+message Job {
+  string name = 1;
+  string go_path = 2;
+  repeated Requirement requirements = 3;
+}
+
+message JobAssignment {
+  Job job = 1;
+  string server = 2;
+  int32 port = 3;
+  State state = 4;
+}
+
+message SlaveConfig {
+  repeated Requirement requirements = 1;
+}
+
 message JobSpec {
 	string name = 1;
 	string server = 2;
@@ -18,17 +59,6 @@ message JobSpec {
 message JobDetails {
 	JobSpec spec = 1;
 
-	enum State {
-		ACKNOWLEDGED = 0;
-		BUILDING = 1;
-		BUILT = 2;
-		RUNNING = 3;
-		UPDATE_STARTING = 4;
-		UPDATING = 5;
-		KILLING = 6;
-		DEAD = 7;
-		PENDING = 8;
-	}
 	State state = 2;
 	int64 start_time = 3;
 	int32 test_count = 4;
@@ -44,6 +74,44 @@ message Config {
 	bool external = 3;
 	string go_version = 4;
 	bool supports_cds = 5;
+}
+
+message RunRequest {
+  Job job = 1;
+}
+
+message RunResponse {}
+
+message UpdateRequest{
+  Job job = 1;
+}
+
+message UpdateResponse {}
+
+message KillRequest {
+  Job job = 1;
+}
+
+message KillResponse {}
+
+message ListRequest {}
+
+message ListResponse {
+  repeated JobAssignment jobs = 1;
+}
+
+message ConfigRequest {}
+
+message ConfigResponse {
+  SlaveConfig config = 1;
+}
+
+service BuildSlave {
+  rpc RunJob(RunRequest) returns (RunResponse) {};
+  rpc UpdateJob(UpdateRequest) returns (UpdateResponse) {};
+  rpc KillJob(KillRequest) returns (KillResponse) {};
+  rpc ListJobs(ListRequest) returns (ListResponse) {};
+  rpc SlaveConfig(ConfigRequest) returns (ConfigResponse) {};
 }
 
 service GoBuildSlave {
