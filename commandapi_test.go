@@ -15,6 +15,7 @@ func getTestServer() *Server {
 	s.GoServer = &goserver.GoServer{}
 	s.runner = InitTest()
 	s.jobs = make(map[string]*pb.JobDetails)
+	s.njobs = make(map[string]*pb.JobAssignment)
 	s.Register = s
 	s.SkipLog = true
 	s.disk = prodDiskChecker{}
