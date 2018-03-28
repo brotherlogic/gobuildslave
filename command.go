@@ -33,6 +33,7 @@ type Server struct {
 	runner *Runner
 	disk   diskChecker
 	jobs   map[string]*pb.JobDetails
+	njobs  map[string]*pb.JobAssignment
 }
 
 func deliverCrashReport(job *runnerCommand, getter func(name string) (string, int), logger func(text string)) {
@@ -58,6 +59,10 @@ func (s *Server) addMessage(details *pb.JobDetails, message string) {
 			t.output += message
 		}
 	}
+}
+
+func (s *Server) nmonitor(job *pb.JobAssignment) {
+	// Do nothing for now
 }
 
 func (s *Server) monitor(job *pb.JobDetails) {
@@ -317,7 +322,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails)}
+	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails), make(map[string]*pb.JobAssignment)}
 	s.runner.getip = s.GetIP
 	s.runner.logger = s.Log
 	s.Register = s
