@@ -16,6 +16,16 @@ func TestRunJob(t *testing.T) {
 	}
 }
 
+func TestNKillJob(t *testing.T) {
+	s := getTestServer()
+	_, err := s.RunJob(context.Background(), &pb.RunRequest{Job: &pb.Job{Name: "test1"}})
+	_, err = s.KillJob(context.Background(), &pb.KillRequest{Job: &pb.Job{Name: "test1"}})
+
+	if err != nil {
+		t.Errorf("Error running job: %v", err)
+	}
+}
+
 func TestDoubleRunJob(t *testing.T) {
 	s := getTestServer()
 	_, err := s.RunJob(context.Background(), &pb.RunRequest{Job: &pb.Job{Name: "test1"}})
