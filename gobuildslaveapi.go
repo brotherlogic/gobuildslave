@@ -30,6 +30,16 @@ func (s *Server) KillJob(ctx context.Context, req *pb.KillRequest) (*pb.KillResp
 	return &pb.KillResponse{}, nil
 }
 
+//UpdateJob - updates the job
+func (s *Server) UpdateJob(ctx context.Context, req *pb.UpdateRequest) (*pb.UpdateResponse, error) {
+	if _, ok := s.njobs[req.GetJob().GetName()]; !ok {
+		return nil, fmt.Errorf("Job was not running")
+	}
+
+	s.njobs[req.GetJob().GetName()].State = pb.State_UPDATE_STARTING
+	return &pb.UpdateResponse{}, nil
+}
+
 // ListJobs - lists the jobs
 func (s *Server) ListJobs(ctx context.Context, req *pb.ListRequest) (*pb.ListResponse, error) {
 	return &pb.ListResponse{}, fmt.Errorf("NOT IMPLEMENTED")
