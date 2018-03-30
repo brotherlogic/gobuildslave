@@ -22,7 +22,12 @@ func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunRespons
 
 // KillJob - kills the job
 func (s *Server) KillJob(ctx context.Context, req *pb.KillRequest) (*pb.KillResponse, error) {
-	return &pb.KillResponse{}, fmt.Errorf("NOT IMPLEMENTED")
+	if _, ok := s.njobs[req.GetJob().GetName()]; !ok {
+		return nil, fmt.Errorf("Job was not running")
+	}
+
+	s.njobs[req.GetJob().GetName()].State = pb.State_KILLING
+	return &pb.KillResponse{}, nil
 }
 
 // ListJobs - lists the jobs
