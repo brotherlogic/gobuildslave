@@ -16,6 +16,25 @@ func TestRunJob(t *testing.T) {
 	}
 }
 
+func TestNUpdateJob(t *testing.T) {
+	s := getTestServer()
+	_, err := s.RunJob(context.Background(), &pb.RunRequest{Job: &pb.Job{Name: "test1"}})
+	_, err = s.UpdateJob(context.Background(), &pb.UpdateRequest{Job: &pb.Job{Name: "test1"}})
+
+	if err != nil {
+		t.Errorf("Error updating job: %v", err)
+	}
+}
+
+func TestNUpdateNoJob(t *testing.T) {
+	s := getTestServer()
+	_, err := s.UpdateJob(context.Background(), &pb.UpdateRequest{Job: &pb.Job{Name: "test1"}})
+
+	if err == nil {
+		t.Errorf("Error updating job: %v", err)
+	}
+}
+
 func TestNKillJob(t *testing.T) {
 	s := getTestServer()
 	_, err := s.RunJob(context.Background(), &pb.RunRequest{Job: &pb.Job{Name: "test1"}})
