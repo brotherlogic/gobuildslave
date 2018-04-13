@@ -42,7 +42,11 @@ func (s *Server) UpdateJob(ctx context.Context, req *pb.UpdateRequest) (*pb.Upda
 
 // ListJobs - lists the jobs
 func (s *Server) ListJobs(ctx context.Context, req *pb.ListRequest) (*pb.ListResponse, error) {
-	return &pb.ListResponse{}, fmt.Errorf("NOT IMPLEMENTED")
+	resp := &pb.ListResponse{}
+	for _, job := range s.njobs {
+		resp.Jobs = append(resp.Jobs, job)
+	}
+	return resp, nil
 }
 
 // SlaveConfig gets the config for this slave
