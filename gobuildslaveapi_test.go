@@ -45,6 +45,15 @@ func TestNKillJob(t *testing.T) {
 	}
 }
 
+func TestNKillJobNotRunning(t *testing.T) {
+	s := getTestServer()
+	_, err := s.KillJob(context.Background(), &pb.KillRequest{Job: &pb.Job{Name: "test1"}})
+
+	if err == nil {
+		t.Errorf("Error running job: %v", err)
+	}
+}
+
 func TestDoubleRunJob(t *testing.T) {
 	s := getTestServer()
 	_, err := s.RunJob(context.Background(), &pb.RunRequest{Job: &pb.Job{Name: "test1"}})
@@ -53,19 +62,6 @@ func TestDoubleRunJob(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error running job: %v", err)
 	}
-}
-
-func TestWrapUp(t *testing.T) {
-	s := getTestServer()
-	_, err := s.KillJob(context.Background(), &pb.KillRequest{})
-	if err == nil {
-		t.Errorf("No need to wrap Kill")
-	}
-	_, err = s.SlaveConfig(context.Background(), &pb.ConfigRequest{})
-	if err == nil {
-		t.Errorf("No need to wrap Config")
-	}
-
 }
 
 func TestListJobs(t *testing.T) {
@@ -83,5 +79,17 @@ func TestListJobs(t *testing.T) {
 
 	if len(list.Jobs) != 1 {
 		t.Errorf("Problem in the listing")
+	}
+}
+
+func TestGetSlaveConfig(t *testing.T) {
+	s := getTestServer()
+	config, err := s.SlaveConfig(context.Background(), &pb.ConfigRequest{})
+	if err != nil {
+		t.Fatalf("Error getting config: %v", err)
+	}
+
+	if len(config.Config.Requirements) != 0 {
+		t.Errorf("Requirements not been captured: %v", config)
 	}
 }
