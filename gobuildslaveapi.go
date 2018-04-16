@@ -51,5 +51,5 @@ func (s *Server) ListJobs(ctx context.Context, req *pb.ListRequest) (*pb.ListRes
 
 // SlaveConfig gets the config for this slave
 func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.ConfigResponse, error) {
-	return &pb.ConfigResponse{}, fmt.Errorf("NOT IMPLEMENTED")
+	return &pb.ConfigResponse{Config: &pb.SlaveConfig{}}, nil
 }
