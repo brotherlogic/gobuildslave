@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/brotherlogic/goserver"
@@ -20,6 +21,7 @@ func getTestServer() *Server {
 	s.SkipLog = true
 	s.disk = prodDiskChecker{}
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".testfolder")
+	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}}
 	return &s
 }
 
