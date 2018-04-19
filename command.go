@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"sync"
@@ -30,10 +31,12 @@ import (
 // Server the main server type
 type Server struct {
 	*goserver.GoServer
-	runner *Runner
-	disk   diskChecker
-	jobs   map[string]*pb.JobDetails
-	njobs  map[string]*pb.JobAssignment
+	runner     *Runner
+	disk       diskChecker
+	jobs       map[string]*pb.JobDetails
+	njobs      map[string]*pb.JobAssignment
+	translator translator
+	scheduler  *Scheduler
 }
 
 func deliverCrashReport(job *runnerCommand, getter func(name string) (string, int), logger func(text string)) {
@@ -313,6 +316,12 @@ func (s *Server) rebuildLoop() {
 	}
 }
 
+type pTranslator struct{}
+
+func (p *pTranslator) build(job *pb.Job) *exec.Cmd {
+	return exec.Command("go", "get", job.Name)
+}
+
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	flag.Parse()
@@ -322,7 +331,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails), make(map[string]*pb.JobAssignment)}
+	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails), make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}}}
 	s.runner.getip = s.GetIP
 	s.runner.logger = s.Log
 	s.Register = s
