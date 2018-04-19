@@ -205,6 +205,7 @@ func isAlive(spec *pb.JobSpec) bool {
 // DoRegister Registers this server
 func (s Server) DoRegister(server *grpc.Server) {
 	pb.RegisterGoBuildSlaveServer(server, &s)
+	pb.RegisterBuildSlaveServer(server, &s)
 }
 
 // ReportHealth determines if the server is healthy
