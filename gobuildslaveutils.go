@@ -15,16 +15,25 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 		if s.taskComplete("build", job.Job) {
 			job.State = pb.State_BUILT
 		}
+	case pb.State_BUILT:
+		s.scheduleRun(job.Job)
+		job.State = pb.State_PENDING
 	}
 }
 
 type translator interface {
 	build(job *pb.Job) *exec.Cmd
+	run(job *pb.Job) *exec.Cmd
 }
 
 func (s *Server) scheduleBuild(job *pb.Job) {
 	c := s.translator.build(job)
 	s.scheduler.Schedule(job.Name+"-build", &rCommand{command: c})
+}
+
+func (s *Server) scheduleRun(job *pb.Job) {
+	c := s.translator.run(job)
+	s.scheduler.Schedule(job.Name+"-run", &rCommand{command: c})
 }
 
 func (s *Server) taskComplete(state string, job *pb.Job) bool {

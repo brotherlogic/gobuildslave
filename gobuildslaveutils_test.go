@@ -13,6 +13,10 @@ func (t *testTranslator) build(job *pb.Job) *exec.Cmd {
 	return exec.Command("ls")
 }
 
+func (t *testTranslator) run(job *pb.Job) *exec.Cmd {
+	return exec.Command("ls")
+}
+
 var transitionTable = []struct {
 	job      *pb.JobAssignment
 	complete string
@@ -25,6 +29,10 @@ var transitionTable = []struct {
 	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_BUILDING},
 	"blah-build",
 	pb.State_BUILT,
+}, {
+	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_BUILT},
+	"",
+	pb.State_PENDING,
 }}
 
 func TestTransitions(t *testing.T) {

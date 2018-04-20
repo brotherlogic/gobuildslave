@@ -326,6 +326,12 @@ func (p *pTranslator) build(job *pb.Job) *exec.Cmd {
 	return exec.Command("go", "get", "-u", job.Name)
 }
 
+func (p *pTranslator) run(job *pb.Job) *exec.Cmd {
+	elems := strings.Split(job.GoPath, "/")
+	command := elems[len(elems)-1]
+	return exec.Command("$GOPATH/bin" + command)
+}
+
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	flag.Parse()
