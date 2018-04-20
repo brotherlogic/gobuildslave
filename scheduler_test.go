@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"testing"
+	"time"
 )
 
 func TestBasicRun(t *testing.T) {
@@ -18,7 +19,9 @@ func TestBasicRun(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error running command: %v", err)
 	}
-	rc.command.Wait()
+	for rc.endTime == 0 {
+		time.Sleep(time.Millisecond * 100)
+	}
 
 	if rc.output != "hello" {
 		t.Errorf("No output: %v", rc)
