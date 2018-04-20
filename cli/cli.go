@@ -126,7 +126,7 @@ func main() {
 				registry := pb.NewBuildSlaveClient(conn)
 				res, err := registry.ListJobs(context.Background(), &pb.ListRequest{})
 				if err != nil {
-					log.Fatalf("Error building job: %v", err)
+					log.Fatalf("Error listing job: %v", err)
 				}
 				for _, r := range res.Jobs {
 					fmt.Printf("%v\n", r.Job.Name)

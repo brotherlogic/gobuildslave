@@ -65,7 +65,10 @@ func (s *Server) addMessage(details *pb.JobDetails, message string) {
 }
 
 func (s *Server) nmonitor(job *pb.JobAssignment) {
-	// Do nothing for now
+	for job.State != pb.State_DEAD {
+		time.Sleep(time.Second)
+		s.runTransition(job)
+	}
 }
 
 func (s *Server) monitor(job *pb.JobDetails) {
