@@ -323,7 +323,7 @@ func (s *Server) rebuildLoop() {
 type pTranslator struct{}
 
 func (p *pTranslator) build(job *pb.Job) *exec.Cmd {
-	return exec.Command("go", "get", job.Name)
+	return exec.Command("go", "get", "-u", job.Name)
 }
 
 func main() {
