@@ -3,9 +3,32 @@ package main
 import (
 	"os"
 	"os/exec"
+	"sync"
 	"testing"
 	"time"
 )
+
+func TestRandomComplete(t *testing.T) {
+	s := Scheduler{cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
+	if s.schedulerComplete("madeup") {
+		t.Errorf("Made up lookup has not failed")
+	}
+}
+
+func TestMarkComplete(t *testing.T) {
+	str, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("WHAAAA %v", err)
+	}
+	rc := &rCommand{command: exec.Command(str + "/run.sh")}
+	s := Scheduler{cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
+	s.Schedule("running", rc)
+	s.markComplete("running")
+
+	if rc.endTime == 0 {
+		t.Errorf("Mark complete failed")
+	}
+}
 
 func TestBasicRun(t *testing.T) {
 	os.Setenv("GOBIN", "blah")

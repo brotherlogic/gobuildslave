@@ -11,6 +11,10 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 	case pb.State_ACKNOWLEDGED:
 		s.scheduleBuild(job.Job)
 		job.State = pb.State_BUILDING
+	case pb.State_BUILDING:
+		if s.taskComplete("build", job.Job) {
+			job.State = pb.State_BUILT
+		}
 	}
 }
 
@@ -20,5 +24,9 @@ type translator interface {
 
 func (s *Server) scheduleBuild(job *pb.Job) {
 	c := s.translator.build(job)
-	s.scheduler.Schedule(&rCommand{command: c})
+	s.scheduler.Schedule(job.Name+"-build", &rCommand{command: c})
+}
+
+func (s *Server) taskComplete(state string, job *pb.Job) bool {
+	return s.scheduler.schedulerComplete(job.Name + "-" + state)
 }

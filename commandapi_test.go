@@ -21,7 +21,7 @@ func getTestServer() *Server {
 	s.SkipLog = true
 	s.disk = prodDiskChecker{}
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".testfolder")
-	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}}
+	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
 	return &s
 }
 
