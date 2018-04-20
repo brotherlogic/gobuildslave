@@ -20,6 +20,7 @@ enum State {
   KILLING = 6;
   DEAD = 7;
   PENDING = 8;
+  DIED = 9;
 }
 
 
@@ -37,6 +38,7 @@ message Job {
 message JobAssignment {
   Job job = 1;
   string server = 2;
+  string host = 5;
   int32 port = 3;
   State state = 4;
 }

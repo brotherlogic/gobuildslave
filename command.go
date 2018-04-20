@@ -37,6 +37,7 @@ type Server struct {
 	njobs      map[string]*pb.JobAssignment
 	translator translator
 	scheduler  *Scheduler
+	checker    checker
 }
 
 func deliverCrashReport(job *runnerCommand, getter func(name string) (string, int), logger func(text string)) {
@@ -332,6 +333,52 @@ func (p *pTranslator) run(job *pb.Job) *exec.Cmd {
 	return exec.Command("$GOPATH/bin" + command)
 }
 
+type pChecker struct{}
+
+func (p *pChecker) isAlive(job *pb.JobAssignment) bool {
+	return isJobAlive(job)
+}
+
+// updateState of the runner command
+func isJobAlive(job *pb.JobAssignment) bool {
+	if job.GetPort() == 0 {
+		dServer, dPort, err := getIP(job.Job.Name, job.Server)
+
+		e, ok := status.FromError(err)
+		if ok && e.Code() == codes.DeadlineExceeded {
+			//Ignore deadline exceeds on discover
+			return true
+		}
+
+		if err != nil {
+			return false
+		}
+
+		job.Host = dServer
+		job.Port = dPort
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	dConn, err := grpc.Dial(job.Host+":"+strconv.Itoa(int(job.Port)), grpc.WithInsecure())
+	if err != nil {
+		return false
+	}
+	defer dConn.Close()
+
+	c := pbs.NewGoserverServiceClient(dConn)
+	resp, err := c.IsAlive(ctx, &pbs.Alive{}, grpc.FailFast(false))
+
+	if err != nil || resp.Name != job.Job.Name {
+		e, ok := status.FromError(err)
+		if ok && e.Code() != codes.Unavailable {
+			return false
+		}
+	}
+
+	return true
+}
+
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	flag.Parse()
@@ -341,7 +388,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails), make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}}
+	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails), make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}}
 	s.runner.getip = s.GetIP
 	s.runner.logger = s.Log
 	s.Register = s

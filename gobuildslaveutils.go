@@ -2,8 +2,13 @@ package main
 
 import (
 	"os/exec"
+	"time"
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
+)
+
+const (
+	pendWait = time.Minute
 )
 
 func (s *Server) runTransition(job *pb.JobAssignment) {
@@ -18,12 +23,22 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 	case pb.State_BUILT:
 		s.scheduleRun(job.Job)
 		job.State = pb.State_PENDING
+	case pb.State_PENDING:
+		if s.checker.isAlive(job) {
+			job.State = pb.State_RUNNING
+		} else {
+			job.State = pb.State_DIED
+		}
 	}
 }
 
 type translator interface {
 	build(job *pb.Job) *exec.Cmd
 	run(job *pb.Job) *exec.Cmd
+}
+
+type checker interface {
+	isAlive(job *pb.JobAssignment) bool
 }
 
 func (s *Server) scheduleBuild(job *pb.Job) {
