@@ -14,6 +14,8 @@ type rCommand struct {
 	command   *exec.Cmd
 	output    string
 	startTime int64
+	endTime   int64
+	err       error
 }
 
 //Scheduler the main task scheduler
@@ -87,6 +89,15 @@ func run(c *rCommand) error {
 		return err
 	}
 	c.startTime = time.Now().Unix()
+
+	// Monitor the job and report completion
+	go func() {
+		err := c.command.Wait()
+		c.endTime = time.Now().Unix()
+		if err != nil {
+			c.err = err
+		}
+	}()
 
 	return nil
 }

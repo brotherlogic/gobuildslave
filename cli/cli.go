@@ -132,6 +132,20 @@ func main() {
 					fmt.Printf("%v\n", r.Job.Name)
 				}
 			}
+		case "nbuild":
+			if err := buildFlags.Parse(os.Args[2:]); err == nil {
+				host, port := findServer("gobuildslave", *server)
+
+				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
+				defer conn.Close()
+
+				registry := pb.NewBuildSlaveClient(conn)
+				_, err := registry.RunJob(context.Background(), &pb.RunRequest{Job: &pb.Job{Name: "github.com/brotherlogic/crasher"}})
+				if err != nil {
+					log.Fatalf("Error listing job: %v", err)
+				}
+			}
+
 		case "config":
 			servers := findServers()
 
