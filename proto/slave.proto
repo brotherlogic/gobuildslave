@@ -41,7 +41,7 @@ message JobAssignment {
   string host = 5;
   int32 port = 3;
   State state = 4;
-  int64 startTime = 5;
+  int64 startTime = 6;
 }
 
 message SlaveConfig {
