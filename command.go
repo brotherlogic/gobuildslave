@@ -173,6 +173,7 @@ func getIP(name string, server string) (string, int32, error) {
 
 	registry := pbd.NewDiscoveryServiceClient(conn)
 	entry := pbd.RegistryEntry{Name: name, Identifier: server}
+
 	r, err := registry.Discover(ctx, &pbd.DiscoverRequest{Request: &entry}, grpc.FailFast(false))
 
 	if err != nil {

@@ -16,6 +16,7 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 	case pb.State_ACKNOWLEDGED:
 		s.scheduleBuild(job.Job)
 		job.State = pb.State_BUILDING
+		job.Server = s.Registry.Identifier
 	case pb.State_BUILDING:
 		if s.taskComplete("build", job.Job) {
 			job.State = pb.State_BUILT
