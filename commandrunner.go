@@ -17,6 +17,10 @@ const (
 	pauseTime = 10 * time.Millisecond
 )
 
+type disker interface {
+	getDisks() []string
+}
+
 type diskChecker interface {
 	diskUsage(path string) int64
 }

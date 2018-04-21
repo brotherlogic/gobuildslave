@@ -84,12 +84,13 @@ func TestListJobs(t *testing.T) {
 
 func TestGetSlaveConfig(t *testing.T) {
 	s := getTestServer()
+	s.disker = &testDisker{disks: []string{"disk1"}}
 	config, err := s.SlaveConfig(context.Background(), &pb.ConfigRequest{})
 	if err != nil {
 		t.Fatalf("Error getting config: %v", err)
 	}
 
-	if len(config.Config.Requirements) != 0 {
+	if len(config.Config.Requirements) != 1 {
 		t.Errorf("Requirements not been captured: %v", config)
 	}
 }
