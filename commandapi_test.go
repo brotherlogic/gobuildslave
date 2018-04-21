@@ -8,6 +8,7 @@ import (
 	"github.com/brotherlogic/keystore/client"
 	"golang.org/x/net/context"
 
+	pbd "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 )
 
@@ -26,6 +27,7 @@ func getTestServer() *Server {
 	s.jobs = make(map[string]*pb.JobDetails)
 	s.njobs = make(map[string]*pb.JobAssignment)
 	s.Register = s
+	s.Registry = &pbd.RegistryEntry{Identifier: "MadeUp"}
 	s.SkipLog = true
 	s.disk = prodDiskChecker{}
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".testfolder")
