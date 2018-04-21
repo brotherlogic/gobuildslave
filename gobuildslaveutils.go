@@ -25,7 +25,7 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 		job.StartTime = time.Now().Unix()
 		job.State = pb.State_PENDING
 	case pb.State_PENDING:
-		if time.Now().Add(-time.Minute) > job.StartTime {
+		if time.Now().Add(-time.Minute).Unix() > job.StartTime {
 			if s.checker.isAlive(job) {
 				job.State = pb.State_RUNNING
 			} else {
