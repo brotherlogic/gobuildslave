@@ -67,7 +67,7 @@ func run(c *rCommand) error {
 		}
 	}
 
-	gpath := home + "/gbuild"
+	gpath := home + "/gobuild"
 	c.command.Path = strings.Replace(c.command.Path, "$GOPATH", gpath, -1)
 	for i := range c.command.Args {
 		c.command.Args[i] = strings.Replace(c.command.Args[i], "$GOPATH", gpath, -1)

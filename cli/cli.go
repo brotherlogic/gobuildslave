@@ -145,7 +145,20 @@ func main() {
 					log.Fatalf("Error listing job: %v", err)
 				}
 			}
+		case "nconfig":
+			if err := buildFlags.Parse(os.Args[2:]); err == nil {
+				host, port := findServer("gobuildslave", *server)
 
+				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
+				defer conn.Close()
+
+				registry := pb.NewBuildSlaveClient(conn)
+				res, err := registry.SlaveConfig(context.Background(), &pb.ConfigRequest{})
+				if err != nil {
+					log.Fatalf("Error listing job: %v", err)
+				}
+				fmt.Printf("%v\n", res)
+			}
 		case "config":
 			servers := findServers()
 
