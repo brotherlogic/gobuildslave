@@ -51,5 +51,10 @@ func (s *Server) ListJobs(ctx context.Context, req *pb.ListRequest) (*pb.ListRes
 
 // SlaveConfig gets the config for this slave
 func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.ConfigResponse, error) {
-	return &pb.ConfigResponse{Config: &pb.SlaveConfig{}}, nil
+	disks := s.disker.getDisks()
+	requirements := make([]*pb.Requirement, 0)
+	for _, disk := range disks {
+		requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_DISK, Properties: disk})
+	}
+	return &pb.ConfigResponse{Config: &pb.SlaveConfig{Requirements: requirements}}, nil
 }

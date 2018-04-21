@@ -11,6 +11,14 @@ import (
 	pb "github.com/brotherlogic/gobuildslave/proto"
 )
 
+type testDisker struct {
+	disks []string
+}
+
+func (t *testDisker) getDisks() []string {
+	return t.disks
+}
+
 func getTestServer() *Server {
 	s := Server{}
 	s.GoServer = &goserver.GoServer{}
@@ -22,6 +30,7 @@ func getTestServer() *Server {
 	s.disk = prodDiskChecker{}
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".testfolder")
 	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
+	s.disker = &testDisker{}
 	return &s
 }
 

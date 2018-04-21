@@ -28,6 +28,22 @@ import (
 	"github.com/brotherlogic/goserver/utils"
 )
 
+type prodDisker struct{}
+
+func (p *prodDisker) getDisks() []string {
+	disks := make([]string, 0)
+	read, err := ioutil.ReadDir("/media")
+	if err == nil {
+		for _, f := range read {
+			if f.IsDir() {
+				disks = append(disks, f.Name())
+			}
+		}
+	}
+
+	return disks
+}
+
 // Server the main server type
 type Server struct {
 	*goserver.GoServer
@@ -38,6 +54,7 @@ type Server struct {
 	translator translator
 	scheduler  *Scheduler
 	checker    checker
+	disker     disker
 }
 
 func deliverCrashReport(job *runnerCommand, getter func(name string) (string, int), logger func(text string)) {
@@ -388,7 +405,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails), make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}}
+	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails), make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}}
 	s.runner.getip = s.GetIP
 	s.runner.logger = s.Log
 	s.Register = s
