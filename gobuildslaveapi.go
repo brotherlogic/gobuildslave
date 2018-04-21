@@ -56,5 +56,6 @@ func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.Co
 	for _, disk := range disks {
 		requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_DISK, Properties: disk})
 	}
+	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_SERVER, Properties: s.Registry.Identifier})
 	return &pb.ConfigResponse{Config: &pb.SlaveConfig{Requirements: requirements}}, nil
 }
