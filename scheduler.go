@@ -22,29 +22,37 @@ type rCommand struct {
 type Scheduler struct {
 	commands []*rCommand
 	cMutex   *sync.Mutex
+	rMutex   *sync.Mutex
 	rMap     map[string]*rCommand
 }
 
 func (s *Scheduler) markComplete(key string) {
+	s.rMutex.Lock()
 	if val, ok := s.rMap[key]; ok {
 		val.endTime = time.Now().Unix()
 	} else {
 		s.rMap[key] = &rCommand{endTime: time.Now().Unix()}
 	}
+	s.rMutex.Unlock()
 }
 
 // Schedule schedules a task
 func (s *Scheduler) Schedule(key string, c *rCommand) {
 	s.commands = append(s.commands, c)
+	s.rMutex.Lock()
 	s.rMap[key] = c
+	s.rMutex.Unlock()
 	s.processCommands()
 }
 
 func (s *Scheduler) schedulerComplete(key string) bool {
+	s.rMutex.Lock()
 	if val, ok := s.rMap[key]; ok {
+		s.rMutex.Unlock()
 		return val.endTime > 0
 	}
 
+	s.rMutex.Unlock()
 	return false
 }
 

@@ -406,7 +406,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails), make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}}
+	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails), make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}}
 	s.runner.getip = s.GetIP
 	s.runner.logger = s.Log
 	s.Register = s
