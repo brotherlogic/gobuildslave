@@ -35,10 +35,6 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 		}
 	case pb.State_DIED:
 		job.State = pb.State_ACKNOWLEDGED
-	case pb.State_RUNNING:
-		if !s.checker.isAlive(job) {
-			job.State = pb.State_DIED
-		}
 	}
 }
 
