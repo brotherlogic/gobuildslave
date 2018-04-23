@@ -60,6 +60,11 @@ var transitionTable = []struct {
 	"",
 	pb.State_ACKNOWLEDGED,
 	false,
+}, {
+	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_RUNNING},
+	"blah-run",
+	pb.State_DIED,
+	false,
 }}
 
 func TestTransitions(t *testing.T) {

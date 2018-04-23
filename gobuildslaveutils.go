@@ -33,6 +33,10 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 				job.State = pb.State_DIED
 			}
 		}
+	case pb.State_RUNNING:
+		if s.taskComplete("run", job.Job) {
+			job.State = pb.State_DIED
+		}
 	case pb.State_DIED:
 		job.State = pb.State_ACKNOWLEDGED
 	}
