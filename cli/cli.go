@@ -140,7 +140,7 @@ func main() {
 				defer conn.Close()
 
 				registry := pb.NewBuildSlaveClient(conn)
-				_, err := registry.RunJob(context.Background(), &pb.RunRequest{Job: &pb.Job{Name: "github.com/brotherlogic/crasher"}})
+				_, err := registry.RunJob(context.Background(), &pb.RunRequest{Job: &pb.Job{Name: "beerserver", GoPath: "github.com/brotherlogic/beerserver"}})
 				if err != nil {
 					log.Fatalf("Error listing job: %v", err)
 				}

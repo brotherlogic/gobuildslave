@@ -37,12 +37,14 @@ func (s *Scheduler) markComplete(key string) {
 }
 
 // Schedule schedules a task
-func (s *Scheduler) Schedule(key string, c *rCommand) {
+func (s *Scheduler) Schedule(c *rCommand) string {
+	key := fmt.Sprintf("%v-%v", time.Now().Nanosecond(), c.command.Path)
 	s.commands = append(s.commands, c)
 	s.rMutex.Lock()
 	s.rMap[key] = c
 	s.rMutex.Unlock()
 	s.processCommands()
+	return key
 }
 
 func (s *Scheduler) getOutput(key string) string {

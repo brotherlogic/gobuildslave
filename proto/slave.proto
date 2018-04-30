@@ -43,6 +43,7 @@ message JobAssignment {
   int32 port = 3;
   State state = 4;
   int64 startTime = 6;
+  string command_key = 7;
 }
 
 message SlaveConfig {
