@@ -77,3 +77,11 @@ func TestBadCommand(t *testing.T) {
 		t.Errorf("No error running command")
 	}
 }
+
+func TestBadOutput(t *testing.T) {
+	s := Scheduler{rMutex: &sync.Mutex{}, cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
+	output := s.getOutput("madeupblah")
+	if output != "" {
+		t.Errorf("Bad output: %v", output)
+	}
+}
