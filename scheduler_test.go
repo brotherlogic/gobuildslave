@@ -22,8 +22,8 @@ func TestMarkComplete(t *testing.T) {
 	}
 	rc := &rCommand{command: exec.Command(str + "/run.sh")}
 	s := Scheduler{rMutex: &sync.Mutex{}, cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
-	s.Schedule("running", rc)
-	s.markComplete("running")
+	key := s.Schedule(rc)
+	s.markComplete(key)
 
 	if rc.endTime == 0 {
 		t.Errorf("Mark complete failed")

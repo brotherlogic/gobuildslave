@@ -14,15 +14,17 @@ const (
 func (s *Server) runTransition(job *pb.JobAssignment) {
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
-		s.scheduleBuild(job.Job)
+		key := s.scheduleBuild(job.Job)
+		job.CommandKey = key
 		job.State = pb.State_BUILDING
 		job.Server = s.Registry.Identifier
 	case pb.State_BUILDING:
-		if s.taskComplete("build", job.Job) {
+		if s.taskComplete(job.CommandKey) {
 			job.State = pb.State_BUILT
 		}
 	case pb.State_BUILT:
-		s.scheduleRun(job.Job)
+		key := s.scheduleRun(job.Job)
+		job.CommandKey = key
 		job.StartTime = time.Now().Unix()
 		job.State = pb.State_PENDING
 	case pb.State_PENDING:
@@ -34,8 +36,8 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 			}
 		}
 	case pb.State_RUNNING:
-		if s.taskComplete("run", job.Job) {
-			output := s.scheduler.getOutput(job.Job.Name + "-run")
+		if s.taskComplete(job.CommandKey) {
+			output := s.scheduler.getOutput(job.CommandKey)
 			s.deliverCrashReport(job, output)
 			job.State = pb.State_DIED
 		}
@@ -53,16 +55,16 @@ type checker interface {
 	isAlive(job *pb.JobAssignment) bool
 }
 
-func (s *Server) scheduleBuild(job *pb.Job) {
+func (s *Server) scheduleBuild(job *pb.Job) string {
 	c := s.translator.build(job)
-	s.scheduler.Schedule(job.Name+"-build", &rCommand{command: c})
+	return s.scheduler.Schedule(&rCommand{command: c})
 }
 
-func (s *Server) scheduleRun(job *pb.Job) {
+func (s *Server) scheduleRun(job *pb.Job) string {
 	c := s.translator.run(job)
-	s.scheduler.Schedule(job.Name+"-run", &rCommand{command: c})
+	return s.scheduler.Schedule(&rCommand{command: c})
 }
 
-func (s *Server) taskComplete(state string, job *pb.Job) bool {
-	return s.scheduler.schedulerComplete(job.Name + "-" + state)
+func (s *Server) taskComplete(key string) bool {
+	return s.scheduler.schedulerComplete(key)
 }
