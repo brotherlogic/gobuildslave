@@ -419,9 +419,6 @@ func (s *Server) checkOnUpdate(ctx context.Context) {
 }
 
 func main() {
-	if true {
-		os.Exit(1)
-	}
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	flag.Parse()
 
