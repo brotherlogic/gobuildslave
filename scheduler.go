@@ -45,6 +45,17 @@ func (s *Scheduler) Schedule(key string, c *rCommand) {
 	s.processCommands()
 }
 
+func (s *Scheduler) getOutput(key string) string {
+	s.rMutex.Lock()
+	if val, ok := s.rMap[key]; ok {
+		s.rMutex.Unlock()
+		return val.output
+	}
+
+	s.rMutex.Unlock()
+	return ""
+}
+
 func (s *Scheduler) schedulerComplete(key string) bool {
 	s.rMutex.Lock()
 	if val, ok := s.rMap[key]; ok {

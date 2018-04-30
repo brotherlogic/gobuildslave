@@ -57,18 +57,17 @@ type Server struct {
 	disker     disker
 }
 
-func deliverCrashReport(job *runnerCommand, getter func(name string) (string, int), logger func(text string)) {
-	ip, port := getter("githubcard")
-	if port > 0 {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
-		conn, err := grpc.Dial(ip+":"+strconv.Itoa(port), grpc.WithInsecure())
-		if err == nil {
-			defer conn.Close()
-			client := pbgh.NewGithubClient(conn)
-			elems := strings.Split(job.details.Spec.GetName(), "/")
-			if len(job.output) > 0 {
-				client.AddIssue(ctx, &pbgh.Issue{Service: elems[len(elems)-1], Title: "CRASH REPORT", Body: job.output}, grpc.FailFast(false))
+func (s *Server) deliverCrashReport(j *pb.JobAssignment, output string) {
+	if len(output) > 0 {
+		ip, port := s.GetIP("githubcard")
+		if port > 0 {
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			defer cancel()
+			conn, err := grpc.Dial(ip+":"+strconv.Itoa(port), grpc.WithInsecure())
+			if err == nil {
+				defer conn.Close()
+				client := pbgh.NewGithubClient(conn)
+				client.AddIssue(ctx, &pbgh.Issue{Service: j.Job.Name, Title: "CRASH REPORT", Body: output}, grpc.FailFast(false))
 			}
 		}
 	}

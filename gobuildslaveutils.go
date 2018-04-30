@@ -35,6 +35,8 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 		}
 	case pb.State_RUNNING:
 		if s.taskComplete("run", job.Job) {
+			output := s.scheduler.getOutput(job.Job.Name + "-run")
+			s.deliverCrashReport(job, output)
 			job.State = pb.State_DIED
 		}
 	case pb.State_DIED:
