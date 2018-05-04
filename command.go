@@ -67,7 +67,7 @@ func (s *Server) deliverCrashReport(j *pb.JobAssignment, output string) {
 			if err == nil {
 				defer conn.Close()
 				client := pbgh.NewGithubClient(conn)
-				client.AddIssue(ctx, &pbgh.Issue{Service: j.Job.Name, Title: "CRASH REPORT", Body: output}, grpc.FailFast(false))
+				client.AddIssue(ctx, &pbgh.Issue{Service: j.Job.Name, Title: fmt.Sprintf("CRASH REPORT - %v", j.Job.Name), Body: output}, grpc.FailFast(false))
 			}
 		}
 	}
