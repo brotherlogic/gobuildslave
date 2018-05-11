@@ -398,22 +398,26 @@ func isJobAlive(job *pb.JobAssignment) bool {
 
 func (s *Server) checkOnUpdate(ctx context.Context) {
 	f := "/var/cache/apt/pkgcache.bin"
-	info, err := os.Stat(f)
-	if err != nil {
-		if info.ModTime().Before(time.Now().AddDate(0, -1, 0)) {
-			ip, port, _ := utils.Resolve("githubcard")
-			if port > 0 {
-				ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-				defer cancel()
-				conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
-				if err == nil {
-					defer conn.Close()
-					client := pbgh.NewGithubClient(conn)
-					client.AddIssue(ctx, &pbgh.Issue{Service: "gobuildslave", Title: "UDPATE NEEDED", Body: s.Registry.Identifier}, grpc.FailFast(false))
-				}
-			}
 
+	for true {
+		info, err := os.Stat(f)
+		if err == nil {
+			if info.ModTime().Before(time.Now().AddDate(0, -1, 0)) {
+				ip, port, _ := utils.Resolve("githubcard")
+				if port > 0 {
+					ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+					defer cancel()
+					conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
+					if err == nil {
+						defer conn.Close()
+						client := pbgh.NewGithubClient(conn)
+						client.AddIssue(ctx, &pbgh.Issue{Service: "gobuildslave", Title: "UDPATE NEEDED", Body: s.Registry.Identifier}, grpc.FailFast(false))
+					}
+				}
+
+			}
 		}
+		time.Sleep(time.Hour)
 	}
 }
 
@@ -433,7 +437,7 @@ func main() {
 	s.PrepServer()
 	s.GoServer.Killme = false
 	s.RegisterServer("gobuildslave", false)
-	s.RegisterRepeatingTask(s.checkOnUpdate, time.Hour)
+	s.RegisterServingTask(s.checkOnUpdate)
 	err := s.Serve()
 	log.Fatalf("Unable to serve: %v", err)
 }
