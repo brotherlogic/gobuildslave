@@ -46,6 +46,11 @@ var transitionTable = []struct {
 	pb.State_PENDING,
 	true,
 }, {
+	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, CommandKey: "this thing crashed", State: pb.State_BUILT},
+	"this thing crashed",
+	pb.State_DIED,
+	true,
+}, {
 	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_PENDING},
 	"",
 	pb.State_RUNNING,
@@ -71,7 +76,7 @@ func TestTransitions(t *testing.T) {
 		s.runTransition(test.job)
 
 		if test.job.State != test.newState {
-			t.Errorf("Job transition failed: %v", test.job)
+			t.Errorf("Job transition failed: %v should have been %v but was %v", test.job, test.newState, test.job.State)
 		}
 	}
 }

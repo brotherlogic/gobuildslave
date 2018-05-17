@@ -30,8 +30,9 @@ func (s *Scheduler) markComplete(key string) {
 	s.rMutex.Lock()
 	if val, ok := s.rMap[key]; ok {
 		val.endTime = time.Now().Unix()
+		val.output = key
 	} else {
-		s.rMap[key] = &rCommand{endTime: time.Now().Unix()}
+		s.rMap[key] = &rCommand{endTime: time.Now().Unix(), output: key}
 	}
 	s.rMutex.Unlock()
 }
