@@ -44,6 +44,7 @@ message JobAssignment {
   State state = 4;
   int64 startTime = 6;
   string command_key = 7;
+  int32 build_fail = 8;
 }
 
 message SlaveConfig {

@@ -25,9 +25,13 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 	case pb.State_BUILT:
 		output := s.scheduler.getOutput(job.CommandKey)
 		if len(output) > 0 {
-			s.deliverCrashReport(job, output)
+			if job.BuildFail == 5 {
+				s.deliverCrashReport(job, output)
+			}
+			job.BuildFail++
 			job.State = pb.State_DIED
 		} else {
+			job.BuildFail = 0
 			key := s.scheduleRun(job.Job)
 			job.CommandKey = key
 			job.StartTime = time.Now().Unix()
