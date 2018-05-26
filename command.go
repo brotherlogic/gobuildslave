@@ -58,7 +58,7 @@ type Server struct {
 }
 
 func (s *Server) deliverCrashReport(j *pb.JobAssignment, output string) {
-	if len(output) > 0 {
+	if len(output) > 0 && !s.SkipLog {
 		ip, port := s.GetIP("githubcard")
 		if port > 0 {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
