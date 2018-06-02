@@ -400,7 +400,7 @@ func (s *Server) checkOnSsh(ctx context.Context) {
 	f := "/home/simon/.ssh"
 
 	for true {
-		info, err := os.Stat(f)
+		_, err := os.Stat(f)
 		if err != nil {
 			ip, port, _ := utils.Resolve("githubcard")
 			if port > 0 {
