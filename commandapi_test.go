@@ -26,6 +26,7 @@ func getTestServer() *Server {
 	s.runner = InitTest()
 	s.jobs = make(map[string]*pb.JobDetails)
 	s.njobs = make(map[string]*pb.JobAssignment)
+	s.nMut = &sync.Mutex{}
 	s.Register = s
 	s.Registry = &pbd.RegistryEntry{Identifier: "MadeUp"}
 	s.SkipLog = true
