@@ -10,6 +10,8 @@ import (
 
 // RunJob - runs the job
 func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunResponse, error) {
+	s.nMut.Lock()
+	defer s.nMut.Unlock()
 	if _, ok := s.njobs[req.GetJob().GetName()]; ok {
 		return &pb.RunResponse{}, nil
 	}
@@ -22,6 +24,9 @@ func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunRespons
 
 // KillJob - kills the job
 func (s *Server) KillJob(ctx context.Context, req *pb.KillRequest) (*pb.KillResponse, error) {
+	s.nMut.Lock()
+	defer s.nMut.Unlock()
+
 	if _, ok := s.njobs[req.GetJob().GetName()]; !ok {
 		return nil, fmt.Errorf("Job was not running")
 	}
@@ -32,6 +37,8 @@ func (s *Server) KillJob(ctx context.Context, req *pb.KillRequest) (*pb.KillResp
 
 //UpdateJob - updates the job
 func (s *Server) UpdateJob(ctx context.Context, req *pb.UpdateRequest) (*pb.UpdateResponse, error) {
+	s.nMut.Lock()
+	defer s.nMut.Unlock()
 	if _, ok := s.njobs[req.GetJob().GetName()]; !ok {
 		return nil, fmt.Errorf("Job was not running")
 	}
@@ -42,6 +49,8 @@ func (s *Server) UpdateJob(ctx context.Context, req *pb.UpdateRequest) (*pb.Upda
 
 // ListJobs - lists the jobs
 func (s *Server) ListJobs(ctx context.Context, req *pb.ListRequest) (*pb.ListResponse, error) {
+	s.nMut.Lock()
+	defer s.nMut.Unlock()
 	resp := &pb.ListResponse{}
 	for _, job := range s.njobs {
 		resp.Jobs = append(resp.Jobs, job)
