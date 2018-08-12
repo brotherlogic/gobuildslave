@@ -348,6 +348,9 @@ func (p *pTranslator) build(job *pb.Job) *exec.Cmd {
 func (p *pTranslator) run(job *pb.Job) *exec.Cmd {
 	elems := strings.Split(job.GoPath, "/")
 	command := elems[len(elems)-1]
+	if job.Sudo {
+		return exec.Command("sudo", "$GOPATH/bin/"+command)
+	}
 	return exec.Command("$GOPATH/bin/" + command)
 }
 
