@@ -56,6 +56,8 @@ type Server struct {
 	scheduler  *Scheduler
 	checker    checker
 	disker     disker
+	crashFails int64
+	crashError string
 }
 
 func (s *Server) deliverCrashReport(j *pb.JobAssignment, output string) {
@@ -68,7 +70,11 @@ func (s *Server) deliverCrashReport(j *pb.JobAssignment, output string) {
 			if err == nil {
 				defer conn.Close()
 				client := pbgh.NewGithubClient(conn)
-				client.AddIssue(ctx, &pbgh.Issue{Service: j.Job.Name, Title: fmt.Sprintf("CRASH REPORT - %v", j.Job.Name), Body: output}, grpc.FailFast(false))
+				_, err := client.AddIssue(ctx, &pbgh.Issue{Service: j.Job.Name, Title: fmt.Sprintf("CRASH REPORT - %v", j.Job.Name), Body: output}, grpc.FailFast(false))
+				if err != nil {
+					s.crashFails++
+					s.crashError = fmt.Sprintf("%v", err)
+				}
 			}
 		}
 	}
@@ -242,7 +248,10 @@ func (s Server) Mote(ctx context.Context, master bool) error {
 
 // GetState gets the state of the server
 func (s Server) GetState() []*pbs.State {
-	return []*pbs.State{}
+	return []*pbs.State{
+		&pbs.State{Key: "crash_report_fails", Value: s.crashFails},
+		&pbs.State{Key: "crash_reason", Text: s.crashError},
+	}
 }
 
 //Init builds the default runner framework
@@ -457,7 +466,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}}
+	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), ""}
 	s.runner.getip = s.GetIP
 	s.runner.logger = s.Log
 	s.Register = s
