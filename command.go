@@ -251,6 +251,7 @@ func (s Server) GetState() []*pbs.State {
 	return []*pbs.State{
 		&pbs.State{Key: "crash_report_fails", Value: s.crashFails},
 		&pbs.State{Key: "crash_reason", Text: s.crashError},
+		&pbs.State{Key: "jobs_size", Value: int64(len(s.njobs))},
 	}
 }
 
