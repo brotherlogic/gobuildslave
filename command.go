@@ -47,20 +47,22 @@ func (p *prodDisker) getDisks() []string {
 // Server the main server type
 type Server struct {
 	*goserver.GoServer
-	runner     *Runner
-	disk       diskChecker
-	jobs       map[string]*pb.JobDetails
-	nMut       *sync.Mutex
-	njobs      map[string]*pb.JobAssignment
-	translator translator
-	scheduler  *Scheduler
-	checker    checker
-	disker     disker
-	crashFails int64
-	crashError string
+	runner        *Runner
+	disk          diskChecker
+	jobs          map[string]*pb.JobDetails
+	nMut          *sync.Mutex
+	njobs         map[string]*pb.JobAssignment
+	translator    translator
+	scheduler     *Scheduler
+	checker       checker
+	disker        disker
+	crashFails    int64
+	crashError    string
+	crashAttempts int64
 }
 
 func (s *Server) deliverCrashReport(j *pb.JobAssignment, output string) {
+	s.crashAttempts++
 	if len(output) > 0 && !s.SkipLog {
 		ip, port := s.GetIP("githubcard")
 		if port > 0 {
@@ -250,6 +252,7 @@ func (s Server) Mote(ctx context.Context, master bool) error {
 func (s Server) GetState() []*pbs.State {
 	return []*pbs.State{
 		&pbs.State{Key: "crash_report_fails", Value: s.crashFails},
+		&pbs.State{Key: "crash_report_attempts", Value: s.crashAttempts},
 		&pbs.State{Key: "crash_reason", Text: s.crashError},
 		&pbs.State{Key: "jobs_size", Value: int64(len(s.njobs))},
 	}
@@ -467,7 +470,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), ""}
+	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0)}
 	s.runner.getip = s.GetIP
 	s.runner.logger = s.Log
 	s.Register = s
