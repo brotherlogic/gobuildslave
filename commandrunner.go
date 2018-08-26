@@ -9,8 +9,15 @@ import (
 	"syscall"
 	"time"
 
+	pbb "github.com/brotherlogic/buildserver/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 )
+
+//Builder builds out binaries
+type Builder interface {
+	build(repo string) []*pbb.Version
+	copy(v *pbb.Version)
+}
 
 const (
 	waitTime  = time.Second
@@ -50,6 +57,7 @@ type Runner struct {
 	bm              *sync.Mutex
 	getip           func(string) (string, int)
 	logger          func(string)
+	builder         Builder
 }
 
 type runnerCommand struct {
@@ -130,12 +138,18 @@ func (r *Runner) addCommand(command *runnerCommand) {
 
 // Checkout a repo - returns the repo version
 func (r *Runner) Checkout(repo string) string {
-	r.addCommand(&runnerCommand{command: exec.Command("go", "get", "-u", repo)})
-	readCommand := &runnerCommand{command: exec.Command("cat", "$GOPATH/src/"+repo+"/.git/refs/heads/master"), discard: false}
-	r.addCommand(readCommand)
-	r.BlockUntil(readCommand)
+	versions := []*pbb.Version{}
 
-	return readCommand.output
+	for len(versions) == 0 {
+		versions = r.builder.build(repo)
+		if len(versions) == 0 {
+			time.Sleep(time.Minute * 1)
+		}
+	}
+
+	r.builder.copy(versions[0])
+
+	return versions[0].Version
 }
 
 // Rebuild and rerun a JobSpec

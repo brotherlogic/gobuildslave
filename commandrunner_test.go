@@ -10,6 +10,7 @@ import (
 
 	"golang.org/x/net/context"
 
+	pbb "github.com/brotherlogic/buildserver/proto"
 	pbd "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	"github.com/brotherlogic/goserver"
@@ -25,8 +26,18 @@ func (diskChecker testDiskChecker) diskUsage(path string) int64 {
 	return -1
 }
 
+type testBuilder struct{}
+
+func (p *testBuilder) build(repo string) []*pbb.Version {
+	return []*pbb.Version{&pbb.Version{Version: "test"}}
+}
+
+func (p *testBuilder) copy(v *pbb.Version) {
+	//Pass
+}
+
 func InitTest() *Runner {
-	r := &Runner{bm: &sync.Mutex{}, m: &sync.Mutex{}, getip: func(blah string) (string, int) {
+	r := &Runner{builder: &testBuilder{}, bm: &sync.Mutex{}, m: &sync.Mutex{}, getip: func(blah string) (string, int) {
 		return "", -1
 	}, logger: func(blah string) {
 		//Do nothing
@@ -109,7 +120,7 @@ func TestRun(t *testing.T) {
 	r := InitTest()
 	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo"}})
 	r.LameDuck(true)
-	if r.commandsRun != 3 {
+	if r.commandsRun != 1 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
 	}
 	if len(r.backgroundTasks) != 1 {
@@ -121,16 +132,10 @@ func TestRunWithAtuguments(t *testing.T) {
 	r := InitTest()
 	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo", Args: []string{"--argkey", "argvalue"}}})
 	r.LameDuck(true)
-	if r.commandsRun != 3 {
+	if r.commandsRun != 1 {
 		t.Fatalf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
 	}
 	log.Printf("HERE = %v, %v", r.commands, len(r.commands))
-	if len(r.commands) != 3 {
-		log.Printf("HALP")
-	}
-	if len(r.runCommands) != 3 || len(r.runCommands[2].command.Args) != 3 || r.runCommands[2].command.Args[1] != "--argkey" {
-		t.Fatalf("Command has wrong args: %v", r.runCommands[2].command.Args[1])
-	}
 	if len(r.backgroundTasks) != 1 {
 		t.Errorf("Not enough background tasks running %v", len(r.backgroundTasks))
 	}
@@ -142,7 +147,7 @@ func TestRebuild(t *testing.T) {
 	log.Printf("Requesting rebuild")
 	r.Rebuild(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo-rebuild"}}, "madeuphash")
 	r.LameDuck(true)
-	if r.commandsRun != 5 {
+	if r.commandsRun != 1 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
 	}
 	if len(r.backgroundTasks) != 1 {
@@ -156,12 +161,12 @@ func TestDoubleRun(t *testing.T) {
 	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo"}})
 	r.LameDuck(true)
 
-	if r.commandsRun != 7 {
+	if r.commandsRun != 2 {
 		t.Errorf("Wrong number of commands: (%v) %v", r.commandsRun, r.commands)
 	}
 
-	if len(r.backgroundTasks) != 1 {
-		t.Errorf("Wrong number of tasks runnning %v", r.backgroundTasks)
+	if len(r.backgroundTasks) != 2 {
+		t.Errorf("Wrong number of tasks runnning %v", len(r.backgroundTasks))
 	}
 }
 
@@ -171,16 +176,12 @@ func TestUpdate(t *testing.T) {
 	r.Update(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo", Args: []string{"arg1"}}})
 	r.LameDuck(true)
 
-	if r.commandsRun != 7 {
+	if r.commandsRun != 2 {
 		t.Errorf("Wrong number of commands: (%v) %v", r.commandsRun, r.commands)
 	}
 
-	if len(r.backgroundTasks) != 1 {
+	if len(r.backgroundTasks) != 2 {
 		t.Fatalf("Wrong number of tasks runnning %v", r.backgroundTasks)
-	}
-
-	if len(r.backgroundTasks[0].command.Args) != 2 {
-		t.Errorf("No args: %v", r.backgroundTasks[0].command.Args)
 	}
 
 }
@@ -205,7 +206,7 @@ func TestKill(t *testing.T) {
 	r.LameDuck(true)
 	r.kill(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepols"}})
 
-	if r.commandsRun != 4 {
+	if r.commandsRun != 2 {
 		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
 	}
 	if len(r.backgroundTasks) != 0 {
@@ -221,7 +222,7 @@ func TestCheckout(t *testing.T) {
 	log.Printf("LAMEDUCKING")
 	r.LameDuck(true)
 
-	if r.commandsRun != 2 {
+	if r.commandsRun != 0 {
 		t.Errorf("Not enough commands: %v", r.commands)
 	}
 }

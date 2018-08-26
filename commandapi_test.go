@@ -34,6 +34,7 @@ func getTestServer() *Server {
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".testfolder")
 	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
 	s.disker = &testDisker{}
+	s.translator = &testTranslator{}
 	return &s
 }
 
@@ -54,7 +55,7 @@ func TestDoubleRunAPI(t *testing.T) {
 	}
 
 	if len(list.Details) != 1 {
-		t.Errorf("Wrong number of jobs running: %v", list)
+		t.Errorf("Wrong number of jobs running: %v", len(list.Details))
 	}
 }
 
@@ -74,8 +75,8 @@ func TestListJob(t *testing.T) {
 
 func TestUpdateJob(t *testing.T) {
 	s := getTestServer()
-	s.Run(context.Background(), &pb.JobSpec{Name: "test1"})
-	s.Update(context.Background(), &pb.JobSpec{Name: "test1"})
+	s.Run(context.Background(), &pb.JobSpec{Name: "test3"})
+	s.Update(context.Background(), &pb.JobSpec{Name: "test3"})
 
 	list, err := s.List(context.Background(), &pb.Empty{})
 
@@ -90,8 +91,8 @@ func TestUpdateJob(t *testing.T) {
 
 func TestUpdateNonJob(t *testing.T) {
 	s := getTestServer()
-	s.Run(context.Background(), &pb.JobSpec{Name: "test1"})
-	s.Update(context.Background(), &pb.JobSpec{Name: "test2"})
+	s.Run(context.Background(), &pb.JobSpec{Name: "test5"})
+	s.Update(context.Background(), &pb.JobSpec{Name: "test5"})
 
 	list, err := s.List(context.Background(), &pb.Empty{})
 
@@ -106,8 +107,8 @@ func TestUpdateNonJob(t *testing.T) {
 
 func TestKillJob(t *testing.T) {
 	s := getTestServer()
-	s.Run(context.Background(), &pb.JobSpec{Name: "test1"})
-	s.Kill(context.Background(), &pb.JobSpec{Name: "test1"})
+	s.Run(context.Background(), &pb.JobSpec{Name: "test7"})
+	s.Kill(context.Background(), &pb.JobSpec{Name: "test7"})
 
 	list, err := s.List(context.Background(), &pb.Empty{})
 
@@ -122,8 +123,8 @@ func TestKillJob(t *testing.T) {
 
 func TestKillNonJob(t *testing.T) {
 	s := getTestServer()
-	s.Run(context.Background(), &pb.JobSpec{Name: "test1"})
-	s.Kill(context.Background(), &pb.JobSpec{Name: "test2"})
+	s.Run(context.Background(), &pb.JobSpec{Name: "test9"})
+	s.Kill(context.Background(), &pb.JobSpec{Name: "test9"})
 
 	list, err := s.List(context.Background(), &pb.Empty{})
 

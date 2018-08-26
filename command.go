@@ -21,12 +21,52 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	pbb "github.com/brotherlogic/buildserver/proto"
 	pbd "github.com/brotherlogic/discovery/proto"
+	pbfc "github.com/brotherlogic/filecopier/proto"
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	pbs "github.com/brotherlogic/goserver/proto"
 	"github.com/brotherlogic/goserver/utils"
 )
+
+type prodBuilder struct {
+	server string
+}
+
+func (p *prodBuilder) build(repo string) []*pbb.Version {
+	ip, port, err := utils.Resolve("buildserver")
+	if err != nil {
+		return []*pbb.Version{}
+	}
+
+	conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
+	if err != nil {
+		return []*pbb.Version{}
+	}
+	builder := pbb.NewBuildServiceClient(conn)
+	versions, err := builder.GetVersions(context.Background(), &pbb.VersionRequest{Job: &pb.Job{GoPath: repo}})
+
+	if err != nil {
+		return []*pbb.Version{}
+	}
+
+	return versions.Versions
+}
+
+func (p *prodBuilder) copy(v *pbb.Version) {
+	ip, port, err := utils.Resolve("filecopier")
+	if err != nil {
+		return
+	}
+
+	conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
+	if err != nil {
+		return
+	}
+	copier := pbfc.NewFileCopierServiceClient(conn)
+	copier.Copy(context.Background(), &pbfc.CopyRequest{v.Path, v.Server, "/home/simon/gobuild/bin/" + v.Job.Name, p.server})
+}
 
 type prodDisker struct{}
 
@@ -259,8 +299,8 @@ func (s Server) GetState() []*pbs.State {
 }
 
 //Init builds the default runner framework
-func Init() *Runner {
-	r := &Runner{gopath: "goautobuild", m: &sync.Mutex{}, bm: &sync.Mutex{}}
+func Init(b Builder) *Runner {
+	r := &Runner{gopath: "goautobuild", m: &sync.Mutex{}, bm: &sync.Mutex{}, builder: b}
 	r.runner = runCommand
 	go r.run()
 	return r
@@ -470,7 +510,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	s := Server{&goserver.GoServer{}, Init(), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0)}
+	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0)}
 	s.runner.getip = s.GetIP
 	s.runner.logger = s.Log
 	s.Register = s
