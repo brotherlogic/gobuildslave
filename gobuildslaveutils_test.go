@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os/exec"
 	"testing"
 
@@ -10,6 +11,7 @@ import (
 type testTranslator struct{}
 
 func (t *testTranslator) build(job *pb.Job) *exec.Cmd {
+	log.Printf("BUILDING %v", job)
 	return exec.Command("ls")
 }
 

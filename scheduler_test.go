@@ -43,11 +43,11 @@ func TestBasicRun(t *testing.T) {
 		t.Fatalf("Error running command: %v", err)
 	}
 	for rc.endTime == 0 {
-		time.Sleep(time.Millisecond * 100)
+		time.Sleep(time.Second)
 	}
 
 	if rc.output != "hello" {
-		t.Errorf("No output: %v", rc)
+		t.Errorf("No output: %v", rc.output)
 	}
 }
 
@@ -64,9 +64,12 @@ func TestAppendRun(t *testing.T) {
 		t.Fatalf("Error running command: %v", err)
 	}
 	rc.command.Wait()
+	for rc.endTime == 0 {
+		time.Sleep(time.Second)
+	}
 
 	if rc.output != "hello" {
-		t.Errorf("No output: %v", rc)
+		t.Errorf("No output: %v given %v", rc.output, rc.endTime)
 	}
 }
 
