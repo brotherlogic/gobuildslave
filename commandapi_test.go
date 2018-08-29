@@ -91,17 +91,12 @@ func TestUpdateJob(t *testing.T) {
 
 func TestUpdateNonJob(t *testing.T) {
 	s := getTestServer()
-	s.Run(context.Background(), &pb.JobSpec{Name: "test5"})
-	s.Update(context.Background(), &pb.JobSpec{Name: "test5"})
+	s.Update(context.Background(), &pb.JobSpec{Name: "test6"})
 
 	list, err := s.List(context.Background(), &pb.Empty{})
 
 	if err != nil {
-		t.Fatalf("Error listing jobs: %v", err)
-	}
-
-	if len(list.Details) != 1 {
-		t.Errorf("Wrong number of jobs listed: %v", list)
+		t.Fatalf("Error listing jobs: %v", list)
 	}
 }
 
@@ -124,16 +119,16 @@ func TestKillJob(t *testing.T) {
 func TestKillNonJob(t *testing.T) {
 	s := getTestServer()
 	s.Run(context.Background(), &pb.JobSpec{Name: "test9"})
-	s.Kill(context.Background(), &pb.JobSpec{Name: "test9"})
+	s.Kill(context.Background(), &pb.JobSpec{Name: "test10"})
 
 	list, err := s.List(context.Background(), &pb.Empty{})
 
 	if err != nil {
-		t.Fatalf("Error listing jobs: %v", err)
+		t.Fatalf("Error listing jobs: %v", list)
 	}
 
 	if len(list.Details) != 1 {
-		t.Errorf("Wrong number of jobs listed: %v", list)
+		t.Errorf("Wrong number of jobs: %v", list)
 	}
 }
 

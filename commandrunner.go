@@ -110,13 +110,6 @@ func (r *Runner) kill(details *pb.JobDetails) {
 	r.bm.Unlock()
 }
 
-// BlockUntil blocks on this until the command has run
-func (r *Runner) BlockUntil(command *runnerCommand) {
-	for !command.complete {
-		time.Sleep(waitTime)
-	}
-}
-
 // LameDuck the server
 func (r *Runner) LameDuck(shutdown bool) {
 	r.lameDuck = true

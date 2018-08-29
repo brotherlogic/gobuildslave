@@ -16,6 +16,7 @@ type rCommand struct {
 	startTime int64
 	endTime   int64
 	err       error
+	logDone   bool
 }
 
 //Scheduler the main task scheduler
@@ -121,6 +122,7 @@ func run(c *rCommand) error {
 				c.output += scanner.Text()
 			}
 			out.Close()
+			c.logDone = true
 		}()
 	}
 
