@@ -35,6 +35,7 @@ message Job {
   string go_path = 2;
   repeated Requirement requirements = 3;
   bool sudo = 4;
+  bool non_bootstrap = 5;
 }
 
 message JobAssignment {

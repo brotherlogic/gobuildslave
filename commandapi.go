@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"runtime"
 	"strconv"
 	"time"
@@ -43,10 +44,11 @@ func (s *Server) Run(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
 //Update restarts a job with new settings
 func (s *Server) Update(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
 	t := time.Now()
+
 	//Only update if we're running
 	if j, ok := s.jobs[in.GetName()]; !ok || j.State == pb.State_RUNNING {
 		s.LogFunction("Update-notrunning", t)
-		return &pb.Empty{}, nil
+		return &pb.Empty{}, fmt.Errorf("Unable to update - job not running")
 	}
 
 	s.jobs[in.GetName()].State = pb.State_UPDATE_STARTING
@@ -61,7 +63,7 @@ func (s *Server) Kill(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
 	//Only update if we're running
 	if j, ok := s.jobs[in.GetName()]; !ok || j.State == pb.State_RUNNING {
 		s.LogFunction("Kill-notrunning", t)
-		return &pb.Empty{}, nil
+		return &pb.Empty{}, fmt.Errorf("No job running like that")
 	}
 
 	s.jobs[in.GetName()].State = pb.State_KILLING

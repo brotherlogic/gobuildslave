@@ -61,9 +61,14 @@ type checker interface {
 	isAlive(job *pb.JobAssignment) bool
 }
 
+// scheduleBuild builds out the job, returning the current version
 func (s *Server) scheduleBuild(job *pb.Job) string {
-	c := s.translator.build(job)
-	return s.scheduler.Schedule(&rCommand{command: c})
+	if !job.NonBootstrap {
+		c := s.translator.build(job)
+		return s.scheduler.Schedule(&rCommand{command: c})
+	}
+
+	return "nonbootstrapped"
 }
 
 func (s *Server) scheduleRun(job *pb.Job) string {
