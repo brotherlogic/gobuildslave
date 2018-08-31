@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"sync"
 	"testing"
 
@@ -75,8 +76,8 @@ func TestListJob(t *testing.T) {
 
 func TestUpdateJob(t *testing.T) {
 	s := getTestServer()
-	s.Run(context.Background(), &pb.JobSpec{Name: "test3"})
-	s.Update(context.Background(), &pb.JobSpec{Name: "test3"})
+	s.Run(context.Background(), &pb.JobSpec{Name: "test999"})
+	s.Update(context.Background(), &pb.JobSpec{Name: "test999"})
 
 	list, err := s.List(context.Background(), &pb.Empty{})
 
@@ -87,6 +88,8 @@ func TestUpdateJob(t *testing.T) {
 	if len(list.Details) != 1 {
 		t.Errorf("Wrong number of jobs listed: %v", list)
 	}
+
+	log.Printf("FINISHED 999 TEST")
 }
 
 func TestUpdateNonJob(t *testing.T) {

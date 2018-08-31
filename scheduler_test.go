@@ -47,7 +47,7 @@ func TestBasicRun(t *testing.T) {
 	}
 
 	if rc.output != "hello" {
-		t.Errorf("No output(%v): %v given %v from running %v", rc.logDone, rc.output, rc.endTime, rc.command)
+		t.Errorf("No output: %v given %v from running %v -> %v", rc.output, rc.endTime, rc.command, rc.mainOut)
 	}
 }
 
@@ -69,7 +69,7 @@ func TestAppendRun(t *testing.T) {
 	}
 
 	if rc.output != "hello" {
-		t.Errorf("No output(%v): %v given %v from running %v", rc.logDone, rc.output, rc.endTime, rc.command)
+		t.Errorf("No output: %v given %v from running %v -> %v", rc.output, rc.endTime, rc.command, rc.mainOut)
 	}
 }
 
