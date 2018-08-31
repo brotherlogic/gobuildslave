@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -95,6 +96,7 @@ func (r *Runner) run() {
 
 func (r *Runner) kill(details *pb.JobDetails) {
 	r.bm.Lock()
+	removed := 0
 	for i, t := range r.backgroundTasks {
 		if t.details.GetSpec().Name == details.Spec.Name {
 			if t.command.Process != nil {
@@ -104,7 +106,9 @@ func (r *Runner) kill(details *pb.JobDetails) {
 			// Now deliver the crash Report
 			//deliverCrashReport(t, r.getip, r.logger)
 			r.commandsRun++
-			r.backgroundTasks = append(r.backgroundTasks[:i], r.backgroundTasks[i+1:]...)
+			log.Printf("LEN %v with %v", len(r.backgroundTasks), i)
+			r.backgroundTasks = append(r.backgroundTasks[:(i-removed)], r.backgroundTasks[i-removed+1:]...)
+			removed++
 		}
 	}
 	r.bm.Unlock()

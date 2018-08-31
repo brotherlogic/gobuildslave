@@ -16,7 +16,7 @@ type rCommand struct {
 	startTime int64
 	endTime   int64
 	err       error
-	logDone   bool
+	mainOut   string
 }
 
 //Scheduler the main task scheduler
@@ -113,7 +113,8 @@ func run(c *rCommand) error {
 	}
 	c.command.Env = env
 
-	out, _ := c.command.StderrPipe()
+	out, err := c.command.StderrPipe()
+	outr, err := c.command.StdoutPipe()
 
 	if out != nil {
 		scanner := bufio.NewScanner(out)
@@ -122,11 +123,20 @@ func run(c *rCommand) error {
 				c.output += scanner.Text()
 			}
 			out.Close()
-			c.logDone = true
 		}()
 	}
 
-	err := c.command.Start()
+	if outr != nil {
+		scanner2 := bufio.NewScanner(outr)
+		go func() {
+			for scanner2 != nil && scanner2.Scan() {
+				c.mainOut += scanner2.Text()
+			}
+			outr.Close()
+		}()
+	}
+
+	err = c.command.Start()
 	if err != nil {
 		return err
 	}

@@ -26,9 +26,14 @@ func (diskChecker testDiskChecker) diskUsage(path string) int64 {
 	return -1
 }
 
-type testBuilder struct{}
+type testBuilder struct {
+	count int
+}
 
 func (p *testBuilder) build(repo string) []*pbb.Version {
+	if p.count == 0 {
+		return []*pbb.Version{}
+	}
 	return []*pbb.Version{&pbb.Version{Version: "test"}}
 }
 
@@ -37,7 +42,7 @@ func (p *testBuilder) copy(v *pbb.Version) {
 }
 
 func InitTest() *Runner {
-	r := &Runner{builder: &testBuilder{}, bm: &sync.Mutex{}, m: &sync.Mutex{}, getip: func(blah string) (string, int) {
+	r := &Runner{builder: &testBuilder{count: 1}, bm: &sync.Mutex{}, m: &sync.Mutex{}, getip: func(blah string) (string, int) {
 		return "", -1
 	}, logger: func(blah string) {
 		//Do nothing
@@ -219,6 +224,24 @@ func TestCheckout(t *testing.T) {
 	r := InitTest()
 	log.Printf("TESTREPO CHECKOUT")
 	r.Checkout("testrepo")
+	log.Printf("LAMEDUCKING")
+	r.LameDuck(true)
+
+	if r.commandsRun != 0 {
+		t.Errorf("Not enough commands: %v", r.commands)
+	}
+}
+
+func TestCheckoutTiming(t *testing.T) {
+	r := InitTest()
+	r.builder = &testBuilder{count: 0}
+
+	log.Printf("TESTREPO CHECKOUT")
+	go r.Checkout("testrepo")
+	time.Sleep(time.Minute * 2)
+	r.builder = &testBuilder{count: 1}
+	time.Sleep(time.Minute * 2)
+
 	log.Printf("LAMEDUCKING")
 	r.LameDuck(true)
 

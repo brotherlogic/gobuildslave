@@ -67,6 +67,11 @@ var transitionTable = []struct {
 	"blah-run",
 	pb.State_DIED,
 	false,
+}, {
+	&pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED},
+	"blah-run",
+	pb.State_BUILDING,
+	false,
 }}
 
 func TestTransitions(t *testing.T) {
@@ -80,5 +85,21 @@ func TestTransitions(t *testing.T) {
 		if test.job.State != test.newState {
 			t.Errorf("Job transition failed: %v should have been %v but was %v", test.job, test.newState, test.job.State)
 		}
+	}
+}
+
+func TestBuildFail(t *testing.T) {
+	s := getTestServer()
+	s.translator = &testTranslator{}
+	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_BUILT, CommandKey: "this thing crashed"}
+	for i := 0; i < 10; i++ {
+		job.State = pb.State_BUILT
+		s.scheduler.markComplete("this thing crashed")
+		s.runTransition(job)
+		log.Printf("NOW %v", job)
+	}
+
+	if job.State != pb.State_DIED {
+		t.Errorf("Multiple failures did not fail: %v", job.State)
 	}
 }
