@@ -36,6 +36,7 @@ func getTestServer() *Server {
 	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
 	s.disker = &testDisker{}
 	s.translator = &testTranslator{}
+	s.builder = &testBuilder{}
 	return &s
 }
 

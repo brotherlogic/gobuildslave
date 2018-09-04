@@ -68,7 +68,14 @@ func (s *Server) scheduleBuild(job *pb.Job) string {
 		return s.scheduler.Schedule(&rCommand{command: c})
 	}
 
-	return "nonbootstrapped"
+	versions := s.builder.build(job.GoPath)
+
+	if len(versions) == 0 {
+		return ""
+	}
+
+	s.builder.copy(versions[0])
+	return versions[0].Version
 }
 
 func (s *Server) scheduleRun(job *pb.Job) string {
