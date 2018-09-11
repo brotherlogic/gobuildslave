@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"runtime"
 	"strconv"
-	"time"
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	"golang.org/x/net/context"
@@ -12,64 +11,27 @@ import (
 
 // BuildJob builds out a job
 func (s *Server) BuildJob(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
-	s.runner.Checkout(in.Name)
-	return &pb.Empty{}, nil
+	return nil, fmt.Errorf("DEPRECATED")
 }
 
 // List lists all running jobs
 func (s *Server) List(ctx context.Context, in *pb.Empty) (*pb.JobList, error) {
-	details := &pb.JobList{}
-	for _, job := range s.jobs {
-		details.Details = append(details.Details, job)
-	}
-
-	return details, nil
+	return nil, fmt.Errorf("DEPRECATED")
 }
 
 // Run starts up a job
 func (s *Server) Run(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
-	t := time.Now()
-	if _, ok := s.jobs[in.GetName()]; ok {
-		s.LogFunction("Run-found", t)
-		return &pb.Empty{}, nil
-	}
-
-	s.jobs[in.GetName()] = &pb.JobDetails{Spec: in, State: pb.State_ACKNOWLEDGED}
-	go s.monitor(s.jobs[in.GetName()])
-
-	s.LogFunction("Run-notfound", t)
-	return &pb.Empty{}, nil
+	return nil, fmt.Errorf("DEPRECATED")
 }
 
 //Update restarts a job with new settings
 func (s *Server) Update(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
-	t := time.Now()
-
-	//Only update if we're running
-	if j, ok := s.jobs[in.GetName()]; !ok || j.State == pb.State_RUNNING {
-		s.LogFunction("Update-notrunning", t)
-		return &pb.Empty{}, fmt.Errorf("Unable to update - job not running")
-	}
-
-	s.jobs[in.GetName()].State = pb.State_UPDATE_STARTING
-
-	s.LogFunction("Update", t)
-	return &pb.Empty{}, nil
+	return nil, fmt.Errorf("DEPRECATED")
 }
 
 // Kill a background task
 func (s *Server) Kill(ctx context.Context, in *pb.JobSpec) (*pb.Empty, error) {
-	t := time.Now()
-	//Only update if we're running
-	if j, ok := s.jobs[in.GetName()]; !ok || j.State == pb.State_RUNNING {
-		s.LogFunction("Kill-notrunning", t)
-		return &pb.Empty{}, fmt.Errorf("No job running like that")
-	}
-
-	s.jobs[in.GetName()].State = pb.State_KILLING
-
-	s.LogFunction("Kill", t)
-	return &pb.Empty{}, nil
+	return nil, fmt.Errorf("DEPRECATED")
 }
 
 // GetConfig gets the status of the server

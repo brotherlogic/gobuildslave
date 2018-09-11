@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"sync"
 	"testing"
 
@@ -48,92 +47,14 @@ func TestBuildJob(t *testing.T) {
 func TestDoubleRunAPI(t *testing.T) {
 	s := getTestServer()
 	s.Run(context.Background(), &pb.JobSpec{Name: "test1"})
-	s.Run(context.Background(), &pb.JobSpec{Name: "test1"})
-
-	list, err := s.List(context.Background(), &pb.Empty{})
-
-	if err != nil {
-		t.Fatalf("args")
-	}
-
-	if len(list.Details) != 1 {
-		t.Errorf("Wrong number of jobs running: %v", len(list.Details))
-	}
-}
-
-func TestListJob(t *testing.T) {
-	s := getTestServer()
-	s.Run(context.Background(), &pb.JobSpec{})
-	list, err := s.List(context.Background(), &pb.Empty{})
-
-	if err != nil {
-		t.Fatalf("Error listing jobs: %v", err)
-	}
-
-	if len(list.Details) != 1 {
-		t.Errorf("Wrong number of jobs listed: %v", list)
-	}
-}
-
-func TestUpdateJob(t *testing.T) {
-	s := getTestServer()
-	s.Run(context.Background(), &pb.JobSpec{Name: "test999"})
-	s.Update(context.Background(), &pb.JobSpec{Name: "test999"})
-
-	list, err := s.List(context.Background(), &pb.Empty{})
-
-	if err != nil {
-		t.Fatalf("Error listing jobs: %v", err)
-	}
-
-	if len(list.Details) != 1 {
-		t.Errorf("Wrong number of jobs listed: %v", list)
-	}
-
-	log.Printf("FINISHED 999 TEST")
-}
-
-func TestUpdateNonJob(t *testing.T) {
-	s := getTestServer()
-	s.Update(context.Background(), &pb.JobSpec{Name: "test6"})
-
-	list, err := s.List(context.Background(), &pb.Empty{})
-
-	if err != nil {
-		t.Fatalf("Error listing jobs: %v", list)
-	}
 }
 
 func TestKillJob(t *testing.T) {
 	s := getTestServer()
 	s.Run(context.Background(), &pb.JobSpec{Name: "test7"})
 	s.Kill(context.Background(), &pb.JobSpec{Name: "test7"})
-
-	list, err := s.List(context.Background(), &pb.Empty{})
-
-	if err != nil {
-		t.Fatalf("Error listing jobs: %v", err)
-	}
-
-	if len(list.Details) != 1 {
-		t.Errorf("Wrong number of jobs listed: %v", list)
-	}
-}
-
-func TestKillNonJob(t *testing.T) {
-	s := getTestServer()
-	s.Run(context.Background(), &pb.JobSpec{Name: "test9"})
-	s.Kill(context.Background(), &pb.JobSpec{Name: "test10"})
-
-	list, err := s.List(context.Background(), &pb.Empty{})
-
-	if err != nil {
-		t.Fatalf("Error listing jobs: %v", list)
-	}
-
-	if len(list.Details) != 1 {
-		t.Errorf("Wrong number of jobs: %v", list)
-	}
+	s.List(context.Background(), &pb.Empty{})
+	s.Update(context.Background(), &pb.JobSpec{Name: "test7"})
 }
 
 func TestGetConfig(t *testing.T) {

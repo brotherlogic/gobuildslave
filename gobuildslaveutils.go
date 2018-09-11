@@ -68,7 +68,7 @@ func (s *Server) scheduleBuild(job *pb.Job) string {
 		return s.scheduler.Schedule(&rCommand{command: c})
 	}
 
-	versions := s.builder.build(job.GoPath)
+	versions := s.builder.build(job)
 
 	if len(versions) == 0 {
 		return ""
