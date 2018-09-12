@@ -30,7 +30,7 @@ type testBuilder struct {
 	count int
 }
 
-func (p *testBuilder) build(repo string) []*pbb.Version {
+func (p *testBuilder) build(job *pb.Job) []*pbb.Version {
 	if p.count == 0 {
 		return []*pbb.Version{}
 	}
@@ -48,8 +48,6 @@ func InitTest() *Runner {
 		//Do nothing
 	}}
 	r.runner = testRunCommand
-
-	go r.run()
 
 	return r
 }
@@ -121,76 +119,6 @@ func testRunCommand(c *runnerCommand) {
 	c.complete = true
 }
 
-func TestRun(t *testing.T) {
-	r := InitTest()
-	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo"}})
-	r.LameDuck(true)
-	if r.commandsRun != 1 {
-		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
-	}
-	if len(r.backgroundTasks) != 1 {
-		t.Errorf("Not enough background tasks running %v", len(r.backgroundTasks))
-	}
-}
-
-func TestRunWithAtuguments(t *testing.T) {
-	r := InitTest()
-	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo", Args: []string{"--argkey", "argvalue"}}})
-	r.LameDuck(true)
-	if r.commandsRun != 1 {
-		t.Fatalf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
-	}
-	log.Printf("HERE = %v, %v", r.commands, len(r.commands))
-	if len(r.backgroundTasks) != 1 {
-		t.Errorf("Not enough background tasks running %v", len(r.backgroundTasks))
-	}
-}
-
-func TestRebuild(t *testing.T) {
-	r := InitTest()
-	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo-rebuild"}})
-	log.Printf("Requesting rebuild")
-	r.Rebuild(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo-rebuild"}}, "madeuphash")
-	r.LameDuck(true)
-	if r.commandsRun != 1 {
-		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
-	}
-	if len(r.backgroundTasks) != 1 {
-		t.Errorf("Not enough background tasks running %v", len(r.backgroundTasks))
-	}
-}
-
-func TestDoubleRun(t *testing.T) {
-	r := InitTest()
-	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo"}})
-	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo"}})
-	r.LameDuck(true)
-
-	if r.commandsRun != 2 {
-		t.Errorf("Wrong number of commands: (%v) %v", r.commandsRun, r.commands)
-	}
-
-	if len(r.backgroundTasks) != 2 {
-		t.Errorf("Wrong number of tasks runnning %v", len(r.backgroundTasks))
-	}
-}
-
-func TestUpdate(t *testing.T) {
-	r := InitTest()
-	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo"}})
-	r.Update(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepo", Args: []string{"arg1"}}})
-	r.LameDuck(true)
-
-	if r.commandsRun != 2 {
-		t.Errorf("Wrong number of commands: (%v) %v", r.commandsRun, r.commands)
-	}
-
-	if len(r.backgroundTasks) != 2 {
-		t.Fatalf("Wrong number of tasks runnning %v", r.backgroundTasks)
-	}
-
-}
-
 func TestGetCrashReport(t *testing.T) {
 	rc := &runnerCommand{background: true, command: exec.Command("ls", "/blahblahblah"), details: &pb.JobDetails{}}
 	runCommand(rc)
@@ -203,49 +131,4 @@ func TestGetCrashReport(t *testing.T) {
 	}
 
 	log.Printf("GOT: %v", rc.output)
-}
-
-func TestKill(t *testing.T) {
-	r := InitTest()
-	r.Run(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepols"}})
-	r.LameDuck(true)
-	r.kill(&pb.JobDetails{Spec: &pb.JobSpec{Name: "testrepols"}})
-
-	if r.commandsRun != 2 {
-		t.Errorf("Not enough commands: (%v) %v", r.commandsRun, r.commands)
-	}
-	if len(r.backgroundTasks) != 0 {
-		t.Errorf("Not enough background tasks running %v", len(r.backgroundTasks))
-	}
-
-}
-
-func TestCheckout(t *testing.T) {
-	r := InitTest()
-	log.Printf("TESTREPO CHECKOUT")
-	r.Checkout("testrepo")
-	log.Printf("LAMEDUCKING")
-	r.LameDuck(true)
-
-	if r.commandsRun != 0 {
-		t.Errorf("Not enough commands: %v", r.commands)
-	}
-}
-
-func TestCheckoutTiming(t *testing.T) {
-	r := InitTest()
-	r.builder = &testBuilder{count: 0}
-
-	log.Printf("TESTREPO CHECKOUT")
-	go r.Checkout("testrepo")
-	time.Sleep(time.Minute * 2)
-	r.builder = &testBuilder{count: 1}
-	time.Sleep(time.Minute * 2)
-
-	log.Printf("LAMEDUCKING")
-	r.LameDuck(true)
-
-	if r.commandsRun != 0 {
-		t.Errorf("Not enough commands: %v", r.commands)
-	}
 }

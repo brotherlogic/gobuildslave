@@ -34,7 +34,7 @@ type prodBuilder struct {
 	server string
 }
 
-func (p *prodBuilder) build(repo string) []*pbb.Version {
+func (p *prodBuilder) build(job *pb.Job) []*pbb.Version {
 	ip, port, err := utils.Resolve("buildserver")
 	if err != nil {
 		return []*pbb.Version{}
@@ -45,7 +45,7 @@ func (p *prodBuilder) build(repo string) []*pbb.Version {
 		return []*pbb.Version{}
 	}
 	builder := pbb.NewBuildServiceClient(conn)
-	versions, err := builder.GetVersions(context.Background(), &pbb.VersionRequest{Job: &pb.Job{GoPath: repo}})
+	versions, err := builder.GetVersions(context.Background(), &pbb.VersionRequest{Job: job})
 
 	if err != nil {
 		return []*pbb.Version{}
@@ -135,53 +135,6 @@ func (s *Server) nmonitor(job *pb.JobAssignment) {
 	for job.State != pb.State_DEAD {
 		time.Sleep(time.Second)
 		s.runTransition(job)
-	}
-}
-
-func (s *Server) monitor(job *pb.JobDetails) {
-	for true {
-		switch job.State {
-		case pb.State_ACKNOWLEDGED:
-			job.StartTime = 0
-			job.GetSpec().Port = 0
-			job.State = pb.State_BUILDING
-			s.runner.Checkout(job.GetSpec().Name)
-			job.State = pb.State_BUILT
-		case pb.State_BUILT:
-			s.runner.Run(job)
-			for job.StartTime == 0 {
-				time.Sleep(waitTime)
-			}
-			job.State = pb.State_PENDING
-		case pb.State_KILLING:
-			s.runner.kill(job)
-			if !isAlive(job.GetSpec()) {
-				job.State = pb.State_DEAD
-			}
-		case pb.State_UPDATE_STARTING:
-			s.runner.Update(job)
-			job.State = pb.State_UPDATE_STARTING
-		case pb.State_PENDING:
-			time.Sleep(time.Minute)
-			if isAlive(job.GetSpec()) {
-				job.State = pb.State_RUNNING
-			} else {
-				job.State = pb.State_DEAD
-			}
-		case pb.State_RUNNING:
-			time.Sleep(waitTime)
-			if !isAlive(job.GetSpec()) {
-				job.TestCount++
-			} else {
-				job.TestCount = 0
-			}
-			if job.TestCount > 60 {
-				s.Log(fmt.Sprintf("Killing beacuse we couldn't reach 60 times: %v", job))
-				job.State = pb.State_DEAD
-			}
-		case pb.State_DEAD:
-			job.State = pb.State_ACKNOWLEDGED
-		}
 	}
 }
 
@@ -303,7 +256,6 @@ func (s Server) GetState() []*pbs.State {
 func Init(b Builder) *Runner {
 	r := &Runner{gopath: "goautobuild", m: &sync.Mutex{}, bm: &sync.Mutex{}, builder: b}
 	r.runner = runCommand
-	go r.run()
 	return r
 }
 
@@ -372,25 +324,6 @@ func runCommand(c *runnerCommand) {
 
 func (diskChecker prodDiskChecker) diskUsage(path string) int64 {
 	return diskUsage(path)
-}
-
-func (s *Server) rebuildLoop() {
-	for true {
-		time.Sleep(time.Minute * 60)
-
-		var rebuildList []*pb.JobDetails
-		var hashList []string
-		for _, job := range s.runner.backgroundTasks {
-			if time.Since(job.started) > time.Hour {
-				rebuildList = append(rebuildList, job.details)
-				hashList = append(hashList, job.hash)
-			}
-		}
-
-		for i := range rebuildList {
-			s.runner.Rebuild(rebuildList[i], hashList[i])
-		}
-	}
 }
 
 type pTranslator struct{}
