@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os/exec"
 	"time"
 
@@ -16,9 +17,17 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
 		key := s.scheduleBuild(job.Job)
-		job.CommandKey = key
-		job.State = pb.State_BUILDING
-		job.Server = s.Registry.Identifier
+		if job.Job.NonBootstrap {
+			log.Printf("KEY = %v", key)
+			if key != "" {
+				job.Server = s.Registry.Identifier
+				job.State = pb.State_BUILT
+			}
+		} else {
+			job.CommandKey = key
+			job.State = pb.State_BUILDING
+			job.Server = s.Registry.Identifier
+		}
 	case pb.State_BUILDING:
 		if s.taskComplete(job.CommandKey) {
 			job.State = pb.State_BUILT
