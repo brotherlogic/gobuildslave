@@ -70,7 +70,7 @@ var transitionTable = []struct {
 }, {
 	&pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED},
 	"blah-run",
-	pb.State_BUILDING,
+	pb.State_ACKNOWLEDGED,
 	false,
 }}
 
@@ -110,7 +110,7 @@ func TestBuildFailNBS(t *testing.T) {
 	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
 	s.runTransition(job)
 
-	if job.State != pb.State_BUILDING {
+	if job.State != pb.State_BUILT {
 		t.Errorf("Multiple failures did not fail: %v", job.State)
 	}
 }
