@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os/exec"
 	"time"
 
@@ -71,6 +72,7 @@ func (s *Server) scheduleBuild(job *pb.Job) string {
 	versions := s.builder.build(job)
 
 	if len(versions) == 0 {
+		s.Log(fmt.Sprintf("No versions received for %v", job.Name))
 		return ""
 	}
 
