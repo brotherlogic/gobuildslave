@@ -36,6 +36,7 @@ message Job {
   repeated Requirement requirements = 3;
   bool sudo = 4;
   bool non_bootstrap = 5;
+  bool external = 6;
 }
 
 message JobAssignment {
