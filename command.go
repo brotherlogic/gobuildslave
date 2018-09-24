@@ -32,6 +32,7 @@ import (
 
 type prodBuilder struct {
 	server string
+	Log    func(string)
 }
 
 func (p *prodBuilder) build(job *pb.Job) []*pbb.Version {
@@ -65,7 +66,8 @@ func (p *prodBuilder) copy(v *pbb.Version) {
 		return
 	}
 	copier := pbfc.NewFileCopierServiceClient(conn)
-	copier.Copy(context.Background(), &pbfc.CopyRequest{v.Path, v.Server, "/home/simon/gobuild/bin/" + v.Job.Name, p.server})
+	val, err := copier.Copy(context.Background(), &pbfc.CopyRequest{v.Path, v.Server, "/home/simon/gobuild/bin/" + v.Job.Name, p.server})
+	p.Log(fmt.Sprintf("COPIED %v and %v", val, err))
 }
 
 type prodDisker struct{}
@@ -445,6 +447,7 @@ func main() {
 	}
 
 	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0), &prodBuilder{}}
+	s.builder = &prodBuilder{Log: s.Log}
 	s.runner.getip = s.GetIP
 	s.runner.logger = s.Log
 	s.Register = s
