@@ -66,8 +66,8 @@ func (p *prodBuilder) copy(v *pbb.Version) {
 		return
 	}
 	copier := pbfc.NewFileCopierServiceClient(conn)
-	val, err := copier.Copy(context.Background(), &pbfc.CopyRequest{v.Path, v.Server, "/home/simon/gobuild/bin/" + v.Job.Name, p.server})
-	p.Log(fmt.Sprintf("COPIED %v and %v", val, err))
+	_, err = copier.Copy(context.Background(), &pbfc.CopyRequest{v.Path, v.Server, "/home/simon/gobuild/bin/" + v.Job.Name, p.server})
+	p.Log(fmt.Sprintf("COPIED %v and %v", v.Server, p.server))
 }
 
 type prodDisker struct{}
