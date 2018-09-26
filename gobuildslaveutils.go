@@ -83,6 +83,7 @@ func (s *Server) scheduleBuild(job *pb.Job) string {
 		return ""
 	}
 
+	s.Log(fmt.Sprintf("COPYING WITH %v", s.builder))
 	s.builder.copy(versions[0])
 	return versions[0].Version
 }
