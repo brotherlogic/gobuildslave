@@ -456,6 +456,7 @@ func main() {
 	s.RegisterServingTask(s.checkOnUpdate)
 	s.RegisterServingTask(s.checkOnSsh)
 	s.builder = &prodBuilder{Log: s.Log, server: s.Registry.Identifier}
+	s.Log(fmt.Sprintf("Running GBS on %v", s.Registry.Identifier))
 	err := s.Serve()
 	log.Fatalf("Unable to serve: %v", err)
 }
