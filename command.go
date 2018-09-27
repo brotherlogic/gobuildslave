@@ -460,6 +460,7 @@ func main() {
 	s.RegisterServer("gobuildslave", false)
 	s.RegisterServingTask(s.checkOnUpdate)
 	s.RegisterServingTask(s.checkOnSsh)
+	s.Log(fmt.Sprintf("Running GBS on %v", s.builder))
 	err := s.Serve()
 	log.Fatalf("Unable to serve: %v", err)
 }
