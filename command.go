@@ -31,7 +31,7 @@ import (
 )
 
 type prodBuilder struct {
-	server string
+	server func() string
 	Log    func(string)
 }
 
@@ -66,7 +66,7 @@ func (p *prodBuilder) copy(v *pbb.Version) {
 		return
 	}
 	copier := pbfc.NewFileCopierServiceClient(conn)
-	_, err = copier.Copy(context.Background(), &pbfc.CopyRequest{v.Path, v.Server, "/home/simon/gobuild/bin/" + v.Job.Name, p.server})
+	_, err = copier.Copy(context.Background(), &pbfc.CopyRequest{v.Path, v.Server, "/home/simon/gobuild/bin/" + v.Job.Name, p.server()})
 	p.Log(fmt.Sprintf("COPIED %v and %v", v.Server, p.server))
 }
 
@@ -437,6 +437,10 @@ func (s *Server) checkOnUpdate(ctx context.Context) {
 	}
 }
 
+func (s *Server) getServerName() string {
+	return s.Registry.Identifier
+}
+
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	flag.Parse()
@@ -447,6 +451,7 @@ func main() {
 	}
 
 	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0), &prodBuilder{}}
+	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName}
 	s.runner.getip = s.GetIP
 	s.runner.logger = s.Log
 	s.Register = s
@@ -455,7 +460,6 @@ func main() {
 	s.RegisterServer("gobuildslave", false)
 	s.RegisterServingTask(s.checkOnUpdate)
 	s.RegisterServingTask(s.checkOnSsh)
-	s.builder = &prodBuilder{Log: s.Log, server: s.Registry.Identifier}
 	err := s.Serve()
 	log.Fatalf("Unable to serve: %v", err)
 }
