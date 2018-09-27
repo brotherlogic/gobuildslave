@@ -55,19 +55,20 @@ func (p *prodBuilder) build(job *pb.Job) []*pbb.Version {
 	return versions.Versions
 }
 
-func (p *prodBuilder) copy(v *pbb.Version) {
+func (p *prodBuilder) copy(v *pbb.Version) error {
 	ip, port, err := utils.Resolve("filecopier")
 	if err != nil {
-		return
+		return err
 	}
 
 	conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
 	if err != nil {
-		return
+		return err
 	}
 	copier := pbfc.NewFileCopierServiceClient(conn)
 	_, err = copier.Copy(context.Background(), &pbfc.CopyRequest{v.Path, v.Server, "/home/simon/gobuild/bin/" + v.Job.Name, p.server()})
 	p.Log(fmt.Sprintf("COPIED %v and %v WITH %v", v.Server, p.server, err))
+	return err
 }
 
 type prodDisker struct{}

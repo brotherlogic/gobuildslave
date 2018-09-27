@@ -13,7 +13,7 @@ import (
 //Builder builds out binaries
 type Builder interface {
 	build(job *pb.Job) []*pbb.Version
-	copy(v *pbb.Version)
+	copy(v *pbb.Version) error
 }
 
 const (
