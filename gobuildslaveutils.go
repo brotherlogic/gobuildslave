@@ -42,8 +42,7 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 			job.BuildFail = 0
 			key := s.scheduleRun(job.Job)
 			job.CommandKey = key
-			job.StartTime = time.Now().Unix()
-			job.State = pb.State_PENDING
+			job.StartTime = time.Now().			job.State = pb.State_PENDING
 		}
 	case pb.State_PENDING:
 		if time.Now().Add(-time.Minute).Unix() > job.StartTime {
