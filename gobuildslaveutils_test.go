@@ -114,3 +114,14 @@ func TestBuildFailNBS(t *testing.T) {
 		t.Errorf("Multiple failures did not fail: %v", job.State)
 	}
 }
+
+func TestBuildFailCopy(t *testing.T) {
+	s := getTestServer()
+	s.builder = &testBuilder{copyFail: true, count: 2}
+	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
+	s.runTransition(job)
+
+	if job.State != pb.State_ACKNOWLEDGED {
+		t.Errorf("Multiple failures did not fail: %v", job.State)
+	}
+}
