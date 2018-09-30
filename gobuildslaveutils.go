@@ -20,6 +20,7 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 			if key != "" {
 				job.Server = s.Registry.Identifier
 				job.State = pb.State_BUILT
+				job.RunningVersion = key
 			}
 		} else {
 			job.CommandKey = key

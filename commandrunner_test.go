@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 	"strings"
@@ -27,7 +28,8 @@ func (diskChecker testDiskChecker) diskUsage(path string) int64 {
 }
 
 type testBuilder struct {
-	count int
+	count    int
+	copyFail bool
 }
 
 func (p *testBuilder) build(job *pb.Job) []*pbb.Version {
@@ -37,8 +39,12 @@ func (p *testBuilder) build(job *pb.Job) []*pbb.Version {
 	return []*pbb.Version{&pbb.Version{Version: "test"}}
 }
 
-func (p *testBuilder) copy(v *pbb.Version) {
+func (p *testBuilder) copy(v *pbb.Version) error {
 	//Pass
+	if p.copyFail {
+		return fmt.Errorf("Built to fail")
+	}
+	return nil
 }
 
 func InitTest() *Runner {

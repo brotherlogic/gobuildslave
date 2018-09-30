@@ -47,6 +47,7 @@ message JobAssignment {
   int64 startTime = 6;
   string command_key = 7;
   int32 build_fail = 8;
+  string running_version = 9;
 }
 
 message SlaveConfig {
@@ -123,10 +124,10 @@ service BuildSlave {
 }
 
 service GoBuildSlave {
-	rpc Update(JobSpec) returns (Empty) {};
-	rpc BuildJob(JobSpec) returns (Empty) {};
-	rpc Run(JobSpec) returns (Empty) {};
-	rpc Kill(JobSpec) returns (Empty) {};
-	rpc List(Empty) returns (JobList) {};
-	rpc GetConfig(Empty) returns (Config) {};
+  rpc Update(JobSpec) returns (Empty) {};
+  rpc BuildJob(JobSpec) returns (Empty) {};
+  rpc Run(JobSpec) returns (Empty) {};
+  rpc Kill(JobSpec) returns (Empty) {};
+  rpc List(Empty) returns (JobList) {};
+  rpc GetConfig(Empty) returns (Config) {};
 }
