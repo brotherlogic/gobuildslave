@@ -129,7 +129,7 @@ func main() {
 					log.Fatalf("Error listing job: %v", err)
 				}
 				for _, r := range res.Jobs {
-					fmt.Printf("%v -> %v\n", r.Job.Name, r.State)
+					fmt.Printf("%v -> %v [%v]\n", r.Job.Name, r.State, r.RunningVersion)
 				}
 			}
 		case "nbuild":
