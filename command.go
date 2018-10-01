@@ -46,7 +46,7 @@ func (p *prodBuilder) build(job *pb.Job) []*pbb.Version {
 		return []*pbb.Version{}
 	}
 	builder := pbb.NewBuildServiceClient(conn)
-	versions, err := builder.GetVersions(context.Background(), &pbb.VersionRequest{Job: job})
+	versions, err := builder.GetVersions(context.Background(), &pbb.VersionRequest{Job: job, JustLatest: true})
 
 	if err != nil {
 		return []*pbb.Version{}
