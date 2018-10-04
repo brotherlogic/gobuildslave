@@ -13,6 +13,7 @@ const (
 )
 
 func (s *Server) runTransition(job *pb.JobAssignment) {
+	stState := job.State
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
 		key := s.scheduleBuild(job.Job)
@@ -58,6 +59,9 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 		}
 	case pb.State_DIED:
 		job.State = pb.State_ACKNOWLEDGED
+	}
+	if job.State != stState {
+		s.Log(fmt.Sprintf("Job %v went from %v to %v", job.Job.Name, stState, job.State))
 	}
 }
 
