@@ -57,6 +57,15 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 			s.deliverCrashReport(job, output)
 			job.State = pb.State_DIED
 		}
+
+		// Restart this job if we need to
+		if job.Job.NonBootstrap {
+			version := s.getVersion(job.Job)
+			if version != job.RunningVersion {
+				s.scheduler.killJob(job.CommandKey)
+				job.State = pb.State_ACKNOWLEDGED
+			}
+		}
 	case pb.State_DIED:
 		job.State = pb.State_ACKNOWLEDGED
 	}
@@ -72,6 +81,18 @@ type translator interface {
 
 type checker interface {
 	isAlive(job *pb.JobAssignment) bool
+}
+
+func (s *Server) getVersion(job *pb.Job) string {
+	versions := s.builder.build(job)
+
+	if len(versions) == 0 {
+		s.Log(fmt.Sprintf("No versions received for %v", job.Name))
+		return ""
+	}
+
+	return versions[0].Version
+
 }
 
 // scheduleBuild builds out the job, returning the current version

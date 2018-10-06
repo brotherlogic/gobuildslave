@@ -30,13 +30,18 @@ func (diskChecker testDiskChecker) diskUsage(path string) int64 {
 type testBuilder struct {
 	count    int
 	copyFail bool
+	change   bool
 }
 
 func (p *testBuilder) build(job *pb.Job) []*pbb.Version {
 	if p.count == 0 {
 		return []*pbb.Version{}
 	}
-	return []*pbb.Version{&pbb.Version{Version: "test"}}
+	if !p.change {
+		return []*pbb.Version{&pbb.Version{Version: "test"}}
+	} else {
+		return []*pbb.Version{&pbb.Version{Version: "newtest"}}
+	}
 }
 
 func (p *testBuilder) copy(v *pbb.Version) error {
