@@ -60,6 +60,15 @@ func (s *Scheduler) getOutput(key string) string {
 	return ""
 }
 
+func (s *Scheduler) killJob(key string) {
+	s.rMutex.Lock()
+	if val, ok := s.rMap[key]; ok {
+		val.command.Process.Kill()
+		val.command.Process.Wait()
+	}
+	s.rMutex.Unlock()
+}
+
 func (s *Scheduler) schedulerComplete(key string) bool {
 	s.rMutex.Lock()
 	if val, ok := s.rMap[key]; ok {

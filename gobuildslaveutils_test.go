@@ -4,6 +4,7 @@ import (
 	"log"
 	"os/exec"
 	"testing"
+	"time"
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
 )
@@ -124,4 +125,48 @@ func TestBuildFailCopy(t *testing.T) {
 	if job.State != pb.State_ACKNOWLEDGED {
 		t.Errorf("Multiple failures did not fail: %v", job.State)
 	}
+}
+
+func TestKill(t *testing.T) {
+	s := getTestServer()
+	s.builder = &testBuilder{count: 2}
+	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
+	s.runTransition(job)
+
+	if job.State != pb.State_BUILT {
+		t.Errorf("Was not built")
+	}
+
+	s.runTransition(job)
+	log.Printf("NOW %v", job.State)
+
+	time.Sleep(time.Minute * 2)
+	s.runTransition(job)
+	log.Printf("NOW %v", job.State)
+
+	s.builder = &testBuilder{change: true, count: 2}
+	s.runTransition(job)
+	log.Printf("NOW %v", job.State)
+}
+
+func TestKillBadRead(t *testing.T) {
+	s := getTestServer()
+	s.builder = &testBuilder{count: 2}
+	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
+	s.runTransition(job)
+
+	if job.State != pb.State_BUILT {
+		t.Errorf("Was not built")
+	}
+
+	s.runTransition(job)
+	log.Printf("NOW %v", job.State)
+
+	time.Sleep(time.Minute * 2)
+	s.runTransition(job)
+	log.Printf("NOW %v", job.State)
+
+	s.builder = &testBuilder{change: true}
+	s.runTransition(job)
+	log.Printf("NOW %v", job.State)
 }
