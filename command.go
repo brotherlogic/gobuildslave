@@ -38,17 +38,20 @@ type prodBuilder struct {
 func (p *prodBuilder) build(job *pb.Job) []*pbb.Version {
 	ip, port, err := utils.Resolve("buildserver")
 	if err != nil {
+		p.Log(fmt.Sprintf("Resolve error: %v", err))
 		return []*pbb.Version{}
 	}
 
 	conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
 	if err != nil {
+		p.Log(fmt.Sprintf("Dial error: %v", err))
 		return []*pbb.Version{}
 	}
 	builder := pbb.NewBuildServiceClient(conn)
 	versions, err := builder.GetVersions(context.Background(), &pbb.VersionRequest{Job: job, JustLatest: true})
 
 	if err != nil {
+		p.Log(fmt.Sprintf("Get error: %v", err))
 		return []*pbb.Version{}
 	}
 
