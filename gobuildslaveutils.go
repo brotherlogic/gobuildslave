@@ -62,6 +62,7 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 		if job.Job.NonBootstrap {
 			version := s.getVersion(job.Job)
 			if version != job.RunningVersion {
+				s.Log(fmt.Sprintf("KILLING %v", job.Job.Name))
 				s.scheduler.killJob(job.CommandKey)
 				job.State = pb.State_ACKNOWLEDGED
 			}
