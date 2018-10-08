@@ -28,6 +28,7 @@ import (
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	pbs "github.com/brotherlogic/goserver/proto"
 	"github.com/brotherlogic/goserver/utils"
+	pbt "github.com/brotherlogic/tracer/proto"
 )
 
 type prodBuilder struct {
@@ -35,7 +36,7 @@ type prodBuilder struct {
 	Log    func(string)
 }
 
-func (p *prodBuilder) build(job *pb.Job) []*pbb.Version {
+func (p *prodBuilder) build(ctx context.Context, job *pb.Job) []*pbb.Version {
 	ip, port, err := utils.Resolve("buildserver")
 	if err != nil {
 		p.Log(fmt.Sprintf("Resolve error: %v", err))
@@ -48,7 +49,7 @@ func (p *prodBuilder) build(job *pb.Job) []*pbb.Version {
 		return []*pbb.Version{}
 	}
 	builder := pbb.NewBuildServiceClient(conn)
-	versions, err := builder.GetVersions(context.Background(), &pbb.VersionRequest{Job: job, JustLatest: true})
+	versions, err := builder.GetVersions(ctx, &pbb.VersionRequest{Job: job, JustLatest: true})
 
 	if err != nil {
 		p.Log(fmt.Sprintf("Get error: %v", err))
@@ -58,7 +59,7 @@ func (p *prodBuilder) build(job *pb.Job) []*pbb.Version {
 	return versions.Versions
 }
 
-func (p *prodBuilder) copy(v *pbb.Version) error {
+func (p *prodBuilder) copy(ctx context.Context, v *pbb.Version) error {
 	ip, port, err := utils.Resolve("filecopier")
 	if err != nil {
 		return err
@@ -69,7 +70,7 @@ func (p *prodBuilder) copy(v *pbb.Version) error {
 		return err
 	}
 	copier := pbfc.NewFileCopierServiceClient(conn)
-	_, err = copier.Copy(context.Background(), &pbfc.CopyRequest{v.Path, v.Server, "/home/simon/gobuild/bin/" + v.Job.Name, p.server()})
+	_, err = copier.Copy(ctx, &pbfc.CopyRequest{v.Path, v.Server, "/home/simon/gobuild/bin/" + v.Job.Name, p.server()})
 	p.Log(fmt.Sprintf("COPIED %v and %v WITH %v", v.Server, p.server(), err))
 	return err
 }
@@ -108,13 +109,11 @@ type Server struct {
 	builder       Builder
 }
 
-func (s *Server) deliverCrashReport(j *pb.JobAssignment, output string) {
+func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, output string) {
 	s.crashAttempts++
 	if len(output) > 0 && !s.SkipLog {
 		ip, port := s.GetIP("githubcard")
 		if port > 0 {
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-			defer cancel()
 			conn, err := grpc.Dial(ip+":"+strconv.Itoa(port), grpc.WithInsecure())
 			if err == nil {
 				defer conn.Close()
@@ -127,6 +126,7 @@ func (s *Server) deliverCrashReport(j *pb.JobAssignment, output string) {
 			}
 		}
 	}
+
 }
 
 func (s *Server) addMessage(details *pb.JobDetails, message string) {
@@ -140,7 +140,10 @@ func (s *Server) addMessage(details *pb.JobDetails, message string) {
 func (s *Server) nmonitor(job *pb.JobAssignment) {
 	for job.State != pb.State_DEAD {
 		time.Sleep(time.Second)
-		s.runTransition(job)
+		ctx, cancel := utils.BuildContext("nmonitor", job.Job.Name, pbs.ContextType_MEDIUM)
+		defer cancel()
+		s.runTransition(ctx, job)
+		utils.SendTrace(ctx, "nmonitor", time.Now(), pbt.Milestone_END, job.Job.Name)
 	}
 }
 
@@ -169,33 +172,11 @@ func getHash(file string) (string, error) {
 	return string(h.Sum(nil)), nil
 }
 
-func getIP(name string, server string) (string, int32, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-	conn, err := grpc.Dial(utils.RegistryIP+":"+strconv.Itoa(utils.RegistryPort), grpc.WithInsecure())
-	defer conn.Close()
-
-	if err != nil {
-		return "", -1, err
-	}
-
-	registry := pbd.NewDiscoveryServiceClient(conn)
-	entry := pbd.RegistryEntry{Name: name, Identifier: server}
-
-	r, err := registry.Discover(ctx, &pbd.DiscoverRequest{Request: &entry}, grpc.FailFast(false))
-
-	if err != nil {
-		return "", -1, err
-	}
-
-	return r.GetService().Ip, r.GetService().Port, nil
-}
-
 // updateState of the runner command
-func isAlive(spec *pb.JobSpec) bool {
+func isAlive(ctx context.Context, spec *pb.JobSpec) bool {
 	elems := strings.Split(spec.Name, "/")
 	if spec.GetPort() == 0 {
-		dServer, dPort, err := getIP(elems[len(elems)-1], spec.Server)
+		dServer, dPort, err := getIP(ctx, elems[len(elems)-1], spec.Server)
 
 		e, ok := status.FromError(err)
 		if ok && e.Code() == codes.DeadlineExceeded {
@@ -211,8 +192,6 @@ func isAlive(spec *pb.JobSpec) bool {
 		spec.Port = dPort
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
 	dConn, err := grpc.Dial(spec.Host+":"+strconv.Itoa(int(spec.Port)), grpc.WithInsecure())
 	if err != nil {
 		return false
@@ -349,14 +328,14 @@ func (p *pTranslator) run(job *pb.Job) *exec.Cmd {
 
 type pChecker struct{}
 
-func (p *pChecker) isAlive(job *pb.JobAssignment) bool {
-	return isJobAlive(job)
+func (p *pChecker) isAlive(ctx context.Context, job *pb.JobAssignment) bool {
+	return isJobAlive(ctx, job)
 }
 
 // updateState of the runner command
-func isJobAlive(job *pb.JobAssignment) bool {
+func isJobAlive(ctx context.Context, job *pb.JobAssignment) bool {
 	if job.GetPort() == 0 {
-		dServer, dPort, err := getIP(job.Job.Name, job.Server)
+		dServer, dPort, err := getIP(ctx, job.Job.Name, job.Server)
 
 		e, ok := status.FromError(err)
 		if ok && e.Code() == codes.DeadlineExceeded {
@@ -372,8 +351,6 @@ func isJobAlive(job *pb.JobAssignment) bool {
 		job.Port = dPort
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
 	dConn, err := grpc.Dial(job.Host+":"+strconv.Itoa(int(job.Port)), grpc.WithInsecure())
 	if err != nil {
 		return false
@@ -393,6 +370,26 @@ func isJobAlive(job *pb.JobAssignment) bool {
 	return true
 }
 
+func getIP(ctx context.Context, name string, server string) (string, int32, error) {
+	conn, err := grpc.Dial(utils.RegistryIP+":"+strconv.Itoa(utils.RegistryPort), grpc.WithInsecure())
+	defer conn.Close()
+
+	if err != nil {
+		return "", -1, err
+	}
+
+	registry := pbd.NewDiscoveryServiceClient(conn)
+	entry := pbd.RegistryEntry{Name: name, Identifier: server}
+
+	r, err := registry.Discover(ctx, &pbd.DiscoverRequest{Request: &entry}, grpc.FailFast(false))
+
+	if err != nil {
+		return "", -1, err
+	}
+
+	return r.GetService().Ip, r.GetService().Port, nil
+}
+
 func (s *Server) checkOnSsh(ctx context.Context) {
 	f := "/home/simon/.ssh"
 
@@ -401,8 +398,6 @@ func (s *Server) checkOnSsh(ctx context.Context) {
 		if err != nil {
 			ip, port, _ := utils.Resolve("githubcard")
 			if port > 0 {
-				ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-				defer cancel()
 				conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
 				if err == nil {
 					defer conn.Close()
@@ -425,8 +420,6 @@ func (s *Server) checkOnUpdate(ctx context.Context) {
 			if info.ModTime().Before(time.Now().AddDate(0, -1, 0)) {
 				ip, port, _ := utils.Resolve("githubcard")
 				if port > 0 {
-					ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-					defer cancel()
 					conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
 					if err == nil {
 						defer conn.Close()
