@@ -33,7 +33,7 @@ type testBuilder struct {
 	change   bool
 }
 
-func (p *testBuilder) build(job *pb.Job) []*pbb.Version {
+func (p *testBuilder) build(ctx context.Context, job *pb.Job) []*pbb.Version {
 	if p.count == 0 {
 		return []*pbb.Version{}
 	}
@@ -44,7 +44,7 @@ func (p *testBuilder) build(job *pb.Job) []*pbb.Version {
 	}
 }
 
-func (p *testBuilder) copy(v *pbb.Version) error {
+func (p *testBuilder) copy(ctx context.Context, v *pbb.Version) error {
 	//Pass
 	if p.copyFail {
 		return fmt.Errorf("Built to fail")

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
+	"golang.org/x/net/context"
 )
 
 type testTranslator struct{}
@@ -24,7 +25,7 @@ type testChecker struct {
 	alive bool
 }
 
-func (t *testChecker) isAlive(job *pb.JobAssignment) bool {
+func (t *testChecker) isAlive(ctx context.Context, job *pb.JobAssignment) bool {
 	return t.alive
 }
 
@@ -81,7 +82,7 @@ func TestTransitions(t *testing.T) {
 	for _, test := range transitionTable {
 		s.scheduler.markComplete(test.complete)
 		s.checker = &testChecker{alive: test.alive}
-		s.runTransition(test.job)
+		s.runTransition(context.Background(), test.job)
 
 		if test.job.State != test.newState {
 			t.Errorf("Job transition failed: %v should have been %v but was %v", test.job, test.newState, test.job.State)
@@ -96,7 +97,7 @@ func TestBuildFail(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		job.State = pb.State_BUILT
 		s.scheduler.markComplete("this thing crashed")
-		s.runTransition(job)
+		s.runTransition(context.Background(), job)
 		log.Printf("NOW %v", job)
 	}
 
@@ -109,7 +110,7 @@ func TestBuildFailNBS(t *testing.T) {
 	s := getTestServer()
 	s.builder = &testBuilder{count: 2}
 	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
-	s.runTransition(job)
+	s.runTransition(context.Background(), job)
 
 	if job.State != pb.State_BUILT {
 		t.Errorf("Multiple failures did not fail: %v", job.State)
@@ -120,7 +121,7 @@ func TestBuildFailCopy(t *testing.T) {
 	s := getTestServer()
 	s.builder = &testBuilder{copyFail: true, count: 2}
 	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
-	s.runTransition(job)
+	s.runTransition(context.Background(), job)
 
 	if job.State != pb.State_ACKNOWLEDGED {
 		t.Errorf("Multiple failures did not fail: %v", job.State)
@@ -131,21 +132,21 @@ func TestKill(t *testing.T) {
 	s := getTestServer()
 	s.builder = &testBuilder{count: 2}
 	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
-	s.runTransition(job)
+	s.runTransition(context.Background(), job)
 
 	if job.State != pb.State_BUILT {
 		t.Errorf("Was not built")
 	}
 
-	s.runTransition(job)
+	s.runTransition(context.Background(), job)
 	log.Printf("NOW %v", job.State)
 
 	time.Sleep(time.Minute * 2)
-	s.runTransition(job)
+	s.runTransition(context.Background(), job)
 	log.Printf("NOW %v", job.State)
 
 	s.builder = &testBuilder{change: true, count: 2}
-	s.runTransition(job)
+	s.runTransition(context.Background(), job)
 	log.Printf("NOW %v", job.State)
 }
 
@@ -153,20 +154,20 @@ func TestKillBadRead(t *testing.T) {
 	s := getTestServer()
 	s.builder = &testBuilder{count: 2}
 	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
-	s.runTransition(job)
+	s.runTransition(context.Background(), job)
 
 	if job.State != pb.State_BUILT {
 		t.Errorf("Was not built")
 	}
 
-	s.runTransition(job)
+	s.runTransition(context.Background(), job)
 	log.Printf("NOW %v", job.State)
 
 	time.Sleep(time.Minute * 2)
-	s.runTransition(job)
+	s.runTransition(context.Background(), job)
 	log.Printf("NOW %v", job.State)
 
 	s.builder = &testBuilder{change: true}
-	s.runTransition(job)
+	s.runTransition(context.Background(), job)
 	log.Printf("NOW %v", job.State)
 }

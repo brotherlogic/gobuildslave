@@ -6,17 +6,18 @@ import (
 	"time"
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
+	"golang.org/x/net/context"
 )
 
 const (
 	pendWait = time.Minute
 )
 
-func (s *Server) runTransition(job *pb.JobAssignment) {
+func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	stState := job.State
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
-		key := s.scheduleBuild(job.Job)
+		key := s.scheduleBuild(ctx, job.Job)
 		if job.Job.NonBootstrap {
 			if key != "" {
 				job.Server = s.Registry.Identifier
@@ -36,7 +37,7 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 		output := s.scheduler.getOutput(job.CommandKey)
 		if len(output) > 0 {
 			if job.BuildFail == 5 {
-				s.deliverCrashReport(job, output)
+				s.deliverCrashReport(ctx, job, output)
 			}
 			job.BuildFail++
 			job.State = pb.State_DIED
@@ -54,13 +55,13 @@ func (s *Server) runTransition(job *pb.JobAssignment) {
 	case pb.State_RUNNING:
 		if s.taskComplete(job.CommandKey) {
 			output := s.scheduler.getOutput(job.CommandKey)
-			s.deliverCrashReport(job, output)
+			s.deliverCrashReport(ctx, job, output)
 			job.State = pb.State_DIED
 		}
 
 		// Restart this job if we need to
 		if job.Job.NonBootstrap {
-			version := s.getVersion(job.Job)
+			version := s.getVersion(ctx, job.Job)
 			if version != job.RunningVersion {
 				s.Log(fmt.Sprintf("KILLING %v", job.Job.Name))
 				s.scheduler.killJob(job.CommandKey)
@@ -81,11 +82,11 @@ type translator interface {
 }
 
 type checker interface {
-	isAlive(job *pb.JobAssignment) bool
+	isAlive(ctx context.Context, job *pb.JobAssignment) bool
 }
 
-func (s *Server) getVersion(job *pb.Job) string {
-	versions := s.builder.build(job)
+func (s *Server) getVersion(ctx context.Context, job *pb.Job) string {
+	versions := s.builder.build(ctx, job)
 
 	if len(versions) == 0 {
 		s.Log(fmt.Sprintf("No versions received for %v", job.Name))
@@ -97,13 +98,13 @@ func (s *Server) getVersion(job *pb.Job) string {
 }
 
 // scheduleBuild builds out the job, returning the current version
-func (s *Server) scheduleBuild(job *pb.Job) string {
+func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 	if !job.NonBootstrap {
 		c := s.translator.build(job)
 		return s.scheduler.Schedule(&rCommand{command: c})
 	}
 
-	versions := s.builder.build(job)
+	versions := s.builder.build(ctx, job)
 
 	if len(versions) == 0 {
 		s.Log(fmt.Sprintf("No versions received for %v", job.Name))
@@ -111,7 +112,7 @@ func (s *Server) scheduleBuild(job *pb.Job) string {
 	}
 
 	s.Log(fmt.Sprintf("COPYING WITH %v", s.builder))
-	err := s.builder.copy(versions[0])
+	err := s.builder.copy(ctx, versions[0])
 	if err != nil {
 		return ""
 	}

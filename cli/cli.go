@@ -13,18 +13,20 @@ import (
 
 	pbdi "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
+	pbgs "github.com/brotherlogic/goserver/proto"
 	"github.com/brotherlogic/goserver/utils"
+	pbt "github.com/brotherlogic/tracer/proto"
 
 	//Needed to pull in gzip encoding init
 	_ "google.golang.org/grpc/encoding/gzip"
 )
 
-func findServer(name, server string) (string, int) {
+func findServer(ctx context.Context, name, server string) (string, int) {
 	conn, _ := grpc.Dial(utils.Discover, grpc.WithInsecure())
 	defer conn.Close()
 
 	registry := pbdi.NewDiscoveryServiceClient(conn)
-	rs, _ := registry.ListAllServices(context.Background(), &pbdi.ListRequest{})
+	rs, _ := registry.ListAllServices(ctx, &pbdi.ListRequest{})
 
 	for _, r := range rs.GetServices().Services {
 		if r.Identifier == server && r.Name == name {
@@ -35,12 +37,12 @@ func findServer(name, server string) (string, int) {
 	return "", -1
 }
 
-func findServers() []*pbdi.RegistryEntry {
+func findServers(ctx context.Context) []*pbdi.RegistryEntry {
 	conn, _ := grpc.Dial(utils.Discover, grpc.WithInsecure())
 	defer conn.Close()
 
 	registry := pbdi.NewDiscoveryServiceClient(conn)
-	rs, _ := registry.ListAllServices(context.Background(), &pbdi.ListRequest{})
+	rs, _ := registry.ListAllServices(ctx, &pbdi.ListRequest{})
 
 	list := make([]*pbdi.RegistryEntry, 0)
 	for _, r := range rs.GetServices().Services {
@@ -57,58 +59,61 @@ func main() {
 	var name = buildFlags.String("name", "", "Name of the binary to build")
 	var server = buildFlags.String("server", "", "Name of the server to build on")
 
+	ctx, cancel := utils.BuildContext("gobuildslavecli-"+os.Args[1], "gobuildslave", pbgs.ContextType_MEDIUM)
+	defer cancel()
+
 	if len(os.Args) <= 1 {
 		fmt.Printf("Commands: build run\n")
 	} else {
 		switch os.Args[1] {
 		case "build":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
-				host, port := findServer("gobuildslave", *server)
+				host, port := findServer(ctx, "gobuildslave", *server)
 
 				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
 				defer conn.Close()
 
 				registry := pb.NewGoBuildSlaveClient(conn)
-				_, err := registry.BuildJob(context.Background(), &pb.JobSpec{Name: *name})
+				_, err := registry.BuildJob(ctx, &pb.JobSpec{Name: *name})
 				if err != nil {
 					log.Fatalf("Error building job: %v", err)
 				}
 			}
 		case "run":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
-				host, port := findServer("gobuildslave", *server)
+				host, port := findServer(ctx, "gobuildslave", *server)
 
 				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
 				defer conn.Close()
 
 				registry := pb.NewGoBuildSlaveClient(conn)
-				_, err := registry.Run(context.Background(), &pb.JobSpec{Name: *name, Server: *server})
+				_, err := registry.Run(ctx, &pb.JobSpec{Name: *name, Server: *server})
 				if err != nil {
 					log.Fatalf("Error building job: %v", err)
 				}
 			}
 		case "kill":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
-				host, port := findServer("gobuildslave", *server)
+				host, port := findServer(ctx, "gobuildslave", *server)
 
 				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
 				defer conn.Close()
 
 				registry := pb.NewGoBuildSlaveClient(conn)
-				_, err := registry.Kill(context.Background(), &pb.JobSpec{Name: *name, Server: *server})
+				_, err := registry.Kill(ctx, &pb.JobSpec{Name: *name, Server: *server})
 				if err != nil {
 					log.Fatalf("Error building job: %v", err)
 				}
 			}
 		case "list":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
-				host, port := findServer("gobuildslave", *server)
+				host, port := findServer(ctx, "gobuildslave", *server)
 
 				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
 				defer conn.Close()
 
 				registry := pb.NewGoBuildSlaveClient(conn)
-				res, err := registry.List(context.Background(), &pb.Empty{})
+				res, err := registry.List(ctx, &pb.Empty{})
 				if err != nil {
 					log.Fatalf("Error building job: %v", err)
 				}
@@ -118,13 +123,13 @@ func main() {
 			}
 		case "nlist":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
-				host, port := findServer("gobuildslave", *server)
+				host, port := findServer(ctx, "gobuildslave", *server)
 
 				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
 				defer conn.Close()
 
 				registry := pb.NewBuildSlaveClient(conn)
-				res, err := registry.ListJobs(context.Background(), &pb.ListRequest{})
+				res, err := registry.ListJobs(ctx, &pb.ListRequest{})
 				if err != nil {
 					log.Fatalf("Error listing job: %v", err)
 				}
@@ -134,33 +139,33 @@ func main() {
 			}
 		case "nbuild":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
-				host, port := findServer("gobuildslave", *server)
+				host, port := findServer(ctx, "gobuildslave", *server)
 
 				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
 				defer conn.Close()
 
 				registry := pb.NewBuildSlaveClient(conn)
-				_, err := registry.RunJob(context.Background(), &pb.RunRequest{Job: &pb.Job{Name: "beerserver", GoPath: "github.com/brotherlogic/beerserver"}})
+				_, err := registry.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{Name: "beerserver", GoPath: "github.com/brotherlogic/beerserver"}})
 				if err != nil {
 					log.Fatalf("Error listing job: %v", err)
 				}
 			}
 		case "nconfig":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
-				host, port := findServer("gobuildslave", *server)
+				host, port := findServer(ctx, "gobuildslave", *server)
 
 				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
 				defer conn.Close()
 
 				registry := pb.NewBuildSlaveClient(conn)
-				res, err := registry.SlaveConfig(context.Background(), &pb.ConfigRequest{})
+				res, err := registry.SlaveConfig(ctx, &pb.ConfigRequest{})
 				if err != nil {
 					log.Fatalf("Error listing job: %v", err)
 				}
 				fmt.Printf("%v\n", res)
 			}
 		case "config":
-			servers := findServers()
+			servers := findServers(ctx)
 
 			if len(servers) == 0 {
 				log.Fatalf("No Servers found!")
@@ -171,12 +176,14 @@ func main() {
 				defer conn.Close()
 
 				registry := pb.NewGoBuildSlaveClient(conn)
-				res, err := registry.GetConfig(context.Background(), &pb.Empty{})
+				res, err := registry.GetConfig(ctx, &pb.Empty{})
 				if err != nil {
 					log.Fatalf("Error building job: %v", err)
 				}
 				fmt.Printf("%v - %v\n", s.GetIdentifier(), res)
 			}
 		}
+
+		utils.SendTrace(ctx, "gobuildslavecli-"+os.Args[1], time.Now(), pbt.Milestone_END, "gobuildslave")
 	}
 }
