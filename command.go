@@ -44,6 +44,7 @@ func (p *prodBuilder) build(ctx context.Context, job *pb.Job) []*pbb.Version {
 	}
 
 	conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
+	defer conn.Close()
 	if err != nil {
 		p.Log(fmt.Sprintf("Dial error: %v", err))
 		return []*pbb.Version{}
@@ -66,6 +67,7 @@ func (p *prodBuilder) copy(ctx context.Context, v *pbb.Version) error {
 	}
 
 	conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
+	defer conn.Close()
 	if err != nil {
 		return err
 	}
