@@ -6,6 +6,9 @@ import (
 	"time"
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
+	pbt "github.com/brotherlogic/tracer/proto"
+
+	"github.com/brotherlogic/goserver/utils"
 	"golang.org/x/net/context"
 )
 
@@ -14,6 +17,7 @@ const (
 )
 
 func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
+	utils.SendTrace(ctx, fmt.Sprintf("run_transition_%v", job.State), time.Now(), pbt.Milestone_MARKER, job.Job.Name)
 	stState := job.State
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
