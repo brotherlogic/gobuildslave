@@ -25,6 +25,7 @@ type Scheduler struct {
 	cMutex   *sync.Mutex
 	rMutex   *sync.Mutex
 	rMap     map[string]*rCommand
+	Log      func(string)
 }
 
 func (s *Scheduler) markComplete(key string) {
@@ -73,6 +74,7 @@ func (s *Scheduler) schedulerComplete(key string) bool {
 	s.rMutex.Lock()
 	if val, ok := s.rMap[key]; ok {
 		s.rMutex.Unlock()
+		s.Log(fmt.Sprintf("COmplete? %v and %v", val.endTime, val.err))
 		return val.endTime > 0
 	}
 
@@ -154,9 +156,10 @@ func run(c *rCommand) error {
 	// Monitor the job and report completion
 	go func() {
 		err := c.command.Wait()
-		c.endTime = time.Now().Unix()
 		if err != nil {
 			c.err = err
+		} else {
+			c.endTime = time.Now().Unix()
 		}
 	}()
 
