@@ -108,6 +108,7 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 		return s.scheduler.Schedule(&rCommand{command: c})
 	}
 
+	s.Log(fmt.Sprintf("BUILDING %v", job.Name))
 	versions := s.builder.build(ctx, job)
 
 	if len(versions) == 0 {
