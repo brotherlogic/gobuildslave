@@ -103,6 +103,7 @@ func (s *Server) getVersion(ctx context.Context, job *pb.Job) string {
 
 // scheduleBuild builds out the job, returning the current version
 func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
+	s.Log(fmt.Sprintf("SCHEDULING BUILD FOR %v", job.Name))
 	if !job.NonBootstrap {
 		c := s.translator.build(job)
 		return s.scheduler.Schedule(&rCommand{command: c})
