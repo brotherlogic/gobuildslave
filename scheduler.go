@@ -74,7 +74,7 @@ func (s *Scheduler) schedulerComplete(key string) bool {
 	s.rMutex.Lock()
 	if val, ok := s.rMap[key]; ok {
 		s.rMutex.Unlock()
-		s.Log(fmt.Sprintf("COmplete? %v and %v", val.endTime, val.err))
+		s.Log(fmt.Sprintf("Cmplete(%v)? %v and %v", key, val.endTime, val.err))
 		return val.endTime > 0
 	}
 
