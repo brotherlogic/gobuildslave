@@ -237,6 +237,7 @@ func (s Server) GetState() []*pbs.State {
 		&pbs.State{Key: "crash_reason", Text: s.crashError},
 		&pbs.State{Key: "jobs_size", Value: int64(len(s.njobs))},
 		&pbs.State{Key: "running_keys", Text: fmt.Sprintf("%v", s.scheduler.rMap)},
+		&pbs.State{Key: "scheduler", Text: s.scheduler.getState()},
 	}
 }
 
