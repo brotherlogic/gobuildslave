@@ -168,9 +168,8 @@ func run(c *rCommand) error {
 		err := c.command.Wait()
 		if err != nil {
 			c.err = err
-		} else {
-			c.endTime = time.Now().Unix()
 		}
+		c.endTime = time.Now().Unix()
 	}()
 
 	return nil
