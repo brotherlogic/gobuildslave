@@ -1,5 +1,6 @@
 import os
 import subprocess
+import socket
 
 name = "gobuildslave"
 
@@ -36,4 +37,8 @@ if size_1 != size_2 or new_hash != current_hash or not running:
         pass
     for line in os.popen('killall ' + name).readlines():
         pass
-    subprocess.Popen(['./' + name])
+
+    if socket.gethostname() == "discover":
+        subprocess.Popen(['./' + name, '--builds=false'])
+    else:
+        subprocess.Popen(['./' + name])
