@@ -10,6 +10,9 @@ import (
 
 // RunJob - runs the job
 func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunResponse, error) {
+	if !s.doesBuild {
+		return &pb.RunResponse{}, fmt.Errorf("Refusing to build")
+	}
 	s.nMut.Lock()
 	defer s.nMut.Unlock()
 	if _, ok := s.njobs[req.GetJob().GetName()]; ok {
