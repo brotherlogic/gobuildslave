@@ -109,6 +109,7 @@ type Server struct {
 	crashError    string
 	crashAttempts int64
 	builder       Builder
+	doesBuild     bool
 }
 
 func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, output string) {
@@ -444,6 +445,7 @@ func (s *Server) getServerName() string {
 
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
+	var build = flag.Bool("builds", true, "Responds to build requests")
 	flag.Parse()
 
 	if *quiet {
@@ -451,7 +453,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0), &prodBuilder{}}
+	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0), &prodBuilder{}, *build}
 	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand), Log: s.Log}
 	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName}
 	s.runner.getip = s.GetIP
