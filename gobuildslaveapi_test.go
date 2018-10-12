@@ -7,12 +7,22 @@ import (
 	pb "github.com/brotherlogic/gobuildslave/proto"
 )
 
-func TestRunJob(t *testing.T) {
+func TestRunJobOnFail(t *testing.T) {
 	s := getTestServer()
 	_, err := s.RunJob(context.Background(), &pb.RunRequest{Job: &pb.Job{Name: "test1"}})
 
 	if err != nil {
 		t.Errorf("Error running job: %v", err)
+	}
+}
+
+func TestRunJob(t *testing.T) {
+	s := getTestServer()
+	s.doesBuild = false
+	_, err := s.RunJob(context.Background(), &pb.RunRequest{Job: &pb.Job{Name: "test1"}})
+
+	if err == nil {
+		t.Errorf("Job was built?")
 	}
 }
 
