@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"sync"
 	"testing"
 
@@ -20,6 +21,10 @@ func (t *testDisker) getDisks() []string {
 	return t.disks
 }
 
+func testLog(str string) {
+	log.Printf(str)
+}
+
 func getTestServer() *Server {
 	s := Server{}
 	s.GoServer = &goserver.GoServer{}
@@ -32,10 +37,11 @@ func getTestServer() *Server {
 	s.SkipLog = true
 	s.disk = prodDiskChecker{}
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".testfolder")
-	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
+	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand), Log: testLog}
 	s.disker = &testDisker{}
 	s.translator = &testTranslator{}
 	s.builder = &testBuilder{}
+	s.doesBuild = true
 	return &s
 }
 
