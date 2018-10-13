@@ -79,6 +79,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	if job.State != stState {
 		s.Log(fmt.Sprintf("Job %v went from %v to %v", job.Job.Name, stState, job.State))
 	}
+	utils.SendTrace(ctx, fmt.Sprintf("end_transition_func_%v", job.State), time.Now(), pbt.Milestone_MARKER, job.Job.Name)
 }
 
 type translator interface {
