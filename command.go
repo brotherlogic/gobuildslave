@@ -430,7 +430,7 @@ func (s *Server) checkOnUpdate(ctx context.Context) {
 					if err == nil {
 						defer conn.Close()
 						client := pbgh.NewGithubClient(conn)
-						client.AddIssue(ctx, &pbgh.Issue{Service: "gobuildslave", Title: "UDPATE NEEDED", Body: s.Registry.Identifier}, grpc.FailFast(false))
+						client.AddIssue(ctx, &pbgh.Issue{Service: "gobuildslave", Title: "UDPATE NEEDED", Body: fmt.Sprintf("%v -> %v", s.Registry.Identifier, s.Registry.Ip)}, grpc.FailFast(false))
 					}
 				}
 
