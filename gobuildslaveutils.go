@@ -75,7 +75,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	case pb.State_DIED:
 		job.State = pb.State_ACKNOWLEDGED
 	}
-	utils.SendTrace(ctx, fmt.Sprintf("end_transition_%v", job.State), time.Now(), pbt.Milestone_MARKER, job.Job.Name)
+	utils.SendTrace(ctx, fmt.Sprintf("end_transition_%v_%v", job.State, stState), time.Now(), pbt.Milestone_MARKER, job.Job.Name)
 	if job.State != stState {
 		s.Log(fmt.Sprintf("Job %v went from %v to %v", job.Job.Name, stState, job.State))
 	}
