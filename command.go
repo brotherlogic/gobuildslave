@@ -28,7 +28,6 @@ import (
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	pbs "github.com/brotherlogic/goserver/proto"
 	"github.com/brotherlogic/goserver/utils"
-	pbt "github.com/brotherlogic/tracer/proto"
 )
 
 type prodBuilder struct {
@@ -143,10 +142,9 @@ func (s *Server) addMessage(details *pb.JobDetails, message string) {
 
 func (s *Server) nmonitor(job *pb.JobAssignment) {
 	for job.State != pb.State_DEAD {
-		ctx, cancel := utils.BuildContext("nmonitor", job.Job.Name, pbs.ContextType_MEDIUM)
+		ctx, cancel := utils.BuildContext("nmonitor", job.Job.Name, pbs.ContextType_NO_TRACE)
 		defer cancel()
 		s.runTransition(ctx, job)
-		utils.SendTrace(ctx, "nmonitor", time.Now(), pbt.Milestone_END, job.Job.Name)
 		time.Sleep(time.Second)
 	}
 }
@@ -239,7 +237,6 @@ func (s Server) GetState() []*pbs.State {
 		&pbs.State{Key: "crash_reason", Text: s.crashError},
 		&pbs.State{Key: "jobs_size", Value: int64(len(s.njobs))},
 		&pbs.State{Key: "running_keys", Text: fmt.Sprintf("%v", s.scheduler.rMap)},
-		&pbs.State{Key: "scheduler", Text: s.scheduler.getState()},
 	}
 }
 

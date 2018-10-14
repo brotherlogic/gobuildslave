@@ -15,6 +15,20 @@ func TestRandomComplete(t *testing.T) {
 	}
 }
 
+func TestKillSchedJob(t *testing.T) {
+	os.Unsetenv("GOBIN")
+	os.Unsetenv("GOPATH")
+	str, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("WHAAAA %v", err)
+	}
+	s := Scheduler{rMutex: &sync.Mutex{}, cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
+	rc := &rCommand{command: exec.Command(str + "/run.sh")}
+	run(rc)
+	s.rMap["blah"] = rc
+	s.killJob("blah")
+}
+
 func TestMarkComplete(t *testing.T) {
 	str, err := os.Getwd()
 	if err != nil {

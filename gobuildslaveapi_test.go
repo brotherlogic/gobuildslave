@@ -94,7 +94,7 @@ func TestListJobs(t *testing.T) {
 
 func TestGetSlaveConfig(t *testing.T) {
 	s := getTestServer()
-	s.Registry.Identifier = "discover"
+	s.Registry.Identifier = "stationone"
 	s.disker = &testDisker{disks: []string{"disk1"}}
 	config, err := s.SlaveConfig(context.Background(), &pb.ConfigRequest{})
 	if err != nil {
