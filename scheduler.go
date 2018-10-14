@@ -28,14 +28,6 @@ type Scheduler struct {
 	Log      func(string)
 }
 
-func (s *Scheduler) getState() string {
-	resp := ""
-	for key, com := range s.rMap {
-		resp += fmt.Sprintf("[%v -> %v,%v,%v,%v], ", key, com.output, com.mainOut, com.endTime, com.err)
-	}
-	return resp
-}
-
 func (s *Scheduler) markComplete(key string) {
 	s.rMutex.Lock()
 	if val, ok := s.rMap[key]; ok {
