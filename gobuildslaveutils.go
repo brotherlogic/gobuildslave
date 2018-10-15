@@ -67,7 +67,6 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		if job.Job.NonBootstrap {
 			version := s.getVersion(ctx, job.Job)
 			if version != job.RunningVersion {
-				s.Log(fmt.Sprintf("KILLING %v", job.Job.Name))
 				s.scheduler.killJob(job.CommandKey)
 				job.State = pb.State_ACKNOWLEDGED
 			}
@@ -76,9 +75,6 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		job.State = pb.State_ACKNOWLEDGED
 	}
 	utils.SendTrace(ctx, fmt.Sprintf("end_transition_%v_%v", job.State, stState), time.Now(), pbt.Milestone_MARKER, job.Job.Name)
-	if job.State != stState {
-		s.Log(fmt.Sprintf("Job %v went from %v to %v", job.Job.Name, stState, job.State))
-	}
 	utils.SendTrace(ctx, fmt.Sprintf("end_transition_func_%v", job.State), time.Now(), pbt.Milestone_MARKER, job.Job.Name)
 }
 
@@ -95,7 +91,6 @@ func (s *Server) getVersion(ctx context.Context, job *pb.Job) string {
 	versions := s.builder.build(ctx, job)
 
 	if len(versions) == 0 {
-		s.Log(fmt.Sprintf("No versions received for %v", job.Name))
 		return ""
 	}
 
@@ -105,22 +100,18 @@ func (s *Server) getVersion(ctx context.Context, job *pb.Job) string {
 
 // scheduleBuild builds out the job, returning the current version
 func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
-	s.Log(fmt.Sprintf("SCHEDULING BUILD FOR %v", job.Name))
 	utils.SendTrace(ctx, fmt.Sprintf("schedule_build_%v", job.NonBootstrap), time.Now(), pbt.Milestone_MARKER, job.Name)
 	if !job.NonBootstrap {
 		c := s.translator.build(job)
 		return s.scheduler.Schedule(&rCommand{command: c})
 	}
 
-	s.Log(fmt.Sprintf("BUILDING %v", job.Name))
 	versions := s.builder.build(ctx, job)
 
 	if len(versions) == 0 {
-		s.Log(fmt.Sprintf("No versions received for %v", job.Name))
 		return ""
 	}
 
-	s.Log(fmt.Sprintf("COPYING WITH %v", s.builder))
 	err := s.builder.copy(ctx, versions[0])
 	if err != nil {
 		return ""

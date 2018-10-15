@@ -20,7 +20,6 @@ func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunRespons
 	}
 
 	s.njobs[req.GetJob().GetName()] = &pb.JobAssignment{Job: req.GetJob(), State: pb.State_ACKNOWLEDGED}
-	s.Log(fmt.Sprintf("RUNNING JOB %v", s.builder))
 	go s.nmonitor(s.njobs[req.GetJob().GetName()])
 
 	return &pb.RunResponse{}, nil

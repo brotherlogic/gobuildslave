@@ -77,7 +77,6 @@ func (s *Scheduler) schedulerComplete(key string) bool {
 		if val.endTime > 0 {
 			delete(s.rMap, key)
 		}
-		s.Log(fmt.Sprintf("Cmplete(%v)? %v and %v", key, val.endTime, val.err))
 		return val.endTime > 0
 	}
 
