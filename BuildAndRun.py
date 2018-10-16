@@ -31,7 +31,9 @@ for line in lines:
               
 if size_1 != size_2 or new_hash != current_hash or not running:
     if not running:
-        for line in os.popen('cat out.txt | mail -E -s "Crash Report ' + name + ' on $(hostname) " brotherlogic@gmail.com').readlines():
+        for line in os.popen('go get github.com/brotherlogic/buildserver/buildserver_cli'):
+            pass
+        for line in os.popen('buildserver_cli crash gobuildslave version out.txt'):
             pass
     for line in os.popen('echo "" > out.txt').readlines():
         pass
