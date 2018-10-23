@@ -171,3 +171,10 @@ func TestKillBadRead(t *testing.T) {
 	s.runTransition(context.Background(), job)
 	log.Printf("NOW %v", job.State)
 }
+
+func TestFailDiscover(t *testing.T) {
+	s := getTestServer()
+	s.discover = &testDiscover{fail: true}
+	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_RUNNING}
+	s.runTransition(context.Background(), job)
+}

@@ -15,20 +15,41 @@ import (
 	"sync"
 	"time"
 
-	"github.com/brotherlogic/goserver"
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	pbb "github.com/brotherlogic/buildserver/proto"
 	pbd "github.com/brotherlogic/discovery/proto"
 	pbfc "github.com/brotherlogic/filecopier/proto"
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
+	"github.com/brotherlogic/goserver"
 	pbs "github.com/brotherlogic/goserver/proto"
 	"github.com/brotherlogic/goserver/utils"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
+
+type discover interface {
+	discover(job string, server string) error
+}
+
+type prodDiscover struct{}
+
+func (p *prodDiscover) discover(job string, server string) error {
+	entries, err := utils.ResolveAll(job)
+
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		if entry.Identifier == server {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("Unable to find %v on %v", job, server)
+}
 
 type prodBuilder struct {
 	server func() string
@@ -109,6 +130,7 @@ type Server struct {
 	crashAttempts int64
 	builder       Builder
 	doesBuild     bool
+	discover      discover
 }
 
 func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, output string) {
@@ -451,7 +473,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0), &prodBuilder{}, *build}
+	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0), &prodBuilder{}, *build, &prodDiscover{}}
 	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand), Log: s.Log}
 	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName}
 	s.runner.getip = s.GetIP
