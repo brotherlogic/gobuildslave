@@ -27,6 +27,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 				job.State = pb.State_BUILT
 				job.RunningVersion = key
 			}
+			s.stateMap[job.Job.Name] = "Empty key"
 		} else {
 			job.CommandKey = key
 			job.State = pb.State_BUILDING

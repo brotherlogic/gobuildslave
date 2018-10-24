@@ -131,6 +131,7 @@ type Server struct {
 	builder       Builder
 	doesBuild     bool
 	discover      discover
+	stateMap      map[string]string
 }
 
 func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, output string) {
@@ -259,6 +260,7 @@ func (s Server) GetState() []*pbs.State {
 		&pbs.State{Key: "crash_reason", Text: s.crashError},
 		&pbs.State{Key: "jobs_size", Value: int64(len(s.njobs))},
 		&pbs.State{Key: "running_keys", Text: fmt.Sprintf("%v", s.scheduler.rMap)},
+		&pbs.State{Key: "trans_state", Text: fmt.Sprintf("%v", s.stateMap)},
 	}
 }
 
@@ -473,7 +475,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0), &prodBuilder{}, *build, &prodDiscover{}}
+	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0), &prodBuilder{}, *build, &prodDiscover{}, make(map[string]string)}
 	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand), Log: s.Log}
 	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName}
 	s.runner.getip = s.GetIP
