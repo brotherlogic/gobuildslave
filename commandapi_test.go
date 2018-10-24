@@ -1,17 +1,28 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"sync"
 	"testing"
 
+	pbd "github.com/brotherlogic/discovery/proto"
+	pb "github.com/brotherlogic/gobuildslave/proto"
 	"github.com/brotherlogic/goserver"
 	"github.com/brotherlogic/keystore/client"
 	"golang.org/x/net/context"
-
-	pbd "github.com/brotherlogic/discovery/proto"
-	pb "github.com/brotherlogic/gobuildslave/proto"
 )
+
+type testDiscover struct {
+	fail bool
+}
+
+func (p *testDiscover) discover(job string, server string) error {
+	if p.fail {
+		return fmt.Errorf("Built to faiul")
+	}
+	return nil
+}
 
 type testDisker struct {
 	disks []string
@@ -42,6 +53,7 @@ func getTestServer() *Server {
 	s.translator = &testTranslator{}
 	s.builder = &testBuilder{}
 	s.doesBuild = true
+	s.discover = &testDiscover{}
 	return &s
 }
 
