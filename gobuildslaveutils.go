@@ -112,13 +112,13 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 	versions := s.builder.build(ctx, job)
 
 	if len(versions) == 0 {
-		s.stateMap[job.Job.Name] = "No Versions"
+		s.stateMap[job.Name] = "No Versions"
 		return ""
 	}
 
 	err := s.builder.copy(ctx, versions[0])
 	if err != nil {
-		s.stateMap[job.Job.Name] = fmt.Sprintf("%v", err)
+		s.stateMap[job.Name] = fmt.Sprintf("%v", err)
 		return ""
 	}
 	return versions[0].Version
