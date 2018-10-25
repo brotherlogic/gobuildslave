@@ -27,7 +27,6 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 				job.State = pb.State_BUILT
 				job.RunningVersion = key
 			}
-			s.stateMap[job.Job.Name] = "Empty key"
 		} else {
 			job.CommandKey = key
 			job.State = pb.State_BUILDING
@@ -113,11 +112,13 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 	versions := s.builder.build(ctx, job)
 
 	if len(versions) == 0 {
+		s.stateMap[job.Job.Name] = "No Versions"
 		return ""
 	}
 
 	err := s.builder.copy(ctx, versions[0])
 	if err != nil {
+		s.stateMap[job.Job.Name] = fmt.Sprintf("%v", err)
 		return ""
 	}
 	return versions[0].Version
