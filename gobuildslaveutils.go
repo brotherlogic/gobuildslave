@@ -116,9 +116,10 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 		return ""
 	}
 
+	t := time.Now()
 	err = s.builder.copy(ctx, versions[0])
 	if err != nil {
-		s.stateMap[job.Name] = fmt.Sprintf("%v", err)
+		s.stateMap[job.Name] = fmt.Sprintf("Copy fail (%v) -> %v", time.Now().Sub(t), err)
 		return ""
 	}
 	s.stateMap[job.Name] = fmt.Sprintf("Found version %v", versions[0].Version)
