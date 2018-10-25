@@ -121,6 +121,7 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 		s.stateMap[job.Name] = fmt.Sprintf("%v", err)
 		return ""
 	}
+	s.stateMap[job.Name] = fmt.Sprintf("Found version %v", versions[0].Version)
 	return versions[0].Version
 }
 
