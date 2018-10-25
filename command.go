@@ -56,28 +56,25 @@ type prodBuilder struct {
 	Log    func(string)
 }
 
-func (p *prodBuilder) build(ctx context.Context, job *pb.Job) []*pbb.Version {
+func (p *prodBuilder) build(ctx context.Context, job *pb.Job) ([]*pbb.Version, error) {
 	ip, port, err := utils.Resolve("buildserver")
 	if err != nil {
-		p.Log(fmt.Sprintf("Resolve error: %v", err))
-		return []*pbb.Version{}
+		return []*pbb.Version{}, err
 	}
 
 	conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
 	defer conn.Close()
 	if err != nil {
-		p.Log(fmt.Sprintf("Dial error: %v", err))
-		return []*pbb.Version{}
+		return []*pbb.Version{}, err
 	}
 	builder := pbb.NewBuildServiceClient(conn)
 	versions, err := builder.GetVersions(ctx, &pbb.VersionRequest{Job: job, JustLatest: true})
 
 	if err != nil {
-		p.Log(fmt.Sprintf("Get error: %v", err))
-		return []*pbb.Version{}
+		return []*pbb.Version{}, err
 	}
 
-	return versions.Versions
+	return versions.Versions, nil
 }
 
 func (p *prodBuilder) copy(ctx context.Context, v *pbb.Version) error {

@@ -9,12 +9,11 @@ import (
 	"testing"
 	"time"
 
-	"golang.org/x/net/context"
-
 	pbb "github.com/brotherlogic/buildserver/proto"
 	pbd "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	"github.com/brotherlogic/goserver"
+	"golang.org/x/net/context"
 )
 
 type testDiskChecker struct{}
@@ -33,14 +32,14 @@ type testBuilder struct {
 	change   bool
 }
 
-func (p *testBuilder) build(ctx context.Context, job *pb.Job) []*pbb.Version {
+func (p *testBuilder) build(ctx context.Context, job *pb.Job) ([]*pbb.Version, error) {
 	if p.count == 0 {
-		return []*pbb.Version{}
+		return []*pbb.Version{}, nil
 	}
 	if !p.change {
-		return []*pbb.Version{&pbb.Version{Version: "test"}}
+		return []*pbb.Version{&pbb.Version{Version: "test"}}, nil
 	} else {
-		return []*pbb.Version{&pbb.Version{Version: "newtest"}}
+		return []*pbb.Version{&pbb.Version{Version: "newtest"}}, nil
 	}
 }
 

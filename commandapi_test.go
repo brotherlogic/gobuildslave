@@ -54,6 +54,7 @@ func getTestServer() *Server {
 	s.builder = &testBuilder{}
 	s.doesBuild = true
 	s.discover = &testDiscover{}
+	s.stateMap = make(map[string]string)
 	return &s
 }
 

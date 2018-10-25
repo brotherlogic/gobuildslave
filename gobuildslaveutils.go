@@ -91,7 +91,7 @@ type checker interface {
 }
 
 func (s *Server) getVersion(ctx context.Context, job *pb.Job) string {
-	versions := s.builder.build(ctx, job)
+	versions, _ := s.builder.build(ctx, job)
 
 	if len(versions) == 0 {
 		return ""
@@ -109,14 +109,14 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 		return s.scheduler.Schedule(&rCommand{command: c})
 	}
 
-	versions := s.builder.build(ctx, job)
+	versions, err := s.builder.build(ctx, job)
 
 	if len(versions) == 0 {
-		s.stateMap[job.Name] = "No Versions"
+		s.stateMap[job.Name] = fmt.Sprintf("No Versions: %v", err)
 		return ""
 	}
 
-	err := s.builder.copy(ctx, versions[0])
+	err = s.builder.copy(ctx, versions[0])
 	if err != nil {
 		s.stateMap[job.Name] = fmt.Sprintf("%v", err)
 		return ""
