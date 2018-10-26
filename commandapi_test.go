@@ -5,6 +5,7 @@ import (
 	"log"
 	"sync"
 	"testing"
+	"time"
 
 	pbd "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
@@ -55,6 +56,7 @@ func getTestServer() *Server {
 	s.doesBuild = true
 	s.discover = &testDiscover{}
 	s.stateMap = make(map[string]string)
+	s.pendingMap = make(map[time.Weekday]map[string]int)
 	return &s
 }
 

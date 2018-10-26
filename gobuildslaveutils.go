@@ -50,6 +50,10 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.CommandKey = key
 			job.StartTime = time.Now().Unix()
 			job.State = pb.State_PENDING
+			if _, ok := s.pendingMap[time.Now().Weekday()]; !ok {
+				s.pendingMap[time.Now().Weekday()] = make(map[string]int)
+			}
+			s.pendingMap[time.Now().Weekday()][job.Job.Name]++
 		}
 	case pb.State_PENDING:
 		if time.Now().Add(-time.Minute).Unix() > job.StartTime {
