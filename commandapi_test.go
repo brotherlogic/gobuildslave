@@ -57,6 +57,7 @@ func getTestServer() *Server {
 	s.discover = &testDiscover{}
 	s.stateMap = make(map[string]string)
 	s.pendingMap = make(map[time.Weekday]map[string]int)
+	s.stateTime = make(map[string]time.Time)
 	return &s
 }
 

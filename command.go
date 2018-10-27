@@ -130,6 +130,15 @@ type Server struct {
 	discover      discover
 	stateMap      map[string]string
 	pendingMap    map[time.Weekday]map[string]int
+	stateTime     map[string]time.Time
+}
+
+func (s *Server) alertOnState(ctx context.Context) {
+	for job, t := range s.stateTime {
+		if time.Now().Sub(t) > time.Hour {
+			s.RaiseIssue(ctx, "Stuck State", fmt.Sprintf("%v is in a stuck state", job), false)
+		}
+	}
 }
 
 func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, output string) {
@@ -474,7 +483,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0), &prodBuilder{}, *build, &prodDiscover{}, make(map[string]string), make(map[time.Weekday]map[string]int)}
+	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0), &prodBuilder{}, *build, &prodDiscover{}, make(map[string]string), make(map[time.Weekday]map[string]int), make(map[string]time.Time)}
 	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand), Log: s.Log}
 	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName}
 	s.runner.getip = s.GetIP
