@@ -64,6 +64,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	case pb.State_RUNNING:
 		if s.taskComplete(job.CommandKey) {
 			output := s.scheduler.getOutput(job.CommandKey)
+			s.stateMap[job.Job.Name] = fmt.Sprintf("COMPLETE = %v", output)
 			s.deliverCrashReport(ctx, job, output)
 			job.State = pb.State_DIED
 		}
@@ -76,6 +77,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		if job.Job.NonBootstrap {
 			version := s.getVersion(ctx, job.Job)
 			if version != job.RunningVersion {
+				s.stateMap[job.Job.Name] = fmt.Sprintf("VERSION_MISMATCH = %v,%v", version, job.RunningVersion)
 				s.scheduler.killJob(job.CommandKey)
 				job.State = pb.State_ACKNOWLEDGED
 			}
