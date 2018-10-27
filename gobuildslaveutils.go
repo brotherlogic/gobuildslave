@@ -21,6 +21,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
 		key := s.scheduleBuild(ctx, job.Job)
+		s.stateMap[job.Job.Name] = fmt.Sprintf("SCHED: %v", key)
 		if job.Job.NonBootstrap {
 			if key != "" {
 				job.Server = s.Registry.Identifier
