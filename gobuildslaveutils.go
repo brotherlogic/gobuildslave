@@ -56,6 +56,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			s.pendingMap[time.Now().Weekday()][job.Job.Name]++
 		}
 	case pb.State_PENDING:
+		s.stateMap[job.Job.Name] = fmt.Sprintf("OUTPUT = %v", s.scheduler.getOutput(job.CommandKey))
 		if time.Now().Add(-time.Minute).Unix() > job.StartTime {
 			job.State = pb.State_RUNNING
 		}
