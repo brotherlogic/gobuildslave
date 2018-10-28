@@ -84,7 +84,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			}
 		}
 	case pb.State_DIED:
-		s.removeJob(job.CommandKey)
+		s.scheduler.removeJob(job.CommandKey)
 		job.State = pb.State_ACKNOWLEDGED
 	}
 
