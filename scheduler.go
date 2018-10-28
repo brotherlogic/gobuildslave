@@ -70,13 +70,14 @@ func (s *Scheduler) killJob(key string) {
 	s.rMutex.Unlock()
 }
 
+func (s *Scheduler) removeJob(key string) {
+	delete(s.rMap, key)
+}
+
 func (s *Scheduler) schedulerComplete(key string) bool {
 	s.rMutex.Lock()
 	defer s.rMutex.Unlock()
 	if val, ok := s.rMap[key]; ok {
-		if val.endTime > 0 {
-			delete(s.rMap, key)
-		}
 		return val.endTime > 0
 	}
 
