@@ -54,11 +54,11 @@ func (s *Scheduler) getOutput(key string) string {
 	s.rMutex.Lock()
 	if val, ok := s.rMap[key]; ok {
 		s.rMutex.Unlock()
-		return val.output
+		return val.output + " (" + val.mainOutput + ")"
 	}
 
 	s.rMutex.Unlock()
-	return ""
+	return "NOT_IN_MAP"
 }
 
 func (s *Scheduler) killJob(key string) {
