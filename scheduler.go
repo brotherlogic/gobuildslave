@@ -64,7 +64,7 @@ func (s *Scheduler) getOutput(key string) string {
 	}
 
 	s.rMutex.Unlock()
-	return "NOT_IN_MAP"
+	return fmt.Sprintf("KEY NOT_IN_MAP: %v", key)
 }
 
 func (s *Scheduler) killJob(key string) {
