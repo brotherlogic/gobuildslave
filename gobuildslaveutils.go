@@ -34,7 +34,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.Server = s.Registry.Identifier
 		}
 	case pb.State_BUILDING:
-		s.stateMap[job.Job.Name] = fmt.Sprintf("BUILD: %v", s.scheduler.getState(job.CommandKey))
+		s.stateMap[job.Job.Name] = fmt.Sprintf("BUILD(%v): %v", job.CommandKey, s.scheduler.getState(job.CommandKey))
 		if s.taskComplete(job.CommandKey) {
 			job.State = pb.State_BUILT
 		}
