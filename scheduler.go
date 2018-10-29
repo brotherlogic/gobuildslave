@@ -60,7 +60,7 @@ func (s *Scheduler) getOutput(key string) string {
 	s.rMutex.Lock()
 	if val, ok := s.rMap[key]; ok {
 		s.rMutex.Unlock()
-		return val.output + " (" + val.mainOut + ")"
+		return val.output
 	}
 
 	s.rMutex.Unlock()
