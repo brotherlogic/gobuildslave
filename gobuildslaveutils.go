@@ -40,6 +40,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		}
 	case pb.State_BUILT:
 		output := s.scheduler.getOutput(job.CommandKey)
+		s.stateMap[job.Job.Name] = fmt.Sprintf("BUILT(%v): %v", job.CommandKey, output)
 		if len(output) > 0 {
 			if job.BuildFail == 5 {
 				s.deliverCrashReport(ctx, job, output)
