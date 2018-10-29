@@ -44,6 +44,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		if len(output) > 0 {
 			if job.BuildFail == 5 {
 				s.deliverCrashReport(ctx, job, output)
+				job.BuildFail = 0
 			}
 			job.BuildFail++
 			job.State = pb.State_DIED
