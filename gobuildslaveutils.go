@@ -68,7 +68,6 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		output := s.scheduler.getOutput(job.CommandKey)
 		if s.taskComplete(job.CommandKey) {
 			s.stateMap[job.Job.Name] = fmt.Sprintf("COMPLETE = %v", output)
-			s.RaiseIssue(ctx, fmt.Sprintf("%v Died", job.Job.Name), fmt.Sprintf("Job %v has died for reals %v", job.Job.Name, output), false)
 			s.deliverCrashReport(ctx, job, output)
 			job.State = pb.State_DIED
 		}
