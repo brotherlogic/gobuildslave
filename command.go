@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -272,6 +273,7 @@ func (s Server) GetState() []*pbs.State {
 		&pbs.State{Key: "running_keys", Text: fmt.Sprintf("%v", s.scheduler.rMap)},
 		&pbs.State{Key: "trans_state", Text: fmt.Sprintf("%v", s.stateMap)},
 		&pbs.State{Key: "pendings", Text: fmt.Sprintf("%v", s.pendingMap)},
+		&pbs.State{Key: "go_version", Text: fmt.Sprintf("%v", runtime.Version())},
 	}
 }
 
