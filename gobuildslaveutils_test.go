@@ -65,11 +65,6 @@ var transitionTable = []struct {
 	pb.State_ACKNOWLEDGED,
 	false,
 }, {
-	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_RUNNING},
-	"blah-run",
-	pb.State_DIED,
-	false,
-}, {
 	&pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED},
 	"blah-run",
 	pb.State_ACKNOWLEDGED,
@@ -176,5 +171,7 @@ func TestFailDiscover(t *testing.T) {
 	s := getTestServer()
 	s.discover = &testDiscover{fail: true}
 	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_RUNNING}
-	s.runTransition(context.Background(), job)
+	for i := 0; i < 7; i++ {
+		s.runTransition(context.Background(), job)
+	}
 }
