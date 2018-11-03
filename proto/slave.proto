@@ -48,6 +48,7 @@ message JobAssignment {
   string command_key = 7;
   int32 build_fail = 8;
   string running_version = 9;
+  int32 discover_count = 10;
 }
 
 message SlaveConfig {
