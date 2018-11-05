@@ -74,7 +74,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 
 		err := s.discover.discover(job.Job.Name, s.Registry.Identifier)
 		if err != nil {
-			if job.DiscoverCount > 5 {
+			if job.DiscoverCount > 30 {
 				s.RaiseIssue(ctx, "Cannot Discover Running Server", fmt.Sprintf("%v on %v is not discoverable, despite running (%v)", job.Job.Name, s.Registry.Identifier, err), false)
 			}
 			job.DiscoverCount++
