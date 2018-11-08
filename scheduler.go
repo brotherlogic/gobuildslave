@@ -36,13 +36,13 @@ func (s *Scheduler) getState(key string) string {
 
 func (s *Scheduler) markComplete(key string) {
 	s.rMutex.Lock()
+	defer s.rMutex.Unlock()
 	if val, ok := s.rMap[key]; ok {
 		val.endTime = time.Now().Unix()
 		val.output = key
 	} else {
 		s.rMap[key] = &rCommand{endTime: time.Now().Unix(), output: key}
 	}
-	s.rMutex.Unlock()
 }
 
 // Schedule schedules a task
@@ -58,12 +58,11 @@ func (s *Scheduler) Schedule(c *rCommand) string {
 
 func (s *Scheduler) getOutput(key string) string {
 	s.rMutex.Lock()
+	defer s.rMutex.Unlock()
 	if val, ok := s.rMap[key]; ok {
-		s.rMutex.Unlock()
 		return val.output
 	}
 
-	s.rMutex.Unlock()
 	return fmt.Sprintf("KEY NOT_IN_MAP: %v", key)
 }
 
@@ -77,6 +76,8 @@ func (s *Scheduler) killJob(key string) {
 }
 
 func (s *Scheduler) removeJob(key string) {
+	s.rMutex.Lock()
+	defer s.rMutex.Unlock()
 	delete(s.rMap, key)
 }
 
