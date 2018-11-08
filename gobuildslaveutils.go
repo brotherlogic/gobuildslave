@@ -21,7 +21,9 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
 		key := s.scheduleBuild(ctx, job.Job)
+		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("SCHED: %v", key)
+		s.stateMutex.Unlock()
 		if job.Job.NonBootstrap {
 			if key != "" {
 				job.Server = s.Registry.Identifier
@@ -34,13 +36,17 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.Server = s.Registry.Identifier
 		}
 	case pb.State_BUILDING:
+		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("BUILD(%v): %v", job.CommandKey, s.scheduler.getState(job.CommandKey))
+		s.stateMutex.Unlock()
 		if s.taskComplete(job.CommandKey) {
 			job.State = pb.State_BUILT
 		}
 	case pb.State_BUILT:
 		output := s.scheduler.getOutput(job.CommandKey)
+		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("BUILT(%v): (%v): %v", job.CommandKey, len(output), output)
+		s.stateMutex.Unlock()
 		if !job.Job.NonBootstrap && len(output) > 0 {
 			if job.BuildFail == 5 {
 				s.deliverCrashReport(ctx, job, output)
@@ -60,14 +66,18 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			s.pendingMap[time.Now().Weekday()][job.Job.Name]++
 		}
 	case pb.State_PENDING:
+		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("OUTPUT = %v", s.scheduler.getOutput(job.CommandKey))
+		s.stateMutex.Unlock()
 		if time.Now().Add(-time.Minute).Unix() > job.StartTime {
 			job.State = pb.State_RUNNING
 		}
 	case pb.State_RUNNING:
 		output := s.scheduler.getOutput(job.CommandKey)
 		if s.taskComplete(job.CommandKey) {
+			s.stateMutex.Lock()
 			s.stateMap[job.Job.Name] = fmt.Sprintf("COMPLETE = %v", output)
+			s.stateMutex.Unlock()
 			s.deliverCrashReport(ctx, job, output)
 			job.State = pb.State_DIED
 		}
@@ -86,13 +96,17 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		if job.Job.NonBootstrap {
 			version := s.getVersion(ctx, job.Job)
 			if version != job.RunningVersion {
+				s.stateMutex.Lock()
 				s.stateMap[job.Job.Name] = fmt.Sprintf("VERSION_MISMATCH = %v,%v", version, job.RunningVersion)
+				s.stateMutex.Unlock()
 				s.scheduler.killJob(job.CommandKey)
 				job.State = pb.State_ACKNOWLEDGED
 			}
 		}
 	case pb.State_DIED:
+		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("DIED %v", job.CommandKey)
+		s.stateMutex.Unlock()
 		s.scheduler.removeJob(job.CommandKey)
 		job.State = pb.State_ACKNOWLEDGED
 	}
@@ -139,17 +153,23 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 	versions, err := s.builder.build(ctx, job)
 
 	if len(versions) == 0 {
+		s.stateMutex.Lock()
 		s.stateMap[job.Name] = fmt.Sprintf("No Versions: %v", err)
+		s.stateMutex.Unlock()
 		return ""
 	}
 
 	t := time.Now()
 	err = s.builder.copy(ctx, versions[0])
 	if err != nil {
+		s.stateMutex.Lock()
 		s.stateMap[job.Name] = fmt.Sprintf("Copy fail (%v) -> %v", time.Now().Sub(t), err)
+		s.stateMutex.Unlock()
 		return ""
 	}
+	s.stateMutex.Lock()
 	s.stateMap[job.Name] = fmt.Sprintf("Found version %v", versions[0].Version)
+	s.stateMutex.Unlock()
 	return versions[0].Version
 }
 
