@@ -69,8 +69,10 @@ func (s *Scheduler) getOutput(key string) string {
 func (s *Scheduler) killJob(key string) {
 	s.rMutex.Lock()
 	if val, ok := s.rMap[key]; ok {
-		val.command.Process.Kill()
-		val.command.Process.Wait()
+		if val.command.Process != nil {
+			val.command.Process.Kill()
+			val.command.Process.Wait()
+		}
 	}
 	s.rMutex.Unlock()
 }
