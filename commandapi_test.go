@@ -58,6 +58,7 @@ func getTestServer() *Server {
 	s.stateMap = make(map[string]string)
 	s.pendingMap = make(map[time.Weekday]map[string]int)
 	s.stateTime = make(map[string]time.Time)
+	s.stateMutex = &sync.Mutex{}
 	return &s
 }
 
