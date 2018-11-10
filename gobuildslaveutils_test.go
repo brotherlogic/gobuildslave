@@ -171,7 +171,7 @@ func TestFailDiscover(t *testing.T) {
 	s := getTestServer()
 	s.discover = &testDiscover{fail: true}
 	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_RUNNING}
-	for i := 0; i < 7; i++ {
+	for i := 0; i < 32; i++ {
 		s.runTransition(context.Background(), job)
 	}
 }
