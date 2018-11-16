@@ -133,6 +133,7 @@ type Server struct {
 	pendingMap    map[time.Weekday]map[string]int
 	stateTime     map[string]time.Time
 	stateMutex    *sync.Mutex
+	rejecting     bool
 }
 
 func (s *Server) alertOnState(ctx context.Context) {
@@ -275,6 +276,7 @@ func (s Server) GetState() []*pbs.State {
 		&pbs.State{Key: "trans_state", Text: fmt.Sprintf("%v", s.stateMap)},
 		&pbs.State{Key: "pendings", Text: fmt.Sprintf("%v", s.pendingMap)},
 		&pbs.State{Key: "go_version", Text: fmt.Sprintf("%v", runtime.Version())},
+		&pbs.State{Key: "reject", Text: fmt.Sprintf("%v", s.rejecting)},
 	}
 }
 
@@ -489,7 +491,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0), &prodBuilder{}, *build, &prodDiscover{}, make(map[string]string), make(map[time.Weekday]map[string]int), make(map[string]time.Time), &sync.Mutex{}}
+	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0), &prodBuilder{}, *build, &prodDiscover{}, make(map[string]string), make(map[time.Weekday]map[string]int), make(map[string]time.Time), &sync.Mutex{}, *build}
 	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand), Log: s.Log}
 	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName}
 	s.runner.getip = s.GetIP
