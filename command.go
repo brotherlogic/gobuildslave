@@ -90,8 +90,8 @@ func (p *prodBuilder) copy(ctx context.Context, v *pbb.Version) error {
 		return err
 	}
 	copier := pbfc.NewFileCopierServiceClient(conn)
-	_, err = copier.Copy(ctx, &pbfc.CopyRequest{v.Path, v.Server, "/home/simon/gobuild/bin/" + v.Job.Name, p.server()})
-	p.Log(fmt.Sprintf("COPIED %v and %v WITH %v", v.Server, p.server(), err))
+	r, err := copier.Copy(ctx, &pbfc.CopyRequest{v.Path, v.Server, "/home/simon/gobuild/bin/" + v.Job.Name, p.server()})
+	p.Log(fmt.Sprintf("COPIED %v and %v WITH %v (%v)", v.Server, p.server(), err, r.MillisToCopy))
 	return err
 }
 
