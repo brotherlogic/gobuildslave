@@ -97,8 +97,8 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 
 		// Restart this job if we need to
 		if job.Job.NonBootstrap {
-			version := s.getVersion(ctx, job.Job)
-			if version != job.RunningVersion {
+			version, err := s.getVersion(ctx, job.Job)
+			if err == nil && version != job.RunningVersion {
 				s.stateMutex.Lock()
 				s.stateMap[job.Job.Name] = fmt.Sprintf("VERSION_MISMATCH = %v,%v", version, job.RunningVersion)
 				s.stateMutex.Unlock()
@@ -134,14 +134,17 @@ type checker interface {
 	isAlive(ctx context.Context, job *pb.JobAssignment) bool
 }
 
-func (s *Server) getVersion(ctx context.Context, job *pb.Job) string {
-	versions, _ := s.builder.build(ctx, job)
-
-	if len(versions) == 0 {
-		return ""
+func (s *Server) getVersion(ctx context.Context, job *pb.Job) (string, error) {
+	versions, err := s.builder.build(ctx, job)
+	if err != nil {
+		return "", err
 	}
 
-	return versions[0].Version
+	if len(versions) == 0 {
+		return "", nil
+	}
+
+	return versions[0].Version, nil
 
 }
 
