@@ -150,6 +150,11 @@ func (s *Server) alertOnState(ctx context.Context) {
 
 func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, output string) {
 	s.crashAttempts++
+
+	if j.Job.Name == "buildserver" {
+		s.RaiseIssue(ctx, "Buildserver failing", fmt.Sprintf("%v", output), false)
+	}
+
 	if len(output) > 0 && !s.SkipLog {
 		ip, port := s.GetIP("buildserver")
 		s.Log(fmt.Sprintf("GOT BUILDSERVER: %v,%v", ip, port))
