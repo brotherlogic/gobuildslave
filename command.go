@@ -143,7 +143,7 @@ type Server struct {
 func (s *Server) alertOnState(ctx context.Context) {
 	for job, t := range s.stateTime {
 		if time.Now().Sub(t) > time.Hour {
-			s.RaiseIssue(ctx, "Stuck State", fmt.Sprintf("%v is in a stuck state", job), false)
+			s.BounceIssue(ctx, "Stuck State", fmt.Sprintf("%v is in a stuck state", job), "buildserver")
 		}
 	}
 }
