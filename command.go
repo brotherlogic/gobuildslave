@@ -118,26 +118,28 @@ func (p *prodDisker) getDisks() []string {
 // Server the main server type
 type Server struct {
 	*goserver.GoServer
-	runner        *Runner
-	disk          diskChecker
-	jobs          map[string]*pb.JobDetails
-	nMut          *sync.Mutex
-	njobs         map[string]*pb.JobAssignment
-	translator    translator
-	scheduler     *Scheduler
-	checker       checker
-	disker        disker
-	crashFails    int64
-	crashError    string
-	crashAttempts int64
-	builder       Builder
-	doesBuild     bool
-	discover      discover
-	stateMap      map[string]string
-	pendingMap    map[time.Weekday]map[string]int
-	stateTime     map[string]time.Time
-	stateMutex    *sync.Mutex
-	rejecting     bool
+	runner         *Runner
+	disk           diskChecker
+	jobs           map[string]*pb.JobDetails
+	nMut           *sync.Mutex
+	njobs          map[string]*pb.JobAssignment
+	translator     translator
+	scheduler      *Scheduler
+	checker        checker
+	disker         disker
+	crashFails     int64
+	crashError     string
+	crashAttempts  int64
+	builder        Builder
+	doesBuild      bool
+	discover       discover
+	stateMap       map[string]string
+	pendingMap     map[time.Weekday]map[string]int
+	stateTime      map[string]time.Time
+	stateMutex     *sync.Mutex
+	rejecting      bool
+	lastCopyTime   time.Duration
+	lastCopyStatus string
 }
 
 func (s *Server) alertOnState(ctx context.Context) {
@@ -286,6 +288,8 @@ func (s Server) GetState() []*pbs.State {
 		&pbs.State{Key: "pendings", Text: fmt.Sprintf("%v", s.pendingMap)},
 		&pbs.State{Key: "go_version", Text: fmt.Sprintf("%v", runtime.Version())},
 		&pbs.State{Key: "reject", Text: fmt.Sprintf("%v", s.rejecting)},
+		&pbs.State{Key: "last_copy_time", TimeDuration: s.lastCopyTime.Nanoseconds()},
+		&pbs.State{Key: "last_copy_status", Text: s.lastCopyStatus},
 	}
 }
 
@@ -500,7 +504,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0), &prodBuilder{}, *build, &prodDiscover{}, make(map[string]string), make(map[time.Weekday]map[string]int), make(map[string]time.Time), &sync.Mutex{}, *build}
+	s := Server{&goserver.GoServer{}, Init(&prodBuilder{}), prodDiskChecker{}, make(map[string]*pb.JobDetails), &sync.Mutex{}, make(map[string]*pb.JobAssignment), &pTranslator{}, &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}, &pChecker{}, &prodDisker{}, int64(0), "", int64(0), &prodBuilder{}, *build, &prodDiscover{}, make(map[string]string), make(map[time.Weekday]map[string]int), make(map[string]time.Time), &sync.Mutex{}, *build, 0, ""}
 	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand), Log: s.Log}
 	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName}
 	s.runner.getip = s.GetIP

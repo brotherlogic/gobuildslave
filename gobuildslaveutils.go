@@ -167,6 +167,8 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 
 	t := time.Now()
 	err = s.builder.copy(ctx, versions[0])
+	s.lastCopyTime = time.Now().Sub(t)
+	s.lastCopyStatus = fmt.Sprintf("%v", err)
 	if err != nil {
 		s.stateMutex.Lock()
 		s.stateMap[job.Name] = fmt.Sprintf("Copy fail (%v) -> %v", time.Now().Sub(t), err)
