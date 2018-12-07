@@ -158,6 +158,7 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 
 	versions, err := s.builder.build(ctx, job)
 
+	s.lastCopyStatus = fmt.Sprintf("%v", err)
 	if len(versions) == 0 {
 		s.stateMutex.Lock()
 		s.stateMap[job.Name] = fmt.Sprintf("No Versions: %v", err)
