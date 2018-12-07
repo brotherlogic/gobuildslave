@@ -17,6 +17,7 @@ type rCommand struct {
 	endTime   int64
 	err       error
 	mainOut   string
+	status    string
 }
 
 //Scheduler the main task scheduler
@@ -61,6 +62,16 @@ func (s *Scheduler) getOutput(key string) string {
 	defer s.rMutex.Unlock()
 	if val, ok := s.rMap[key]; ok {
 		return val.output
+	}
+
+	return fmt.Sprintf("KEY NOT_IN_MAP: %v", key)
+}
+
+func (s *Scheduler) getStatus(key string) string {
+	s.rMutex.Lock()
+	defer s.rMutex.Unlock()
+	if val, ok := s.rMap[key]; ok {
+		return val.status
 	}
 
 	return fmt.Sprintf("KEY NOT_IN_MAP: %v", key)
@@ -166,7 +177,9 @@ func run(c *rCommand) error {
 
 	// Monitor the job and report completion
 	go func() {
+		c.status = "Entering Wait"
 		err := c.command.Wait()
+		c.status = "Completed Wait"
 		if err != nil {
 			c.err = err
 		}
