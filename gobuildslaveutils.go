@@ -22,7 +22,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	case pb.State_ACKNOWLEDGED:
 		key := s.scheduleBuild(ctx, job.Job)
 		s.stateMutex.Lock()
-		s.stateMap[job.Job.Name] = fmt.Sprintf("SCHED: %v", key)
+		s.stateMap[job.Job.Name] = fmt.Sprintf("SCHED: %v @ %v", key, time.Now())
 		s.stateMutex.Unlock()
 		if job.Job.NonBootstrap {
 			if key != "" {
@@ -160,6 +160,7 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 
 	s.lastCopyStatus = fmt.Sprintf("%v", err)
 	if len(versions) == 0 {
+		s.Log(fmt.Sprintf("No versions for %v because %v", job.Name, err))
 		s.stateMutex.Lock()
 		s.stateMap[job.Name] = fmt.Sprintf("No Versions: %v", err)
 		s.stateMutex.Unlock()
