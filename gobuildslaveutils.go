@@ -76,6 +76,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		output := s.scheduler.getOutput(job.CommandKey)
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("ROUTPUT = %v, %v", s.scheduler.getOutput(job.CommandKey), s.scheduler.getStatus(job.CommandKey))
+		job.Status = s.scheduler.getStatus(job.CommandKey)
 		s.stateMutex.Unlock()
 		if s.taskComplete(job.CommandKey) {
 			s.stateMutex.Lock()

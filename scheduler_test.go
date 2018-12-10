@@ -29,6 +29,28 @@ func TestKillSchedJob(t *testing.T) {
 	s.killJob("blah")
 }
 
+func TestFailStderr(t *testing.T) {
+	os.Unsetenv("GOBIN")
+	os.Unsetenv("GOPATH")
+	str, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("WHAAAA %v", err)
+	}
+	rc := &rCommand{command: exec.Command(str + "/run.sh"), crash1: true}
+	err = run(rc)
+}
+
+func TestFailStdout(t *testing.T) {
+	os.Unsetenv("GOBIN")
+	os.Unsetenv("GOPATH")
+	str, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("WHAAAA %v", err)
+	}
+	rc := &rCommand{command: exec.Command(str + "/run.sh"), crash2: true}
+	err = run(rc)
+}
+
 func TestMarkComplete(t *testing.T) {
 	str, err := os.Getwd()
 	if err != nil {
