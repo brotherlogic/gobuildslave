@@ -115,6 +115,7 @@ func (s *Scheduler) processCommands() {
 }
 
 func run(c *rCommand) error {
+	c.status = "Running Command"
 	env := os.Environ()
 	home := ""
 	for _, s := range env {
@@ -146,9 +147,12 @@ func run(c *rCommand) error {
 	}
 	c.command.Env = env
 
+	c.status = "Building pipes"
+
 	out, err := c.command.StderrPipe()
 	outr, err := c.command.StdoutPipe()
 
+	c.status = "Scanning stderr"
 	if out != nil {
 		scanner := bufio.NewScanner(out)
 		go func() {
@@ -159,6 +163,7 @@ func run(c *rCommand) error {
 		}()
 	}
 
+	c.status = "Scanning stdout"
 	if outr != nil {
 		scanner2 := bufio.NewScanner(outr)
 		go func() {
@@ -169,6 +174,7 @@ func run(c *rCommand) error {
 		}()
 	}
 
+	c.status = "Starting Command"
 	err = c.command.Start()
 	if err != nil {
 		return err
