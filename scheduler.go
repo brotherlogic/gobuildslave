@@ -18,6 +18,8 @@ type rCommand struct {
 	err       error
 	mainOut   string
 	status    string
+	crash1    bool
+	crash2    bool
 }
 
 //Scheduler the main task scheduler
@@ -146,30 +148,34 @@ func run(c *rCommand) error {
 	}
 	c.command.Env = env
 
-	out, err := c.command.StderrPipe()
-	outr, err := c.command.StdoutPipe()
+	out, err1 := c.command.StderrPipe()
+	outr, err2 := c.command.StdoutPipe()
 
-	if out != nil {
-		scanner := bufio.NewScanner(out)
-		go func() {
-			for scanner != nil && scanner.Scan() {
-				c.output += scanner.Text()
-			}
-			out.Close()
-		}()
+	if c.crash1 || err1 != nil {
+		return err1
 	}
 
-	if outr != nil {
-		scanner2 := bufio.NewScanner(outr)
-		go func() {
-			for scanner2 != nil && scanner2.Scan() {
-				c.mainOut += scanner2.Text()
-			}
-			outr.Close()
-		}()
+	if c.crash2 || err2 != nil {
+		return err2
 	}
 
-	err = c.command.Start()
+	scanner := bufio.NewScanner(out)
+	go func() {
+		for scanner != nil && scanner.Scan() {
+			c.output += scanner.Text()
+		}
+		out.Close()
+	}()
+
+	scanner2 := bufio.NewScanner(outr)
+	go func() {
+		for scanner2 != nil && scanner2.Scan() {
+			c.mainOut += scanner2.Text()
+		}
+		outr.Close()
+	}()
+
+	err := c.command.Start()
 	if err != nil {
 		return err
 	}

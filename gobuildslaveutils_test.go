@@ -71,6 +71,16 @@ var transitionTable = []struct {
 	false,
 }}
 
+func TestBadBuild(t *testing.T) {
+	s := getTestServer()
+	s.builder = &testBuilder{fail: true}
+
+	_, err := s.getVersion(context.Background(), &pb.Job{})
+	if err == nil {
+		t.Errorf("Bad builder did not fail")
+	}
+}
+
 func TestTransitions(t *testing.T) {
 	s := getTestServer()
 	s.translator = &testTranslator{}

@@ -30,9 +30,13 @@ type testBuilder struct {
 	count    int
 	copyFail bool
 	change   bool
+	fail     bool
 }
 
 func (p *testBuilder) build(ctx context.Context, job *pb.Job) ([]*pbb.Version, error) {
+	if p.fail {
+		return []*pbb.Version{}, fmt.Errorf("Built to fail")
+	}
 	if p.count == 0 {
 		return []*pbb.Version{}, nil
 	}
