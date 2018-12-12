@@ -1,12 +1,30 @@
 package main
 
 import (
+	"log"
 	"os"
 	"os/exec"
 	"sync"
+
 	"testing"
 	"time"
 )
+
+func Log(s string) {
+	log.Printf(s)
+}
+
+func TestBadRun(t *testing.T) {
+	s := Scheduler{rMutex: &sync.Mutex{}, cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
+	s.Log = Log
+	rc := &rCommand{command: exec.Command("balls")}
+	key := s.Schedule(rc)
+	s.processCommands()
+
+	if !s.schedulerComplete(key) {
+		t.Errorf("Should be complete")
+	}
+}
 
 func TestRandomComplete(t *testing.T) {
 	s := Scheduler{rMutex: &sync.Mutex{}, cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
