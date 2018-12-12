@@ -111,7 +111,10 @@ func (s *Scheduler) processCommands() {
 	if len(s.commands) > 0 {
 		c := s.commands[0]
 		s.commands = s.commands[1:]
-		run(c)
+		err := run(c)
+		if err != nil {
+			c.endTime = time.Now()
+		}
 	}
 	s.cMutex.Unlock()
 }
