@@ -113,7 +113,8 @@ func (s *Scheduler) processCommands() {
 		s.commands = s.commands[1:]
 		err := run(c)
 		if err != nil {
-			c.endTime = time.Now()
+			s.Log(fmt.Sprintf("Error on run: %v", err))
+			c.endTime = time.Now().Unix()
 		}
 	}
 	s.cMutex.Unlock()
