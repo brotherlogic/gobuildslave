@@ -35,7 +35,7 @@ var transitionTable = []struct {
 	newState pb.State
 	alive    bool
 }{{
-	&pb.JobAssignment{Job: &pb.Job{GoPath: "blah"}, State: pb.State_ACKNOWLEDGED},
+	&pb.JobAssignment{Job: &pb.Job{GoPath: "blah", Bootstrap: true}, State: pb.State_ACKNOWLEDGED},
 	"",
 	pb.State_BUILDING,
 	true,
