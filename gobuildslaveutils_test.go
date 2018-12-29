@@ -40,7 +40,7 @@ var transitionTable = []struct {
 	pb.State_BUILDING,
 	true,
 }, {
-	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_BUILDING},
+	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah", Bootstrap: true}, State: pb.State_BUILDING},
 	"blah-build",
 	pb.State_BUILT,
 	true,
@@ -50,7 +50,7 @@ var transitionTable = []struct {
 	pb.State_PENDING,
 	true,
 }, {
-	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, CommandKey: "this thing crashed", State: pb.State_BUILT},
+	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah", Bootstrap: true}, CommandKey: "this thing crashed", State: pb.State_BUILT},
 	"this thing crashed",
 	pb.State_DIED,
 	true,
@@ -65,7 +65,7 @@ var transitionTable = []struct {
 	pb.State_ACKNOWLEDGED,
 	false,
 }, {
-	&pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED},
+	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED},
 	"blah-run",
 	pb.State_ACKNOWLEDGED,
 	false,
@@ -98,7 +98,7 @@ func TestTransitions(t *testing.T) {
 func TestBuildFail(t *testing.T) {
 	s := getTestServer()
 	s.translator = &testTranslator{}
-	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_BUILT, CommandKey: "this thing crashed"}
+	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah", Bootstrap: true}, State: pb.State_BUILT, CommandKey: "this thing crashed"}
 	for i := 0; i < 10; i++ {
 		job.State = pb.State_BUILT
 		s.scheduler.markComplete("this thing crashed")
@@ -114,7 +114,7 @@ func TestBuildFail(t *testing.T) {
 func TestBuildFailNBS(t *testing.T) {
 	s := getTestServer()
 	s.builder = &testBuilder{count: 2}
-	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
+	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
 	s.runTransition(context.Background(), job)
 
 	if job.State != pb.State_BUILT {
@@ -125,7 +125,7 @@ func TestBuildFailNBS(t *testing.T) {
 func TestBuildFailCopy(t *testing.T) {
 	s := getTestServer()
 	s.builder = &testBuilder{copyFail: true, count: 2}
-	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
+	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
 	s.runTransition(context.Background(), job)
 
 	if job.State != pb.State_ACKNOWLEDGED {
@@ -136,7 +136,7 @@ func TestBuildFailCopy(t *testing.T) {
 func TestKill(t *testing.T) {
 	s := getTestServer()
 	s.builder = &testBuilder{count: 2}
-	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
+	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
 	s.runTransition(context.Background(), job)
 
 	if job.State != pb.State_BUILT {
@@ -158,7 +158,7 @@ func TestKill(t *testing.T) {
 func TestKillBadRead(t *testing.T) {
 	s := getTestServer()
 	s.builder = &testBuilder{count: 2}
-	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
+	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
 	s.runTransition(context.Background(), job)
 
 	if job.State != pb.State_BUILT {
@@ -180,7 +180,7 @@ func TestKillBadRead(t *testing.T) {
 func TestFailDiscover(t *testing.T) {
 	s := getTestServer()
 	s.discover = &testDiscover{fail: true}
-	job := &pb.JobAssignment{Job: &pb.Job{NonBootstrap: true, Name: "blah", GoPath: "blah"}, State: pb.State_RUNNING}
+	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_RUNNING}
 	for i := 0; i < 32; i++ {
 		s.runTransition(context.Background(), job)
 	}
