@@ -24,7 +24,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("SCHED: %v @ %v", key, time.Now())
 		s.stateMutex.Unlock()
-		if job.Job.NonBootstrap {
+		if !job.Job.Bootstrap {
 			if key != "" {
 				job.Server = s.Registry.Identifier
 				job.State = pb.State_BUILT
@@ -47,7 +47,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("BUILT(%v): (%v): %v", job.CommandKey, len(output), output)
 		s.stateMutex.Unlock()
-		if !job.Job.NonBootstrap && len(output) > 0 {
+		if job.Job.Bootstrap && len(output) > 0 {
 			if job.BuildFail == 5 {
 				s.deliverCrashReport(ctx, job, output)
 				job.BuildFail = 0
@@ -97,7 +97,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		}
 
 		// Restart this job if we need to
-		if job.Job.NonBootstrap {
+		if !job.Job.Bootstrap {
 			version, err := s.getVersion(ctx, job.Job)
 			if err == nil && version != job.RunningVersion {
 				s.stateMutex.Lock()
@@ -151,8 +151,8 @@ func (s *Server) getVersion(ctx context.Context, job *pb.Job) (string, error) {
 
 // scheduleBuild builds out the job, returning the current version
 func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
-	utils.SendTrace(ctx, fmt.Sprintf("schedule_build_%v", job.NonBootstrap), time.Now(), pbt.Milestone_MARKER, job.Name)
-	if !job.NonBootstrap {
+	utils.SendTrace(ctx, fmt.Sprintf("schedule_build_%v", job.Bootstrap), time.Now(), pbt.Milestone_MARKER, job.Name)
+	if job.Bootstrap {
 		c := s.translator.build(job)
 		return s.scheduler.Schedule(&rCommand{command: c})
 	}
