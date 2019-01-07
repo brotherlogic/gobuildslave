@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	pbb "github.com/brotherlogic/buildserver/proto"
 	pbd "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	"github.com/brotherlogic/goserver"
@@ -59,6 +60,7 @@ func getTestServer() *Server {
 	s.pendingMap = make(map[time.Weekday]map[string]int)
 	s.stateTime = make(map[string]time.Time)
 	s.stateMutex = &sync.Mutex{}
+	s.versions = make(map[string]*pbb.Version)
 	return &s
 }
 

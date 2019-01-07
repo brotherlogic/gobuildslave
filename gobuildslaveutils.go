@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"time"
 
+	pbb "github.com/brotherlogic/buildserver/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	"github.com/brotherlogic/goserver/utils"
 	pbt "github.com/brotherlogic/tracer/proto"
@@ -99,7 +100,8 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		// Restart this job if we need to
 		if !job.Job.Bootstrap {
 			version, err := s.getVersion(ctx, job.Job)
-			if err == nil && version != job.RunningVersion {
+			if err == nil && version.Version != job.RunningVersion {
+				s.versions[job.Job.Name] = version
 				s.stateMutex.Lock()
 				s.stateMap[job.Job.Name] = fmt.Sprintf("VERSION_MISMATCH = %v,%v", version, job.RunningVersion)
 				s.stateMutex.Unlock()
@@ -135,17 +137,17 @@ type checker interface {
 	isAlive(ctx context.Context, job *pb.JobAssignment) bool
 }
 
-func (s *Server) getVersion(ctx context.Context, job *pb.Job) (string, error) {
+func (s *Server) getVersion(ctx context.Context, job *pb.Job) (*pbb.Version, error) {
 	versions, err := s.builder.build(ctx, job)
 	if err != nil {
-		return "", err
+		return &pbb.Version{}, err
 	}
 
 	if len(versions) == 0 {
-		return "", nil
+		return &pbb.Version{}, nil
 	}
 
-	return versions[0].Version, nil
+	return versions[0], nil
 
 }
 
