@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os/exec"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	"github.com/brotherlogic/goserver/utils"
 	pbt "github.com/brotherlogic/tracer/proto"
+	"github.com/golang/protobuf/proto"
 	"golang.org/x/net/context"
 )
 
@@ -183,6 +185,11 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 	s.stateMutex.Lock()
 	s.stateMap[job.Name] = fmt.Sprintf("Found version %v", versions[0].Version)
 	s.stateMutex.Unlock()
+
+	//Save the version file alongside the binary
+	data, _ := proto.Marshal(versions[0])
+	ioutil.WriteFile("/home/simon/gobuild/bin/"+job.Name+".version", data, 0644)
+
 	return versions[0].Version
 }
 
