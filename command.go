@@ -24,6 +24,7 @@ import (
 	"github.com/brotherlogic/goserver"
 	pbs "github.com/brotherlogic/goserver/proto"
 	"github.com/brotherlogic/goserver/utils"
+	"github.com/golang/protobuf/proto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -91,12 +92,7 @@ func (p *prodBuilder) copy(ctx context.Context, v *pbb.Version) error {
 	}
 	copier := pbfc.NewFileCopierServiceClient(conn)
 	req := &pbfc.CopyRequest{v.Path, v.Server, "/home/simon/gobuild/bin/" + v.Job.Name, p.server()}
-	r, err := copier.Copy(ctx, req)
-	mills := ""
-	if err == nil {
-		mills = fmt.Sprintf("%v", r.MillisToCopy)
-	}
-	p.Log(fmt.Sprintf("COPIED %v WITH %v (%v)", req, err, mills))
+	_, err = copier.Copy(ctx, req)
 	return err
 }
 
@@ -533,6 +529,24 @@ func (s *Server) getServerName() string {
 	return s.Registry.Identifier
 }
 
+func (s *Server) loadCurrentVersions() {
+	files, err := ioutil.ReadDir("/home/simon/gobuild/bin")
+	if err == nil {
+		for _, f := range files {
+			if strings.HasSuffix(f.Name(), ".version") {
+				data, _ := ioutil.ReadFile("/home/simon/gobuild/bin/" + f.Name())
+				val := &pbb.Version{}
+				proto.Unmarshal(data, val)
+				s.versions[val.Job.Name] = val
+			}
+		}
+
+		s.Log(fmt.Sprintf("Loaded %v versions", len(s.versions)))
+	} else {
+		s.Log(fmt.Sprintf("Error reading dir: %v", err))
+	}
+}
+
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	var build = flag.Bool("builds", true, "Responds to build requests")
@@ -554,7 +568,9 @@ func main() {
 	s.RegisterServer("gobuildslave", false)
 	s.RegisterServingTask(s.checkOnUpdate, "check_on_update")
 	s.RegisterServingTask(s.checkOnSsh, "check_on_ssh")
-	s.Log(fmt.Sprintf("Running GBS on %v", s.builder))
+
+	s.loadCurrentVersions()
+
 	err := s.Serve()
 	log.Fatalf("Unable to serve: %v", err)
 }
