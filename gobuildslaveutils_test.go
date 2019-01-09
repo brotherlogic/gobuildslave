@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	pbb "github.com/brotherlogic/buildserver/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	"golang.org/x/net/context"
 )
@@ -75,9 +76,21 @@ func TestBadBuild(t *testing.T) {
 	s := getTestServer()
 	s.builder = &testBuilder{fail: true}
 
-	_, err := s.getVersion(context.Background(), &pb.Job{})
+	_, err := s.getVersion(context.Background(), &pb.Job{Name: "blah"})
 	if err == nil {
 		t.Errorf("Bad builder did not fail")
+	}
+}
+
+func TestSkipCopy(t *testing.T) {
+	s := getTestServer()
+	s.builder = &testBuilder{count: 1}
+	s.versions["blah"] = &pbb.Version{Version: "test"}
+
+	s.scheduleBuild(context.Background(), &pb.Job{Name: "blah"})
+
+	if s.skippedCopies != 1 {
+		t.Errorf("Wrong number of copies skipped: %v", s.skippedCopies)
 	}
 }
 

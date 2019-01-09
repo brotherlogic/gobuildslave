@@ -138,6 +138,7 @@ type Server struct {
 	lastCopyTime   time.Duration
 	lastCopyStatus string
 	versions       map[string]*pbb.Version
+	skippedCopies  int64
 }
 
 // InitServer builds out a server
@@ -171,6 +172,7 @@ func InitServer(build bool) *Server {
 		0,
 		"",
 		make(map[string]*pbb.Version),
+		int64(0),
 	}
 }
 
@@ -325,6 +327,7 @@ func (s Server) GetState() []*pbs.State {
 		&pbs.State{Key: "last_copy_time", TimeDuration: s.lastCopyTime.Nanoseconds()},
 		&pbs.State{Key: "last_copy_status", Text: s.lastCopyStatus},
 		&pbs.State{Key: "versions", Value: int64(len(s.versions))},
+		&pbs.State{Key: "skipped_copies", Value: s.skippedCopies},
 	}
 }
 

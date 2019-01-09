@@ -193,7 +193,8 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 		//Save the version file alongside the binary
 		data, _ := proto.Marshal(versions[0])
 		ioutil.WriteFile("/home/simon/gobuild/bin/"+job.Name+".version", data, 0644)
-
+	} else {
+		s.skippedCopies++
 	}
 
 	return versions[0].Version
