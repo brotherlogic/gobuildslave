@@ -173,22 +173,28 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 	}
 
 	t := time.Now()
-	err = s.builder.copy(ctx, versions[0])
-	s.lastCopyTime = time.Now().Sub(t)
-	s.lastCopyStatus = fmt.Sprintf("%v", err)
-	if err != nil {
-		s.stateMutex.Lock()
-		s.stateMap[job.Name] = fmt.Sprintf("Copy fail (%v) -> %v", time.Now().Sub(t), err)
-		s.stateMutex.Unlock()
-		return ""
-	}
-	s.stateMutex.Lock()
-	s.stateMap[job.Name] = fmt.Sprintf("Found version %v", versions[0].Version)
-	s.stateMutex.Unlock()
 
-	//Save the version file alongside the binary
-	data, _ := proto.Marshal(versions[0])
-	ioutil.WriteFile("/home/simon/gobuild/bin/"+job.Name+".version", data, 0644)
+	//Only copy if the latest version is different to the local version
+	v, ok := s.versions[job.Name]
+	if !ok || v.Version != versions[0].Version {
+		err = s.builder.copy(ctx, versions[0])
+		s.lastCopyTime = time.Now().Sub(t)
+		s.lastCopyStatus = fmt.Sprintf("%v", err)
+		if err != nil {
+			s.stateMutex.Lock()
+			s.stateMap[job.Name] = fmt.Sprintf("Copy fail (%v) -> %v", time.Now().Sub(t), err)
+			s.stateMutex.Unlock()
+			return ""
+		}
+		s.stateMutex.Lock()
+		s.stateMap[job.Name] = fmt.Sprintf("Copied version %v", versions[0].Version)
+		s.stateMutex.Unlock()
+
+		//Save the version file alongside the binary
+		data, _ := proto.Marshal(versions[0])
+		ioutil.WriteFile("/home/simon/gobuild/bin/"+job.Name+".version", data, 0644)
+
+	}
 
 	return versions[0].Version
 }
