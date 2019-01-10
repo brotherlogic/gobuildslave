@@ -177,6 +177,9 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 	//Only copy if the latest version is different to the local version
 	v, ok := s.versions[job.Name]
 	if !ok || v.Version != versions[0].Version {
+		s.Log(fmt.Sprintf("We're okay %v given %v", ok, s.versions))
+		s.Log(fmt.Sprintf("REquesting copy %v and %v", v, versions[0].Version))
+
 		err = s.builder.copy(ctx, versions[0])
 		s.lastCopyTime = time.Now().Sub(t)
 		s.lastCopyStatus = fmt.Sprintf("%v", err)
