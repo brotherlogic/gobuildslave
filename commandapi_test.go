@@ -39,7 +39,7 @@ func testLog(str string) {
 }
 
 func getTestServer() *Server {
-	s := Server{}
+	s := &Server{}
 	s.GoServer = &goserver.GoServer{}
 	s.runner = InitTest()
 	s.jobs = make(map[string]*pb.JobDetails)
@@ -61,7 +61,7 @@ func getTestServer() *Server {
 	s.stateTime = make(map[string]time.Time)
 	s.stateMutex = &sync.Mutex{}
 	s.versions = make(map[string]*pbb.Version)
-	return &s
+	return s
 }
 
 func TestBuildJob(t *testing.T) {
