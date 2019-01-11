@@ -297,23 +297,23 @@ func isAlive(ctx context.Context, spec *pb.JobSpec) bool {
 }
 
 // DoRegister Registers this server
-func (s Server) DoRegister(server *grpc.Server) {
-	pb.RegisterGoBuildSlaveServer(server, &s)
-	pb.RegisterBuildSlaveServer(server, &s)
+func (s *Server) DoRegister(server *grpc.Server) {
+	pb.RegisterGoBuildSlaveServer(server, s)
+	pb.RegisterBuildSlaveServer(server, s)
 }
 
 // ReportHealth determines if the server is healthy
-func (s Server) ReportHealth() bool {
+func (s *Server) ReportHealth() bool {
 	return true
 }
 
 // Mote promotes/demotes this server
-func (s Server) Mote(ctx context.Context, master bool) error {
+func (s *Server) Mote(ctx context.Context, master bool) error {
 	return nil
 }
 
 // GetState gets the state of the server
-func (s Server) GetState() []*pbs.State {
+func (s *Server) GetState() []*pbs.State {
 	s.stateMutex.Lock()
 	defer s.stateMutex.Unlock()
 	return []*pbs.State{
