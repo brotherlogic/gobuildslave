@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os/exec"
-	"reflect"
 	"time"
 
 	pbb "github.com/brotherlogic/buildserver/proto"
@@ -178,9 +177,6 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 	//Only copy if the latest version is different to the local version
 	v, ok := s.versions[job.Name]
 	if !ok || v.Version != versions[0].Version {
-		s.Log(fmt.Sprintf("We're okay %v (%v) given %v", ok, job.Name, reflect.ValueOf(s.versions).MapKeys()))
-		s.Log(fmt.Sprintf("Requesting copy %v and %v", v, versions[0].Version))
-		s.Log(fmt.Sprintf("Got %v and %v", v, versions[0]))
 		s.copies++
 
 		err = s.builder.copy(ctx, versions[0])
