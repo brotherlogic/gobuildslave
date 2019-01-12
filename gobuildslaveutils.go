@@ -105,7 +105,6 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			s.Log(fmt.Sprintf("Version retrieve: (%v) %v %v %v", job.Job.Name, err, version, job.RunningVersion))
 
 			if err == nil && version.Version != job.RunningVersion {
-				s.versions[job.Job.Name] = version
 				s.stateMutex.Lock()
 				s.stateMap[job.Job.Name] = fmt.Sprintf("VERSION_MISMATCH = %v,%v", version, job.RunningVersion)
 				s.stateMutex.Unlock()
@@ -201,6 +200,7 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 		s.skippedCopies++
 	}
 
+	s.versions[job.Name] = versions[0]
 	return versions[0].Version
 }
 
