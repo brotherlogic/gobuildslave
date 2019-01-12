@@ -180,6 +180,7 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 	if !ok || v.Version != versions[0].Version {
 		s.Log(fmt.Sprintf("We're okay %v (%v) given %v", ok, job.Name, reflect.ValueOf(s.versions).MapKeys()))
 		s.Log(fmt.Sprintf("Requesting copy %v and %v", v, versions[0].Version))
+		s.Log(fmt.Sprintf("Got %v and %v", v, versions[0]))
 		s.copies++
 
 		err = s.builder.copy(ctx, versions[0])
