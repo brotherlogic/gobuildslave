@@ -102,7 +102,8 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		// Restart this job if we need to
 		if !job.Job.Bootstrap {
 			version, err := s.getVersion(ctx, job.Job)
-			s.Log("Version retrieve: %v", err)
+			s.Log(fmt.Sprintf("Version retrieve: %v", err))
+
 			if err == nil && version.Version != job.RunningVersion {
 				s.versions[job.Job.Name] = version
 				s.stateMutex.Lock()
