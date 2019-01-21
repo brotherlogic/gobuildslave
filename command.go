@@ -571,12 +571,15 @@ func main() {
 	s.Register = s
 	s.PrepServer()
 	s.GoServer.Killme = false
-	s.RegisterServer("gobuildslave", false)
+	err := s.RegisterServer("gobuildslave", false)
+	if err != nil {
+		log.Fatalf("Error registering: %v", err)
+	}
 	s.RegisterServingTask(s.checkOnUpdate, "check_on_update")
 	s.RegisterServingTask(s.checkOnSsh, "check_on_ssh")
 
 	s.loadCurrentVersions()
 
-	err := s.Serve()
+	err = s.Serve()
 	log.Fatalf("Unable to serve: %v", err)
 }
