@@ -195,16 +195,13 @@ func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, ou
 
 	if len(output) > 0 && !s.SkipLog {
 		ip, port := s.GetIP("buildserver")
-		s.Log(fmt.Sprintf("GOT BUILDSERVER: %v,%v", ip, port))
 		if port > 0 {
 			conn, err := grpc.Dial(ip+":"+strconv.Itoa(port), grpc.WithInsecure())
-			s.Log(fmt.Sprintf("DIALLED BUILDSERVER: %v", err))
 			if err == nil {
 				defer conn.Close()
 				client := pbb.NewBuildServiceClient(conn)
 				_, err := client.ReportCrash(ctx, &pbb.CrashRequest{Job: j.Job, Crash: &pbb.Crash{ErrorMessage: output}})
 
-				s.Log(fmt.Sprintf("REPORTED CRASH: %v", err))
 				if err != nil {
 					s.crashFails++
 					s.crashError = fmt.Sprintf("%v", err)
@@ -547,9 +544,6 @@ func (s *Server) loadCurrentVersions() {
 			}
 		}
 
-		s.Log(fmt.Sprintf("Loaded %v versions", len(s.versions)))
-	} else {
-		s.Log(fmt.Sprintf("Error reading dir: %v", err))
 	}
 }
 
