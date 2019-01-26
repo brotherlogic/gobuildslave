@@ -102,7 +102,6 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		// Restart this job if we need to
 		if !job.Job.Bootstrap {
 			version, err := s.getVersion(ctx, job.Job)
-			s.Log(fmt.Sprintf("Version retrieve: (%v) %v %v %v", job.Job.Name, err, version, job.RunningVersion))
 
 			if err == nil && version.Version != job.RunningVersion {
 				s.stateMutex.Lock()
@@ -166,7 +165,6 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 
 	s.lastCopyStatus = fmt.Sprintf("%v", err)
 	if len(versions) == 0 {
-		s.Log(fmt.Sprintf("No versions for %v because %v", job.Name, err))
 		s.stateMutex.Lock()
 		s.stateMap[job.Name] = fmt.Sprintf("No Versions: %v", err)
 		s.stateMutex.Unlock()
