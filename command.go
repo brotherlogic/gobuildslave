@@ -319,8 +319,6 @@ func (s *Server) GetState() []*pbs.State {
 		&pbs.State{Key: "crash_reason", Text: s.crashError},
 		&pbs.State{Key: "jobs_size", Value: int64(len(s.njobs))},
 		&pbs.State{Key: "running_keys", Value: int64(len(s.scheduler.rMap))},
-		&pbs.State{Key: "trans_state", Text: fmt.Sprintf("%v", s.stateMap)},
-		&pbs.State{Key: "pendings", Text: fmt.Sprintf("%v", s.pendingMap)},
 		&pbs.State{Key: "go_version", Text: fmt.Sprintf("%v", runtime.Version())},
 		&pbs.State{Key: "reject", Text: fmt.Sprintf("%v", s.rejecting)},
 		&pbs.State{Key: "last_copy_time", TimeDuration: s.lastCopyTime.Nanoseconds()},
@@ -328,6 +326,7 @@ func (s *Server) GetState() []*pbs.State {
 		&pbs.State{Key: "versions", Value: int64(len(s.versions))},
 		&pbs.State{Key: "copies", Value: s.copies},
 		&pbs.State{Key: "skipped_copies", Value: s.skippedCopies},
+		&pbs.State{Key: "commands", Value: int64(len(s.scheduler.rMap))},
 	}
 }
 
