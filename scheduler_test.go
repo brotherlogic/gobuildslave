@@ -47,6 +47,25 @@ func TestKillSchedJob(t *testing.T) {
 	s.killJob("blah")
 }
 
+func TestCleanSchedJob(t *testing.T) {
+	os.Unsetenv("GOBIN")
+	os.Unsetenv("GOPATH")
+	str, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("WHAAAA %v", err)
+	}
+	s := Scheduler{rMutex: &sync.Mutex{}, cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
+	rc := &rCommand{command: exec.Command(str + "/run.sh"), endTime: time.Now().Add(-time.Hour).Unix()}
+	run(rc)
+	s.rMap["blah"] = rc
+
+	s.clean()
+
+	if len(s.rMap) == 1 {
+		t.Errorf("Command has not been cleaned")
+	}
+}
+
 func TestFailStderr(t *testing.T) {
 	os.Unsetenv("GOBIN")
 	os.Unsetenv("GOPATH")

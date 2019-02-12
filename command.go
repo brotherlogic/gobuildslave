@@ -560,6 +560,13 @@ func (s *Server) loadCurrentVersions() {
 	}
 }
 
+func (s *Server) cleanCommands(ctx context.Context) {
+	for !s.LameDuck {
+		time.Sleep(time.Minute)
+		s.scheduler.clean()
+	}
+}
+
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	var build = flag.Bool("builds", true, "Responds to build requests")
@@ -584,6 +591,7 @@ func main() {
 	}
 	s.RegisterServingTask(s.checkOnUpdate, "check_on_update")
 	s.RegisterServingTask(s.checkOnSsh, "check_on_ssh")
+	s.RegisterServingTask(s.cleanCommands, "clean_commands")
 
 	s.loadCurrentVersions()
 
