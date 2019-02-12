@@ -304,6 +304,10 @@ func (s *Server) ReportHealth() bool {
 	return true
 }
 
+func (s *Server) Shutdown(ctx context.Context) error {
+	return nil
+}
+
 // Mote promotes/demotes this server
 func (s *Server) Mote(ctx context.Context, master bool) error {
 	return nil
