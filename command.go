@@ -313,7 +313,21 @@ func (s *Server) Mote(ctx context.Context, master bool) error {
 func (s *Server) GetState() []*pbs.State {
 	s.stateMutex.Lock()
 	defer s.stateMutex.Unlock()
+
+	oldest := time.Now().Unix()
+	stale := int64(0)
+	for _, cm := range s.scheduler.rMap {
+		if cm.startTime < oldest {
+			oldest = cm.startTime
+		}
+		if cm.endTime > 0 {
+			stale++
+		}
+	}
+
 	return []*pbs.State{
+		&pbs.State{Key: "oldest_command", TimeValue: oldest},
+		&pbs.State{Key: "stale_commands", Value: stale},
 		&pbs.State{Key: "crash_report_fails", Value: s.crashFails},
 		&pbs.State{Key: "crash_report_attempts", Value: s.crashAttempts},
 		&pbs.State{Key: "crash_reason", Text: s.crashError},
