@@ -31,6 +31,16 @@ type Scheduler struct {
 	Log      func(string)
 }
 
+func (s *Scheduler) clean() {
+	s.rMutex.Lock()
+	defer s.rMutex.Unlock()
+	for key, command := range s.rMap {
+		if time.Now().Sub(time.Unix(command.endTime, 0)) > time.Minute*5 {
+			delete(s.rMap, key)
+		}
+	}
+}
+
 func (s *Scheduler) getState(key string) string {
 	s.rMutex.Lock()
 	defer s.rMutex.Unlock()
