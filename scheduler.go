@@ -113,7 +113,8 @@ func (s *Scheduler) schedulerComplete(key string) bool {
 		return val.endTime > 0
 	}
 
-	return false
+	// Default to true if the key is not found
+	return true
 }
 
 func (s *Scheduler) processCommands() {
