@@ -33,6 +33,14 @@ func TestRandomComplete(t *testing.T) {
 	}
 }
 
+func TestEmptyState(t *testing.T) {
+	s := Scheduler{rMutex: &sync.Mutex{}, cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
+	state := s.getState("blah")
+	if state != "UNKNOWN" {
+		t.Errorf("Weird state: %v", state)
+	}
+}
+
 func TestKillSchedJob(t *testing.T) {
 	os.Unsetenv("GOBIN")
 	os.Unsetenv("GOPATH")
