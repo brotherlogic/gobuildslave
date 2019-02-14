@@ -28,7 +28,7 @@ func TestBadRun(t *testing.T) {
 
 func TestRandomComplete(t *testing.T) {
 	s := Scheduler{rMutex: &sync.Mutex{}, cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
-	if s.schedulerComplete("madeup") {
+	if !s.schedulerComplete("madeup") {
 		t.Errorf("Made up lookup has not failed")
 	}
 }
