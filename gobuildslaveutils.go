@@ -46,7 +46,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.State = pb.State_BUILT
 		}
 	case pb.State_BUILT:
-		output := s.scheduler.getOutput(job.CommandKey)
+		output, _ := s.scheduler.getOutput(job.CommandKey)
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("BUILT(%v): (%v): %v", job.CommandKey, len(output), output)
 		s.stateMutex.Unlock()
@@ -70,15 +70,16 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		}
 	case pb.State_PENDING:
 		s.stateMutex.Lock()
-		s.stateMap[job.Job.Name] = fmt.Sprintf("OUTPUT = %v", s.scheduler.getOutput(job.CommandKey))
+		out, _ := s.scheduler.getOutput(job.CommandKey)
+		s.stateMap[job.Job.Name] = fmt.Sprintf("OUTPUT = %v", out)
 		s.stateMutex.Unlock()
 		if time.Now().Add(-time.Minute).Unix() > job.StartTime {
 			job.State = pb.State_RUNNING
 		}
 	case pb.State_RUNNING:
-		output := s.scheduler.getOutput(job.CommandKey)
+		output, _ := s.scheduler.getOutput(job.CommandKey)
 		s.stateMutex.Lock()
-		s.stateMap[job.Job.Name] = fmt.Sprintf("ROUTPUT = %v, %v", s.scheduler.getOutput(job.CommandKey), s.scheduler.getStatus(job.CommandKey))
+		s.stateMap[job.Job.Name] = fmt.Sprintf("ROUTPUT = %v, %v", output, s.scheduler.getStatus(job.CommandKey))
 		job.Status = s.scheduler.getStatus(job.CommandKey)
 		s.stateMutex.Unlock()
 		if len(job.CommandKey) > 0 && s.taskComplete(job.CommandKey) {
