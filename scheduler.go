@@ -69,14 +69,14 @@ func (s *Scheduler) Schedule(c *rCommand) string {
 	return key
 }
 
-func (s *Scheduler) getOutput(key string) string {
+func (s *Scheduler) getOutput(key string) (string, error) {
 	s.rMutex.Lock()
 	defer s.rMutex.Unlock()
 	if val, ok := s.rMap[key]; ok {
-		return val.output
+		return val.output, nil
 	}
 
-	return fmt.Sprintf("KEY NOT_IN_MAP: %v", key)
+	return "", fmt.Errorf("KEY NOT_IN_MAP: %v", key)
 }
 
 func (s *Scheduler) getStatus(key string) string {
