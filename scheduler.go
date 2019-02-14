@@ -44,7 +44,11 @@ func (s *Scheduler) clean() {
 func (s *Scheduler) getState(key string) string {
 	s.rMutex.Lock()
 	defer s.rMutex.Unlock()
-	return fmt.Sprintf("%v -> %v", s.rMap[key].endTime, s.rMap[key].output)
+	if _, ok := s.rMap[key]; ok {
+		return fmt.Sprintf("%v -> %v", s.rMap[key].endTime, s.rMap[key].output)
+	}
+
+	return "UNKNOWN"
 }
 
 func (s *Scheduler) markComplete(key string) {
