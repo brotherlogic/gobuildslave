@@ -19,8 +19,6 @@ const (
 )
 
 func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
-	utils.SendTrace(ctx, fmt.Sprintf("run_transition_%v", job.State), time.Now(), pbt.Milestone_MARKER, job.Job.Name)
-	stState := job.State
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
 		key := s.scheduleBuild(ctx, job.Job)
@@ -119,16 +117,6 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		s.scheduler.removeJob(job.CommandKey)
 		job.State = pb.State_ACKNOWLEDGED
 	}
-
-	if job.State != stState {
-		s.stateTime[job.Job.Name] = time.Now()
-	}
-
-	if job.State == pb.State_DIED {
-	}
-
-	utils.SendTrace(ctx, fmt.Sprintf("end_transition_%v_%v", job.State, stState), time.Now(), pbt.Milestone_MARKER, job.Job.Name)
-	utils.SendTrace(ctx, fmt.Sprintf("end_transition_func_%v", job.State), time.Now(), pbt.Milestone_MARKER, job.Job.Name)
 }
 
 type translator interface {
