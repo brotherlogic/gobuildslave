@@ -20,6 +20,7 @@ type rCommand struct {
 	status    string
 	crash1    bool
 	crash2    bool
+	base      string
 }
 
 //Scheduler the main task scheduler
@@ -36,6 +37,7 @@ func (s *Scheduler) clean() {
 	defer s.rMutex.Unlock()
 	for key, command := range s.rMap {
 		if time.Now().Sub(time.Unix(command.endTime, 0)) > time.Minute*5 {
+			s.Log(fmt.Sprintf("Task has ended %v %v %v", command.startTime, command.endTime, command.base))
 			delete(s.rMap, key)
 		}
 	}
@@ -58,7 +60,7 @@ func (s *Scheduler) markComplete(key string) {
 		val.endTime = time.Now().Unix()
 		val.output = key
 	} else {
-		s.rMap[key] = &rCommand{endTime: time.Now().Unix(), output: key}
+		s.rMap[key] = &rCommand{endTime: time.Now().Unix(), output: key, base: key}
 	}
 }
 
@@ -107,6 +109,9 @@ func (s *Scheduler) killJob(key string) {
 func (s *Scheduler) removeJob(key string) {
 	s.rMutex.Lock()
 	defer s.rMutex.Unlock()
+	if val, ok := s.rMap[key]; ok {
+		s.Log(fmt.Sprintf("Deleting %v,%v,%v", val.startTime, val.endTime, val.base))
+	}
 	delete(s.rMap, key)
 }
 
