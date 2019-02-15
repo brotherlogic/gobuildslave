@@ -36,7 +36,7 @@ func (s *Scheduler) clean() {
 	s.rMutex.Lock()
 	defer s.rMutex.Unlock()
 	for key, command := range s.rMap {
-		if time.Now().Sub(time.Unix(command.endTime, 0)) > time.Minute*5 {
+		if command.endTime > 0 && time.Now().Sub(time.Unix(command.endTime, 0)) > time.Minute*5 {
 			s.Log(fmt.Sprintf("Task has ended %v %v %v", command.startTime, command.endTime, command.base))
 			delete(s.rMap, key)
 		}
