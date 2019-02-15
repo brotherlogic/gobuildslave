@@ -147,7 +147,7 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 	utils.SendTrace(ctx, fmt.Sprintf("schedule_build_%v", job.Bootstrap), time.Now(), pbt.Milestone_MARKER, job.Name)
 	if job.Bootstrap {
 		c := s.translator.build(job)
-		return s.scheduler.Schedule(&rCommand{command: c})
+		return s.scheduler.Schedule(&rCommand{command: c, base: job.Name})
 	}
 
 	versions, err := s.builder.build(ctx, job)
@@ -193,7 +193,7 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 
 func (s *Server) scheduleRun(job *pb.Job) string {
 	c := s.translator.run(job)
-	return s.scheduler.Schedule(&rCommand{command: c})
+	return s.scheduler.Schedule(&rCommand{command: c, base: job.Name})
 }
 
 func (s *Server) taskComplete(key string) bool {

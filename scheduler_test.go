@@ -62,7 +62,7 @@ func TestCleanSchedJob(t *testing.T) {
 	if err != nil {
 		t.Fatalf("WHAAAA %v", err)
 	}
-	s := Scheduler{rMutex: &sync.Mutex{}, cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
+	s := Scheduler{rMutex: &sync.Mutex{}, cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand), Log: Log}
 	rc := &rCommand{command: exec.Command(str + "/run.sh"), endTime: time.Now().Add(-time.Hour).Unix()}
 	run(rc)
 	s.rMap["blah"] = rc
