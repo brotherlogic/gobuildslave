@@ -132,7 +132,6 @@ type Server struct {
 	discover       discover
 	stateMap       map[string]string
 	pendingMap     map[time.Weekday]map[string]int
-	stateTime      map[string]time.Time
 	stateMutex     *sync.Mutex
 	rejecting      bool
 	lastCopyTime   time.Duration
@@ -167,7 +166,6 @@ func InitServer(build bool) *Server {
 		&prodDiscover{},
 		make(map[string]string),
 		make(map[time.Weekday]map[string]int),
-		make(map[string]time.Time),
 		&sync.Mutex{},
 		build,
 		0,
@@ -175,14 +173,6 @@ func InitServer(build bool) *Server {
 		make(map[string]*pbb.Version),
 		int64(0),
 		int64(0),
-	}
-}
-
-func (s *Server) alertOnState(ctx context.Context) {
-	for job, t := range s.stateTime {
-		if time.Now().Sub(t) > time.Hour {
-			s.BounceIssue(ctx, "Stuck State", fmt.Sprintf("%v is in a stuck state", job), "buildserver")
-		}
 	}
 }
 
