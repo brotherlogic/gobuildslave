@@ -22,6 +22,7 @@ enum State {
   DEAD = 7;
   PENDING = 8;
   DIED = 9;
+  BRINK_OF_DEATH = 10;
 }
 
 

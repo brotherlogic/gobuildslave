@@ -60,6 +60,7 @@ func getTestServer() *Server {
 	s.pendingMap = make(map[time.Weekday]map[string]int)
 	s.stateMutex = &sync.Mutex{}
 	s.versions = make(map[string]*pbb.Version)
+	s.version = &testVersion{}
 	return s
 }
 

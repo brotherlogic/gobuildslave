@@ -97,13 +97,13 @@ func (s *Scheduler) getStatus(key string) string {
 
 func (s *Scheduler) killJob(key string) {
 	s.rMutex.Lock()
+	defer s.rMutex.Unlock()
 	if val, ok := s.rMap[key]; ok {
 		if val.command.Process != nil {
 			val.command.Process.Kill()
 			val.command.Process.Wait()
 		}
 	}
-	s.rMutex.Unlock()
 }
 
 func (s *Scheduler) removeJob(key string) {
