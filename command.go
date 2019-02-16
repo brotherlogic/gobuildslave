@@ -24,12 +24,47 @@ import (
 	"github.com/brotherlogic/goserver"
 	pbs "github.com/brotherlogic/goserver/proto"
 	"github.com/brotherlogic/goserver/utils"
+	pbv "github.com/brotherlogic/versionserver/proto"
 	"github.com/golang/protobuf/proto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
+
+type version interface {
+	confirm(ctx context.Context, job string) bool
+}
+
+type prodVersion struct {
+	dial func(server string) (*grpc.ClientConn, error)
+}
+
+func (p *prodVersion) confirm(ctx context.Context, job string) bool {
+	conn, err := p.dial("versionserver")
+	if err != nil {
+		return false
+	}
+	defer conn.Close()
+
+	client := pbv.NewVersionServerClient(conn)
+
+	setTime := time.Now().Add(time.Minute * 5).Unix()
+	resp, err := client.SetIfLessThan(ctx,
+		&pbv.SetIfLessThanRequest{
+			TriggerValue: time.Now().Unix(),
+			Set: &pbv.Version{
+				Key:    "guard." + job,
+				Value:  setTime,
+				Setter: "gobuildslave",
+			},
+		})
+	if err != nil {
+		return false
+	}
+
+	return resp.Success
+}
 
 type discover interface {
 	discover(job string, server string) error
@@ -139,11 +174,12 @@ type Server struct {
 	versions       map[string]*pbb.Version
 	skippedCopies  int64
 	copies         int64
+	version        version
 }
 
 // InitServer builds out a server
 func InitServer(build bool) *Server {
-	return &Server{
+	s := &Server{
 		&goserver.GoServer{},
 		Init(&prodBuilder{}),
 		prodDiskChecker{},
@@ -173,7 +209,10 @@ func InitServer(build bool) *Server {
 		make(map[string]*pbb.Version),
 		int64(0),
 		int64(0),
+		&prodVersion{},
 	}
+	s.version = &prodVersion{s.DialMaster}
+	return s
 }
 
 func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, output string) {

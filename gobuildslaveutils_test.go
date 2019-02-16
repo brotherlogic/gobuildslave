@@ -30,6 +30,12 @@ func (t *testChecker) isAlive(ctx context.Context, job *pb.JobAssignment) bool {
 	return t.alive
 }
 
+type testVersion struct{}
+
+func (p *testVersion) confirm(ctx context.Context, job string) bool {
+	return true
+}
+
 var transitionTable = []struct {
 	job      *pb.JobAssignment
 	complete string
@@ -197,4 +203,11 @@ func TestFailDiscover(t *testing.T) {
 	for i := 0; i < 32; i++ {
 		s.runTransition(context.Background(), job)
 	}
+}
+
+func TestMoveFromTheBrink(t *testing.T) {
+	s := getTestServer()
+	s.discover = &testDiscover{fail: true}
+	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_BRINK_OF_DEATH}
+	s.runTransition(context.Background(), job)
 }
