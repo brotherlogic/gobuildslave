@@ -37,7 +37,9 @@ type version interface {
 }
 
 type prodVersion struct {
-	dial func(server string) (*grpc.ClientConn, error)
+	dial   func(server string) (*grpc.ClientConn, error)
+	server string
+	log    func(line string)
 }
 
 func (p *prodVersion) confirm(ctx context.Context, job string) bool {
@@ -56,9 +58,10 @@ func (p *prodVersion) confirm(ctx context.Context, job string) bool {
 			Set: &pbv.Version{
 				Key:    "guard." + job,
 				Value:  setTime,
-				Setter: "gobuildslave",
+				Setter: "gobuildslave" + p.server,
 			},
 		})
+	p.log(fmt.Sprintf("Result = %v, %v", err, resp))
 	if err != nil {
 		return false
 	}
@@ -211,7 +214,6 @@ func InitServer(build bool) *Server {
 		int64(0),
 		&prodVersion{},
 	}
-	s.version = &prodVersion{s.DialMaster}
 	return s
 }
 
@@ -618,6 +620,7 @@ func main() {
 	s.Register = s
 	s.PrepServer()
 	s.GoServer.Killme = false
+	s.version = &prodVersion{s.DialMaster, s.Registry.Identifier, s.Log}
 	err := s.RegisterServer("gobuildslave", false)
 	if err != nil {
 		log.Fatalf("Error registering: %v", err)
