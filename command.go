@@ -620,8 +620,8 @@ func main() {
 	s.Register = s
 	s.PrepServer()
 	s.GoServer.Killme = false
-	s.version = &prodVersion{s.DialMaster, s.Registry.Identifier, s.Log}
 	err := s.RegisterServer("gobuildslave", false)
+	s.version = &prodVersion{s.DialMaster, s.Registry.Identifier, s.Log}
 	if err != nil {
 		log.Fatalf("Error registering: %v", err)
 	}
