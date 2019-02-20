@@ -8,8 +8,6 @@ import (
 
 	pbb "github.com/brotherlogic/buildserver/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
-	"github.com/brotherlogic/goserver/utils"
-	pbt "github.com/brotherlogic/tracer/proto"
 	"github.com/golang/protobuf/proto"
 	"golang.org/x/net/context"
 )
@@ -148,7 +146,6 @@ func (s *Server) getVersion(ctx context.Context, job *pb.Job) (*pbb.Version, err
 
 // scheduleBuild builds out the job, returning the current version
 func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
-	utils.SendTrace(ctx, fmt.Sprintf("schedule_build_%v", job.Bootstrap), time.Now(), pbt.Milestone_MARKER, job.Name)
 	if job.Bootstrap {
 		c := s.translator.build(job)
 		return s.scheduler.Schedule(&rCommand{command: c, base: job.Name})
