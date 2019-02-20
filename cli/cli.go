@@ -13,9 +13,7 @@ import (
 
 	pbdi "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
-	pbgs "github.com/brotherlogic/goserver/proto"
 	"github.com/brotherlogic/goserver/utils"
-	pbt "github.com/brotherlogic/tracer/proto"
 
 	//Needed to pull in gzip encoding init
 	_ "google.golang.org/grpc/encoding/gzip"
@@ -59,7 +57,7 @@ func main() {
 	var name = buildFlags.String("name", "", "Name of the binary to build")
 	var server = buildFlags.String("server", "", "Name of the server to build on")
 
-	ctx, cancel := utils.BuildContext("gobuildslavecli-"+os.Args[1], "gobuildslave", pbgs.ContextType_MEDIUM)
+	ctx, cancel := utils.BuildContext("gobuildslavecli-"+os.Args[1], "gobuildslave")
 	defer cancel()
 
 	if len(os.Args) <= 1 {
@@ -184,6 +182,5 @@ func main() {
 			}
 		}
 
-		utils.SendTrace(ctx, "gobuildslavecli-"+os.Args[1], time.Now(), pbt.Milestone_END, "gobuildslave")
 	}
 }
