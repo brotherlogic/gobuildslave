@@ -7,6 +7,7 @@ import (
 	"time"
 
 	pbb "github.com/brotherlogic/buildserver/proto"
+	pbfc "github.com/brotherlogic/filecopier/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	"github.com/golang/protobuf/proto"
 	"golang.org/x/net/context"
@@ -168,10 +169,10 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 	if !ok || v.Version != versions[0].Version {
 		s.copies++
 
-		err = s.builder.copy(ctx, versions[0])
+		resp, err := s.builder.copy(ctx, versions[0])
 		s.lastCopyTime = time.Now().Sub(t)
 		s.lastCopyStatus = fmt.Sprintf("%v", err)
-		if err != nil {
+		if err != nil || resp.Status != pbfc.CopyStatus_COMPLETE || len(resp.Error) > 0 {
 			s.stateMutex.Lock()
 			s.stateMap[job.Name] = fmt.Sprintf("Copy fail (%v) -> %v", time.Now().Sub(t), err)
 			s.stateMutex.Unlock()

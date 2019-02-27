@@ -117,21 +117,25 @@ func (p *prodBuilder) build(ctx context.Context, job *pb.Job) ([]*pbb.Version, e
 	return versions.Versions, nil
 }
 
-func (p *prodBuilder) copy(ctx context.Context, v *pbb.Version) error {
+func (p *prodBuilder) copy(ctx context.Context, v *pbb.Version) (*pbfc.CopyResponse, error) {
 	ip, port, err := utils.Resolve("filecopier")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
 	defer conn.Close()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	copier := pbfc.NewFileCopierServiceClient(conn)
-	req := &pbfc.CopyRequest{v.Path, v.Server, "/home/simon/gobuild/bin/" + v.Job.Name, p.server()}
-	_, err = copier.Copy(ctx, req)
-	return err
+	req := &pbfc.CopyRequest{
+		InputFile:    v.Path,
+		InputServer:  v.Server,
+		OutputFile:   "/home/simon/gobuild/bin/" + v.Job.Name,
+		OutputServer: p.server(),
+	}
+	return copier.QueueCopy(ctx, req)
 }
 
 type prodDisker struct{}
