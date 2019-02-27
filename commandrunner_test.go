@@ -11,6 +11,7 @@ import (
 
 	pbb "github.com/brotherlogic/buildserver/proto"
 	pbd "github.com/brotherlogic/discovery/proto"
+	pbfc "github.com/brotherlogic/filecopier/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	"github.com/brotherlogic/goserver"
 	"golang.org/x/net/context"
@@ -47,12 +48,12 @@ func (p *testBuilder) build(ctx context.Context, job *pb.Job) ([]*pbb.Version, e
 	}
 }
 
-func (p *testBuilder) copy(ctx context.Context, v *pbb.Version) error {
+func (p *testBuilder) copy(ctx context.Context, v *pbb.Version) (*pbfc.CopyResponse, error) {
 	//Pass
 	if p.copyFail {
-		return fmt.Errorf("Built to fail")
+		return nil, fmt.Errorf("Built to fail")
 	}
-	return nil
+	return &pbfc.CopyResponse{Status: pbfc.CopyStatus_COMPLETE}, nil
 }
 
 func InitTest() *Runner {
