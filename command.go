@@ -182,6 +182,7 @@ type Server struct {
 	skippedCopies  int64
 	copies         int64
 	version        version
+	lastBadHearts  int
 }
 
 // InitServer builds out a server
@@ -217,6 +218,7 @@ func InitServer(build bool) *Server {
 		int64(0),
 		int64(0),
 		&prodVersion{},
+		0,
 	}
 	return s
 }
@@ -604,6 +606,14 @@ func (s *Server) cleanCommands(ctx context.Context) {
 		time.Sleep(time.Minute)
 		s.scheduler.clean()
 	}
+}
+
+func (s *Server) badHeartChecker(context.Context) {
+	badHearts := s.BadHearts
+	if badHearts-s.lastBadHearts > 100 {
+		ioutil.WriteFile("/home/simon/gobuildcrash", []byte(fmt.Sprintf("%v bad hearts", badHearts)), 0644)
+	}
+	s.lastBadHearts = badHearts
 }
 
 func main() {
