@@ -613,7 +613,7 @@ func (s *Server) badHeartChecker(context.Context) {
 	if badHearts-s.lastBadHearts > 100 {
 		ioutil.WriteFile("/home/simon/gobuildcrash", []byte(fmt.Sprintf("%v bad hearts", badHearts)), 0644)
 		cmd := exec.Command("sudo", "reboot")
-		cmr.Run()
+		cmd.Run()
 	}
 	s.lastBadHearts = badHearts
 }
