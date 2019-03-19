@@ -92,21 +92,17 @@ func (p *prodDiscover) discover(job string, server string) error {
 }
 
 type prodBuilder struct {
+	dial   func(server string) (*grpc.ClientConn, error)
 	server func() string
 	Log    func(string)
 }
 
 func (p *prodBuilder) build(ctx context.Context, job *pb.Job) ([]*pbb.Version, error) {
-	ip, port, err := utils.Resolve("buildserver")
+	conn, err := p.dial("buildserver")
 	if err != nil {
 		return []*pbb.Version{}, err
 	}
-
-	conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
 	defer conn.Close()
-	if err != nil {
-		return []*pbb.Version{}, err
-	}
 	builder := pbb.NewBuildServiceClient(conn)
 	versions, err := builder.GetVersions(ctx, &pbb.VersionRequest{Job: job, JustLatest: true})
 
@@ -118,16 +114,11 @@ func (p *prodBuilder) build(ctx context.Context, job *pb.Job) ([]*pbb.Version, e
 }
 
 func (p *prodBuilder) copy(ctx context.Context, v *pbb.Version) (*pbfc.CopyResponse, error) {
-	ip, port, err := utils.Resolve("filecopier")
+	conn, err := p.dial("filecopier")
 	if err != nil {
 		return nil, err
 	}
-
-	conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
 	defer conn.Close()
-	if err != nil {
-		return nil, err
-	}
 	copier := pbfc.NewFileCopierServiceClient(conn)
 	req := &pbfc.CopyRequest{
 		InputFile:    v.Path,
@@ -630,7 +621,7 @@ func main() {
 
 	s := InitServer(*build)
 	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand), Log: s.Log}
-	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName}
+	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName, dial: s.DialMaster}
 	s.runner.getip = s.GetIP
 	s.runner.logger = s.Log
 	s.Register = s
