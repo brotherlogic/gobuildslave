@@ -51,6 +51,7 @@ message JobAssignment {
   string running_version = 9;
   int32 discover_count = 10;
   string status = 11;
+  int64 last_transition_time = 12;
 }
 
 message SlaveConfig {

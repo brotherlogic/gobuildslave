@@ -18,6 +18,7 @@ const (
 )
 
 func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
+	startState := job.State
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
 		key := s.scheduleBuild(ctx, job.Job)
@@ -119,6 +120,10 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		s.stateMutex.Unlock()
 		s.scheduler.removeJob(job.CommandKey)
 		job.State = pb.State_ACKNOWLEDGED
+	}
+
+	if job.State != startState {
+		job.LastTransitionTime = time.Now().Unix()
 	}
 }
 

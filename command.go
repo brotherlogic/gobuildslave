@@ -599,7 +599,7 @@ func (s *Server) cleanCommands(ctx context.Context) {
 	}
 }
 
-func (s *Server) badHeartChecker(context.Context) {
+func (s *Server) badHeartChecker(ctx context.Context) {
 	badHearts := s.BadHearts
 	if badHearts-s.lastBadHearts > 100 {
 		ioutil.WriteFile("/home/simon/gobuildcrash", []byte(fmt.Sprintf("%v bad hearts", badHearts)), 0644)
@@ -607,6 +607,15 @@ func (s *Server) badHeartChecker(context.Context) {
 		cmd.Run()
 	}
 	s.lastBadHearts = badHearts
+}
+
+func (s *Server) stateChecker(ctx context.Context) {
+	s.nMut.Lock()
+	for _, job := range s.njobs {
+		if job.State == pb.State_ACKNOWLEDGED && time.Now().Sub(time.Unix(job.LastTransitionTime, 0)) > time.Minute*30 {
+			s.RaiseIssue(ctx, "Long ACK", fmt.Sprintf("%v is having a long ACK on %v", job.Job.Name, s.Registry.Identifier), false)
+		}
+	}
 }
 
 func main() {
@@ -635,6 +644,8 @@ func main() {
 	s.RegisterServingTask(s.checkOnUpdate, "check_on_update")
 	s.RegisterServingTask(s.checkOnSsh, "check_on_ssh")
 	s.RegisterServingTask(s.cleanCommands, "clean_commands")
+	s.RegisterRepeatingTask(s.stateChecker, "state_checker", time.Minute*5)
+	s.RegisterRepeatingTask(s.badHeartChecker, "bad_heart_checker", time.Minute*5)
 
 	s.loadCurrentVersions()
 
