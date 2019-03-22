@@ -611,6 +611,7 @@ func (s *Server) badHeartChecker(ctx context.Context) {
 
 func (s *Server) stateChecker(ctx context.Context) {
 	s.nMut.Lock()
+	defer s.nMut.Unlock()
 	for _, job := range s.njobs {
 		if job.State == pb.State_ACKNOWLEDGED && time.Now().Sub(time.Unix(job.LastTransitionTime, 0)) > time.Minute*30 {
 			s.RaiseIssue(ctx, "Long ACK", fmt.Sprintf("%v is having a long ACK on %v", job.Job.Name, s.Registry.Identifier), false)
