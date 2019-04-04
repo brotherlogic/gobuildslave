@@ -529,7 +529,7 @@ func getIP(ctx context.Context, name string, server string) (string, int32, erro
 	return r.GetService().Ip, r.GetService().Port, nil
 }
 
-func (s *Server) checkOnSsh(ctx context.Context) {
+func (s *Server) checkOnSsh(ctx context.Context) error {
 	f := "/home/simon/.ssh"
 
 	for true {
@@ -548,9 +548,11 @@ func (s *Server) checkOnSsh(ctx context.Context) {
 		}
 		time.Sleep(time.Hour)
 	}
+
+	return nil
 }
 
-func (s *Server) checkOnUpdate(ctx context.Context) {
+func (s *Server) checkOnUpdate(ctx context.Context) error {
 	f := "/var/cache/apt/pkgcache.bin"
 
 	for true {
@@ -571,6 +573,8 @@ func (s *Server) checkOnUpdate(ctx context.Context) {
 		}
 		time.Sleep(time.Hour)
 	}
+
+	return nil
 }
 
 func (s *Server) getServerName() string {
@@ -592,14 +596,16 @@ func (s *Server) loadCurrentVersions() {
 	}
 }
 
-func (s *Server) cleanCommands(ctx context.Context) {
+func (s *Server) cleanCommands(ctx context.Context) error {
 	for !s.LameDuck {
 		time.Sleep(time.Minute)
 		s.scheduler.clean()
 	}
+
+	return nil
 }
 
-func (s *Server) badHeartChecker(ctx context.Context) {
+func (s *Server) badHeartChecker(ctx context.Context) error {
 	badHearts := s.BadHearts
 	if badHearts-s.lastBadHearts > 100 {
 		ioutil.WriteFile("/home/simon/gobuildcrash", []byte(fmt.Sprintf("%v bad hearts", badHearts)), 0644)
@@ -607,9 +613,11 @@ func (s *Server) badHeartChecker(ctx context.Context) {
 		cmd.Run()
 	}
 	s.lastBadHearts = badHearts
+
+	return nil
 }
 
-func (s *Server) stateChecker(ctx context.Context) {
+func (s *Server) stateChecker(ctx context.Context) error {
 	s.nMut.Lock()
 	defer s.nMut.Unlock()
 	for _, job := range s.njobs {
@@ -617,6 +625,7 @@ func (s *Server) stateChecker(ctx context.Context) {
 			s.RaiseIssue(ctx, "Long ACK", fmt.Sprintf("%v is having a long ACK on %v", job.Job.Name, s.Registry.Identifier), false)
 		}
 	}
+	return nil
 }
 
 func main() {
