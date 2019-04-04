@@ -51,7 +51,7 @@ func (p *prodVersion) confirm(ctx context.Context, job string) bool {
 
 	client := pbv.NewVersionServerClient(conn)
 
-	setTime := time.Now().Add(time.Minute * 5).Unix()
+	setTime := time.Now().Add(time.Minute).Unix()
 	resp, err := client.SetIfLessThan(ctx,
 		&pbv.SetIfLessThanRequest{
 			TriggerValue: time.Now().Unix(),
