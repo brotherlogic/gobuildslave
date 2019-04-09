@@ -75,7 +75,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.State = pb.State_RUNNING
 		}
 	case pb.State_RUNNING:
-		output, _ := s.scheduler.getOutput(job.CommandKey)
+		output, errout := s.scheduler.getOutput(job.CommandKey)
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("ROUTPUT = %v, %v", output, s.scheduler.getStatus(job.CommandKey))
 		job.Status = s.scheduler.getStatus(job.CommandKey)
@@ -91,7 +91,8 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		err := s.discover.discover(job.Job.Name, s.Registry.Identifier)
 		if err != nil {
 			if job.DiscoverCount > 30 {
-				s.RaiseIssue(ctx, "Cannot Discover Running Server", fmt.Sprintf("%v on %v is not discoverable, despite running (%v) the output says %v", job.Job.Name, s.Registry.Identifier, err, output), false)
+				output2, errout2 := s.scheduler.getErrOutput(job.CommandKey)
+				s.RaiseIssue(ctx, "Cannot Discover Running Server", fmt.Sprintf("%v on %v is not discoverable, despite running (%v) the output says %v (%v), %v, %v", job.Job.Name, s.Registry.Identifier, err, output, errout, output2, errout2), false)
 			}
 			job.DiscoverCount++
 		} else {

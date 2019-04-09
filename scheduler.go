@@ -85,6 +85,16 @@ func (s *Scheduler) getOutput(key string) (string, error) {
 	return "", fmt.Errorf("KEY NOT_IN_MAP: %v", key)
 }
 
+func (s *Scheduler) getErrOutput(key string) (string, error) {
+	s.rMutex.Lock()
+	defer s.rMutex.Unlock()
+	if val, ok := s.rMap[key]; ok {
+		return val.mainOut, nil
+	}
+
+	return "", fmt.Errorf("KEY NOT_IN_MAP: %v", key)
+}
+
 func (s *Scheduler) getStatus(key string) string {
 	s.rMutex.Lock()
 	defer s.rMutex.Unlock()
