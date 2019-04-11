@@ -61,6 +61,7 @@ func getTestServer() *Server {
 	s.stateMutex = &sync.Mutex{}
 	s.versions = make(map[string]*pbb.Version)
 	s.version = &testVersion{}
+	s.versionsMutex = &sync.Mutex{}
 	return s
 }
 
