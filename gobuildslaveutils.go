@@ -171,6 +171,8 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) strin
 	t := time.Now()
 
 	//Only copy if the latest version is different to the local version
+	s.versionsMutex.Lock()
+	defer s.versionsMutex.Unlock()
 	v, ok := s.versions[job.Job.Name]
 	if !ok || v.Version != versions[0].Version {
 		s.copies++

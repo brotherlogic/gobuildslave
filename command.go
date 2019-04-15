@@ -169,6 +169,7 @@ type Server struct {
 	rejecting      bool
 	lastCopyTime   time.Duration
 	lastCopyStatus string
+	versionsMutex  *sync.Mutex
 	versions       map[string]*pbb.Version
 	skippedCopies  int64
 	copies         int64
@@ -205,6 +206,7 @@ func InitServer(build bool) *Server {
 		build,
 		0,
 		"",
+		&sync.Mutex{},
 		make(map[string]*pbb.Version),
 		int64(0),
 		int64(0),
@@ -357,6 +359,8 @@ func (s *Server) GetState() []*pbs.State {
 		}
 	}
 
+	s.versionsMutex.Lock()
+	defer s.versionsMutex.Unlock()
 	return []*pbs.State{
 		&pbs.State{Key: "oldest_command", TimeValue: oldest},
 		&pbs.State{Key: "stale_commands", Value: stale},
@@ -589,7 +593,9 @@ func (s *Server) loadCurrentVersions() {
 				data, _ := ioutil.ReadFile("/home/simon/gobuild/bin/" + f.Name())
 				val := &pbb.Version{}
 				proto.Unmarshal(data, val)
+				s.versionsMutex.Lock()
 				s.versions[val.Job.Name] = val
+				s.versionsMutex.Unlock()
 			}
 		}
 
