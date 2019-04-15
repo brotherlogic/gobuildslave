@@ -52,6 +52,7 @@ message JobAssignment {
   int32 discover_count = 10;
   string status = 11;
   int64 last_transition_time = 12;
+  int32 queue_pos = 13;
 }
 
 message SlaveConfig {
