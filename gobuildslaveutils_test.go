@@ -93,7 +93,7 @@ func TestSkipCopy(t *testing.T) {
 	s.builder = &testBuilder{count: 1}
 	s.versions["blah"] = &pbb.Version{Version: "test"}
 
-	s.scheduleBuild(context.Background(), &pb.Job{Name: "blah"})
+	s.scheduleBuild(context.Background(), &pb.JobAssignment{Job: &pb.Job{Name: "blah"}})
 
 	if s.skippedCopies != 1 {
 		t.Errorf("Wrong number of copies skipped: %v", s.skippedCopies)

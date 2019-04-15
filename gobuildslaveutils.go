@@ -21,7 +21,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	startState := job.State
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
-		key := s.scheduleBuild(ctx, job.Job)
+		key := s.scheduleBuild(ctx, job)
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("SCHED: %v @ %v", key, time.Now())
 		s.stateMutex.Unlock()
@@ -152,18 +152,18 @@ func (s *Server) getVersion(ctx context.Context, job *pb.Job) (*pbb.Version, err
 }
 
 // scheduleBuild builds out the job, returning the current version
-func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
-	if job.Bootstrap {
-		c := s.translator.build(job)
-		return s.scheduler.Schedule(&rCommand{command: c, base: job.Name})
+func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) string {
+	if job.Job.Bootstrap {
+		c := s.translator.build(job.Job)
+		return s.scheduler.Schedule(&rCommand{command: c, base: job.Job.Name})
 	}
 
-	versions, err := s.builder.build(ctx, job)
+	versions, err := s.builder.build(ctx, job.Job)
 
 	s.lastCopyStatus = fmt.Sprintf("%v", err)
 	if len(versions) == 0 {
 		s.stateMutex.Lock()
-		s.stateMap[job.Name] = fmt.Sprintf("No Versions: %v", err)
+		s.stateMap[job.Job.Name] = fmt.Sprintf("No Versions: %v", err)
 		s.stateMutex.Unlock()
 		return ""
 	}
@@ -171,7 +171,7 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 	t := time.Now()
 
 	//Only copy if the latest version is different to the local version
-	v, ok := s.versions[job.Name]
+	v, ok := s.versions[job.Job.Name]
 	if !ok || v.Version != versions[0].Version {
 		s.copies++
 
@@ -179,23 +179,26 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.Job) string {
 		s.lastCopyTime = time.Now().Sub(t)
 		s.lastCopyStatus = fmt.Sprintf("%v", err)
 		if err != nil || resp.Status != pbfc.CopyStatus_COMPLETE || len(resp.Error) > 0 {
+			if err == nil {
+				job.QueuePos = resp.IndexInQueue
+			}
 			s.stateMutex.Lock()
-			s.stateMap[job.Name] = fmt.Sprintf("Copy fail (%v) -> %v", time.Now().Sub(t), err)
+			s.stateMap[job.Job.Name] = fmt.Sprintf("Copy fail (%v) -> %v", time.Now().Sub(t), err)
 			s.stateMutex.Unlock()
 			return ""
 		}
 		s.stateMutex.Lock()
-		s.stateMap[job.Name] = fmt.Sprintf("Copied version %v", versions[0].Version)
+		s.stateMap[job.Job.Name] = fmt.Sprintf("Copied version %v", versions[0].Version)
 		s.stateMutex.Unlock()
 
 		//Save the version file alongside the binary
 		data, _ := proto.Marshal(versions[0])
-		ioutil.WriteFile("/home/simon/gobuild/bin/"+job.Name+".version", data, 0644)
+		ioutil.WriteFile("/home/simon/gobuild/bin/"+job.Job.Name+".version", data, 0644)
 	} else {
 		s.skippedCopies++
 	}
 
-	s.versions[job.Name] = versions[0]
+	s.versions[job.Job.Name] = versions[0]
 	return versions[0].Version
 }
 
