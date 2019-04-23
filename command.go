@@ -253,8 +253,8 @@ func (s *Server) addMessage(details *pb.JobDetails, message string) {
 func (s *Server) nmonitor(job *pb.JobAssignment) {
 	for job.State != pb.State_DEAD {
 		ctx, cancel := utils.BuildContext("nmonitor", job.Job.Name)
-		defer cancel()
 		s.runTransition(ctx, job)
+		cancel()
 		time.Sleep(time.Second * 10)
 	}
 }
