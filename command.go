@@ -255,7 +255,7 @@ func (s *Server) nmonitor(job *pb.JobAssignment) {
 		ctx, cancel := utils.BuildContext("nmonitor", job.Job.Name)
 		s.runTransition(ctx, job)
 		cancel()
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Second * 30)
 	}
 }
 
