@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os/exec"
 	"time"
 
 	"golang.org/x/net/context"
@@ -73,5 +74,9 @@ func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.Co
 	if s.Registry.Identifier == "stationone" {
 		requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_EXTERNAL, Properties: "external_ready"})
 	}
+
+	out, _ := exec.Command("/sbin/iwconfig").Output()
+	s.Log(fmt.Sprintf("OUTPUT %v", out))
+
 	return &pb.ConfigResponse{Config: &pb.SlaveConfig{Requirements: requirements}}, nil
 }
