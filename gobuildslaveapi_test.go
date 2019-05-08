@@ -101,7 +101,26 @@ func TestGetSlaveConfig(t *testing.T) {
 		t.Fatalf("Error getting config: %v", err)
 	}
 
-	if len(config.Config.Requirements) != 3 {
+	if len(config.Config.Requirements) != 4 {
 		t.Errorf("Requirements not been captured: %v", config)
+	}
+}
+
+func TestRegMatch(t *testing.T) {
+	result := `wlan0     IEEE 802.11  ESSID:SiFi
+          Mode:Managed  Frequency:5.745 GHz  Access Point: 70:3A:CB:17:CF:BB
+          Bit Rate=433.3 Mb/s   Tx-Power=31 dBm
+          Retry short limit:7   RTS thr:off   Fragment thr:off
+          Power Management:on
+          Link Quality=68/70  Signal level=-42 dBm
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+          Tx excessive retries:11684  Invalid misc:0   Missed beacon:0
+
+lo        no wireless extensions.
+
+eth0      no wireless extensions.`
+	match := extractBitRate(result)
+	if match != "433.3" {
+		t.Errorf("Mismatch :%v:", match)
 	}
 }

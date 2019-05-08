@@ -9,6 +9,7 @@ enum RequirementCategory {
   DISK = 1;
   EXTERNAL = 2;
   SERVER = 3;
+  NETWORK = 4;
 }
 
 enum State {

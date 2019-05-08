@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os/exec"
+	"regexp"
+	"strings"
 	"time"
 
 	"golang.org/x/net/context"
@@ -63,6 +65,15 @@ func (s *Server) ListJobs(ctx context.Context, req *pb.ListRequest) (*pb.ListRes
 	return resp, nil
 }
 
+func extractBitRate(output string) string {
+	matcher := regexp.MustCompile("Rate=(.*?) ")
+	matches := matcher.FindStringSubmatch(output)
+	if len(matches) > 0 {
+		return strings.TrimRight(matches[1], " ")
+	}
+	return ""
+}
+
 // SlaveConfig gets the config for this slave
 func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.ConfigResponse, error) {
 	disks := s.disker.getDisks()
@@ -76,7 +87,8 @@ func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.Co
 	}
 
 	out, _ := exec.Command("/sbin/iwconfig").Output()
-	s.Log(fmt.Sprintf("OUTPUT %v", out))
+	br := extractBitRate(string(out))
+	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_NETWORK, Properties: br})
 
 	return &pb.ConfigResponse{Config: &pb.SlaveConfig{Requirements: requirements}}, nil
 }
