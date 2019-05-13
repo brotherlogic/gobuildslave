@@ -10,6 +10,7 @@ enum RequirementCategory {
   EXTERNAL = 2;
   SERVER = 3;
   NETWORK = 4;
+  ACCESS_POINT = 5;
 }
 
 enum State {

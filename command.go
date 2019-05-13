@@ -175,6 +175,7 @@ type Server struct {
 	copies         int64
 	version        version
 	lastBadHearts  int
+	accessPoint    string
 }
 
 // InitServer builds out a server
@@ -212,6 +213,7 @@ func InitServer(build bool) *Server {
 		int64(0),
 		&prodVersion{},
 		0,
+		"",
 	}
 	return s
 }
@@ -362,6 +364,7 @@ func (s *Server) GetState() []*pbs.State {
 	s.versionsMutex.Lock()
 	defer s.versionsMutex.Unlock()
 	return []*pbs.State{
+		&pbs.State{Key: "access_point", Text: s.accessPoint},
 		&pbs.State{Key: "oldest_command", TimeValue: oldest},
 		&pbs.State{Key: "stale_commands", Value: stale},
 		&pbs.State{Key: "crash_report_fails", Value: s.crashFails},
