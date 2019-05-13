@@ -65,13 +65,16 @@ func (s *Server) ListJobs(ctx context.Context, req *pb.ListRequest) (*pb.ListRes
 	return resp, nil
 }
 
-func extractBitRate(output string) string {
+func extractBitRate(output string) (string, string) {
 	matcher := regexp.MustCompile("Rate=(.*?) ")
 	matches := matcher.FindStringSubmatch(output)
-	if len(matches) > 0 {
-		return strings.TrimRight(matches[1], " ")
+
+	matcher2 := regexp.MustCompile("Access Point. ([A-F0-9:]*)")
+	matches2 := matcher2.FindStringSubmatch(output)
+	if len(matches) > 0 && len(matches2) > 0 {
+		return strings.TrimRight(matches[1], " "), strings.TrimRight(matches2[1], " ")
 	}
-	return ""
+	return "", ""
 }
 
 // SlaveConfig gets the config for this slave
@@ -87,7 +90,8 @@ func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.Co
 	}
 
 	out, _ := exec.Command("/sbin/iwconfig").Output()
-	br := extractBitRate(string(out))
+	br, ap := extractBitRate(string(out))
+	s.accessPoint = ap
 	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_NETWORK, Properties: br})
 
 	return &pb.ConfigResponse{Config: &pb.SlaveConfig{Requirements: requirements}}, nil

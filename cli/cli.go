@@ -173,12 +173,12 @@ func main() {
 				conn, _ := grpc.Dial(s.GetIp()+":"+strconv.Itoa(int(s.GetPort())), grpc.WithInsecure())
 				defer conn.Close()
 
-				registry := pb.NewGoBuildSlaveClient(conn)
-				res, err := registry.GetConfig(ctx, &pb.Empty{})
+				registry := pb.NewBuildSlaveClient(conn)
+				res, err := registry.SlaveConfig(ctx, &pb.ConfigRequest{})
 				if err != nil {
-					log.Fatalf("Error building job: %v", err)
+					log.Fatalf("Error listing job: %v", err)
 				}
-				fmt.Printf("%v - %v\n", s.GetIdentifier(), res)
+				fmt.Printf("%v. %v\n", s.Identifier, res)
 			}
 		}
 

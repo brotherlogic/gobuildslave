@@ -119,8 +119,8 @@ func TestRegMatch(t *testing.T) {
 lo        no wireless extensions.
 
 eth0      no wireless extensions.`
-	match := extractBitRate(result)
-	if match != "433.3" {
-		t.Errorf("Mismatch :%v:", match)
+	match, match2 := extractBitRate(result)
+	if match != "433.3" || match2 != "70:3A:CB:17:CF:BB" {
+		t.Errorf("Mismatch :%v:%v:", match, match2)
 	}
 }
