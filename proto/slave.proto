@@ -39,6 +39,7 @@ message Job {
   repeated Requirement requirements = 3;
   bool sudo = 4;
   bool bootstrap = 5;
+  bool breakout = 6;
 }
 
 message JobAssignment {

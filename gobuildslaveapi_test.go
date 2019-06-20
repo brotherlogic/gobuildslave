@@ -101,8 +101,8 @@ func TestGetSlaveConfig(t *testing.T) {
 		t.Fatalf("Error getting config: %v", err)
 	}
 
-	if len(config.Config.Requirements) != 4 {
-		t.Errorf("Requirements not been captured: %v", config)
+	if len(config.Config.Requirements) != 5 {
+		t.Errorf("Requirements not been captured: (%v) %v", len(config.Config.Requirements), config)
 	}
 }
 
