@@ -14,7 +14,7 @@ import (
 
 // RunJob - runs the job
 func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunResponse, error) {
-	if !s.doesBuild {
+	if !s.doesBuild && !req.Job.Breakout {
 		return &pb.RunResponse{}, fmt.Errorf("Refusing to build")
 	}
 	s.nMut.Lock()
