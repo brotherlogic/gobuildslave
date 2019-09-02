@@ -101,13 +101,16 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 
 		// Restart this job if we need to
 		if !job.Job.Bootstrap {
-			version, err := s.getVersion(ctx, job.Job)
+			if time.Now().Sub(time.Unix(job.LastVersionPull, 0)) > time.Minute*5 {
+				version, err := s.getVersion(ctx, job.Job)
+				job.LastVersionPull = time.Now().Unix()
 
-			if err == nil && version.Version != job.RunningVersion {
-				s.stateMutex.Lock()
-				s.stateMap[job.Job.Name] = fmt.Sprintf("VERSION_MISMATCH = %v,%v", version, job.RunningVersion)
-				s.stateMutex.Unlock()
-				job.State = pb.State_BRINK_OF_DEATH
+				if err == nil && version.Version != job.RunningVersion {
+					s.stateMutex.Lock()
+					s.stateMap[job.Job.Name] = fmt.Sprintf("VERSION_MISMATCH = %v,%v", version, job.RunningVersion)
+					s.stateMutex.Unlock()
+					job.State = pb.State_BRINK_OF_DEATH
+				}
 			}
 		}
 	case pb.State_BRINK_OF_DEATH:
