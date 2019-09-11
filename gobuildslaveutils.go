@@ -109,7 +109,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 					s.stateMutex.Lock()
 					s.stateMap[job.Job.Name] = fmt.Sprintf("VERSION_MISMATCH = %v,%v", version, job.RunningVersion)
 					s.stateMutex.Unlock()
-					job.State = pb.State_BRINK_OF_DEATH
+					s.scheduler.killJob(job.CommandKey)
 				}
 			}
 		}
