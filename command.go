@@ -542,7 +542,7 @@ func (s *Server) checkOnSsh(ctx context.Context) error {
 	for true {
 		_, err := os.Stat(f)
 		if err != nil {
-			ip, port, _ := utils.Resolve("githubcard")
+			ip, port, _ := utils.Resolve("githubcard", "gobuildslave-checkonssh")
 			if port > 0 {
 				conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
 				if err == nil {
@@ -566,7 +566,7 @@ func (s *Server) checkOnUpdate(ctx context.Context) error {
 		info, err := os.Stat(f)
 		if err == nil {
 			if info.ModTime().Before(time.Now().AddDate(0, -1, 0)) {
-				ip, port, _ := utils.Resolve("githubcard")
+				ip, port, _ := utils.Resolve("githubcard", "gobuildslave-checkonupdate")
 				if port > 0 {
 					conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
 					if err == nil {
