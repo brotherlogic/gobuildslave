@@ -161,3 +161,13 @@ func TestBadCommand(t *testing.T) {
 		t.Errorf("No error running command")
 	}
 }
+
+func TestInMap(t *testing.T) {
+	s := Scheduler{rMutex: &sync.Mutex{}, cMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand)}
+	s.rMap["key"] = &rCommand{command: exec.Command("run.sh")}
+	out, err := s.getErrOutput("key")
+
+	if err != nil {
+		t.Errorf("Error in getting output %v -> %v", err, out)
+	}
+}

@@ -154,6 +154,13 @@ func (s *Server) getVersion(ctx context.Context, job *pb.Job) (*pbb.Version, err
 
 }
 
+func updateJob(err error, job *pb.JobAssignment, resp *pbfc.CopyResponse) {
+	if err == nil {
+		job.QueuePos = resp.IndexInQueue
+	}
+
+}
+
 // scheduleBuild builds out the job, returning the current version
 func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) string {
 	if job.Job.Bootstrap {
@@ -184,9 +191,7 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) strin
 		s.lastCopyTime = time.Now().Sub(t)
 		s.lastCopyStatus = fmt.Sprintf("%v", err)
 		if err != nil || resp.Status != pbfc.CopyStatus_COMPLETE || len(resp.Error) > 0 {
-			if err == nil {
-				job.QueuePos = resp.IndexInQueue
-			}
+			updateJob(err, job, resp)
 			s.stateMutex.Lock()
 			s.stateMap[job.Job.Name] = fmt.Sprintf("Copy fail (%v) -> %v", time.Now().Sub(t), err)
 			s.stateMutex.Unlock()
