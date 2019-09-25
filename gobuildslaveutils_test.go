@@ -7,6 +7,7 @@ import (
 	"time"
 
 	pbb "github.com/brotherlogic/buildserver/proto"
+	pbfc "github.com/brotherlogic/filecopier/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	"golang.org/x/net/context"
 )
@@ -210,4 +211,8 @@ func TestMoveFromTheBrink(t *testing.T) {
 	s.discover = &testDiscover{fail: true}
 	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_BRINK_OF_DEATH}
 	s.runTransition(context.Background(), job)
+}
+
+func TestResp(t *testing.T) {
+	updateJob(nil, &pb.JobAssignment{}, &pbfc.CopyResponse{})
 }
