@@ -240,6 +240,8 @@ func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, ou
 				}
 			}
 		}
+	} else {
+		s.Log(fmt.Sprintf("Skipping empty crash report"))
 	}
 
 }
