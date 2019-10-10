@@ -225,6 +225,8 @@ func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, ou
 		s.RaiseIssue(ctx, "Buildserver failing", fmt.Sprintf("%v", output), false)
 	}
 
+	s.Log(fmt.Sprintf("Sending %v for %v", output, j))
+
 	if len(output) > 0 && !s.SkipLog {
 		conn, err := s.DialMaster("buildserver")
 		if err == nil {
