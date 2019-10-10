@@ -84,7 +84,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			s.stateMutex.Lock()
 			s.stateMap[job.Job.Name] = fmt.Sprintf("COMPLETE = %v", output)
 			s.stateMutex.Unlock()
-			s.deliverCrashReport(ctx, job, output)
+			s.deliverCrashReport(ctx, job, output+fmt.Sprintf("%v", errout))
 			job.State = pb.State_DIED
 		}
 
