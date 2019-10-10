@@ -226,18 +226,15 @@ func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, ou
 	}
 
 	if len(output) > 0 && !s.SkipLog {
-		ip, port := s.GetIP("buildserver")
-		if port > 0 {
-			conn, err := grpc.Dial(ip+":"+strconv.Itoa(port), grpc.WithInsecure())
-			if err == nil {
-				defer conn.Close()
-				client := pbb.NewBuildServiceClient(conn)
-				_, err := client.ReportCrash(ctx, &pbb.CrashRequest{Job: j.Job, Crash: &pbb.Crash{ErrorMessage: output}})
+		conn, err := s.DialMaster("buildserver")
+		if err == nil {
+			defer conn.Close()
+			client := pbb.NewBuildServiceClient(conn)
+			_, err := client.ReportCrash(ctx, &pbb.CrashRequest{Job: j.Job, Crash: &pbb.Crash{ErrorMessage: output}})
 
-				if err != nil {
-					s.crashFails++
-					s.crashError = fmt.Sprintf("%v", err)
-				}
+			if err != nil {
+				s.crashFails++
+				s.crashError = fmt.Sprintf("%v", err)
 			}
 		}
 	} else {
