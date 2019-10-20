@@ -148,34 +148,35 @@ func (p *prodDisker) getDisks() []string {
 // Server the main server type
 type Server struct {
 	*goserver.GoServer
-	runner         *Runner
-	disk           diskChecker
-	jobs           map[string]*pb.JobDetails
-	nMut           *sync.Mutex
-	njobs          map[string]*pb.JobAssignment
-	translator     translator
-	scheduler      *Scheduler
-	checker        checker
-	disker         disker
-	crashFails     int64
-	crashError     string
-	crashAttempts  int64
-	builder        Builder
-	doesBuild      bool
-	discover       discover
-	stateMap       map[string]string
-	pendingMap     map[time.Weekday]map[string]int
-	stateMutex     *sync.Mutex
-	rejecting      bool
-	lastCopyTime   time.Duration
-	lastCopyStatus string
-	versionsMutex  *sync.Mutex
-	versions       map[string]*pbb.Version
-	skippedCopies  int64
-	copies         int64
-	version        version
-	lastBadHearts  int
-	accessPoint    string
+	runner          *Runner
+	disk            diskChecker
+	jobs            map[string]*pb.JobDetails
+	nMut            *sync.Mutex
+	njobs           map[string]*pb.JobAssignment
+	translator      translator
+	scheduler       *Scheduler
+	checker         checker
+	disker          disker
+	crashFails      int64
+	crashError      string
+	crashAttempts   int64
+	builder         Builder
+	doesBuild       bool
+	discover        discover
+	stateMap        map[string]string
+	pendingMap      map[time.Weekday]map[string]int
+	stateMutex      *sync.Mutex
+	rejecting       bool
+	lastCopyTime    time.Duration
+	lastCopyStatus  string
+	versionsMutex   *sync.Mutex
+	versions        map[string]*pbb.Version
+	skippedCopies   int64
+	copies          int64
+	version         version
+	lastBadHearts   int
+	accessPoint     string
+	discoverStartup time.Time
 }
 
 // InitServer builds out a server
@@ -214,6 +215,7 @@ func InitServer(build bool) *Server {
 		&prodVersion{},
 		0,
 		"",
+		time.Now(),
 	}
 	return s
 }
@@ -365,6 +367,7 @@ func (s *Server) GetState() []*pbs.State {
 	s.versionsMutex.Lock()
 	defer s.versionsMutex.Unlock()
 	return []*pbs.State{
+		&pbs.State{Key: "discover_start", TimeValue: s.discoverStartup.Unix()},
 		&pbs.State{Key: "state_map", Text: fmt.Sprintf("%v", s.stateMap)},
 		&pbs.State{Key: "access_point", Text: s.accessPoint},
 		&pbs.State{Key: "oldest_command", TimeValue: oldest},
@@ -665,6 +668,7 @@ func main() {
 	s.RegisterServingTask(s.checkOnUpdate, "check_on_update")
 	s.RegisterServingTask(s.checkOnSsh, "check_on_ssh")
 	s.RegisterServingTask(s.cleanCommands, "clean_commands")
+	s.RegisterRepeatingTaskNonMaster(s.trackUpTime, "track_up_time", time.Hour)
 	s.RegisterRepeatingTask(s.stateChecker, "state_checker", time.Minute*5)
 	s.RegisterRepeatingTask(s.badHeartChecker, "bad_heart_checker", time.Minute*5)
 
