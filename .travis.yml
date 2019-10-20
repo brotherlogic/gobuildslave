@@ -1,7 +1,7 @@
 language: go
 
 go:
-  - 1.9
+  - 1.11
 
 branches:
   only:
@@ -18,4 +18,4 @@ before_install:
 
 script:
 #- fgt golint $(find . | grep .go$ | grep -v slave.pb.go)
-- $HOME/gopath/bin/goveralls -service=travis-ci -ignore=command.go -package github.com/brotherlogic/gobuildslave
+- $HOME/gopath/bin/goveralls -service=travis-ci -ignore=command.go,gobuildslave.go -package github.com/brotherlogic/gobuildslave
