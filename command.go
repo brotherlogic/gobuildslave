@@ -177,6 +177,7 @@ type Server struct {
 	lastBadHearts   int
 	accessPoint     string
 	discoverStartup time.Time
+	discoverSync    time.Time
 }
 
 // InitServer builds out a server
@@ -215,6 +216,7 @@ func InitServer(build bool) *Server {
 		&prodVersion{},
 		0,
 		"",
+		time.Now(),
 		time.Now(),
 	}
 	return s
@@ -367,6 +369,7 @@ func (s *Server) GetState() []*pbs.State {
 	s.versionsMutex.Lock()
 	defer s.versionsMutex.Unlock()
 	return []*pbs.State{
+		&pbs.State{Key: "discover_sync", TimeValue: s.discoverSync.Unix()},
 		&pbs.State{Key: "discover_start", TimeValue: s.discoverStartup.Unix()},
 		&pbs.State{Key: "state_map", Text: fmt.Sprintf("%v", s.stateMap)},
 		&pbs.State{Key: "access_point", Text: s.accessPoint},
