@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"golang.org/x/net/context"
@@ -24,5 +25,13 @@ func (s *Server) trackUpTime(ctx context.Context) error {
 		}
 	}
 
+	return nil
+}
+
+func (s *Server) runOnChange(ctx context.Context) error {
+	if s.discoverSync.Before(s.discoverStartup) {
+		s.Log(fmt.Sprintf("Resyncing"))
+		s.discoverSync = time.Now()
+	}
 	return nil
 }
