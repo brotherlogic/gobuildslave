@@ -664,10 +664,17 @@ func main() {
 	s.PrepServer()
 	s.GoServer.Killme = false
 	err := s.RegisterServer("gobuildslave", false)
-	s.version = &prodVersion{s.DialMaster, s.Registry.Identifier, s.Log}
 	if err != nil {
 		log.Fatalf("Error registering: %v", err)
 	}
+
+	err = s.unregisterChildren()
+	if err != nil {
+		log.Fatalf("Error unregistering: %v", err)
+	}
+
+	s.version = &prodVersion{s.DialMaster, s.Registry.Identifier, s.Log}
+
 	s.RegisterServingTask(s.checkOnUpdate, "check_on_update")
 	s.RegisterServingTask(s.checkOnSsh, "check_on_ssh")
 	s.RegisterServingTask(s.cleanCommands, "clean_commands")
