@@ -8,6 +8,7 @@ import (
 
 	dpb "github.com/brotherlogic/discovery/proto"
 	pbgs "github.com/brotherlogic/goserver/proto"
+	"github.com/brotherlogic/goserver/utils"
 )
 
 func (s *Server) trackUpTime(ctx context.Context) error {
@@ -48,4 +49,20 @@ func (s *Server) runOnChange(ctx context.Context) error {
 		s.discoverSync = time.Now()
 	}
 	return nil
+}
+
+func (s *Server) unregisterChildren() error {
+	ctx, cancel := utils.BuildContext("gobuildslave-unreg", "gobuildslave")
+	defer cancel()
+
+	conn, err := s.DoDial(&dpb.RegistryEntry{Ip: utils.RegistryIP, Port: utils.RegistryPort})
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := dpb.NewDiscoveryServiceV2Client(conn)
+	_, err = client.Unregister(ctx, &dpb.UnregisterRequest{Service: &dpb.RegistryEntry{Identifier: s.Registry.Identifier}})
+
+	return err
 }
