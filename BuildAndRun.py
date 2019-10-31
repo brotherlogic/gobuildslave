@@ -5,12 +5,10 @@ import socket
 name = "gobuildslave"
 
 current_hash = ""
-if os.path.isfile('hash'):
-    lines = open('hash').readlines()
-    if len(lines) > 0:
-        current_hash = lines[0]
-new_hash = os.popen('git rev-parse HEAD').readlines()[0]
-open('hash','w').write(new_hash)
+for line in os.popen("md5sum " + name).readlines():
+    current_hash = line.split(' ')[0]
+
+print current_hash
     
 # Move the old version over
 for line in os.popen('cp ' + name + ' old' + name).readlines():
@@ -28,7 +26,11 @@ running = False
 for line in lines:
     if "./" + name in line:
         running = True
-              
+
+new_hash = ""
+for line in os.popen("md5sum " + name).readlines():
+    new_hash = line.split(' ')[0]
+    
 if size_1 != size_2 or new_hash != current_hash or not running:
     if not running:
         for line in os.popen('go get github.com/brotherlogic/buildserver/buildserver_cli'):
