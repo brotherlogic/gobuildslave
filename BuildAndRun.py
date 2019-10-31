@@ -7,8 +7,6 @@ name = "gobuildslave"
 current_hash = ""
 for line in os.popen("md5sum " + name).readlines():
     current_hash = line.split(' ')[0]
-
-print current_hash
     
 # Move the old version over
 for line in os.popen('cp ' + name + ' old' + name).readlines():
@@ -30,7 +28,7 @@ for line in lines:
 new_hash = ""
 for line in os.popen("md5sum " + name).readlines():
     new_hash = line.split(' ')[0]
-    
+
 if size_1 != size_2 or new_hash != current_hash or not running:
     if not running:
         for line in os.popen('go get github.com/brotherlogic/buildserver/buildserver_cli'):
