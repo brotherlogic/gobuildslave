@@ -369,8 +369,8 @@ func (s *Server) GetState() []*pbs.State {
 	s.versionsMutex.Lock()
 	defer s.versionsMutex.Unlock()
 	return []*pbs.State{
-		&pbs.State{Key: "discover_sync", TimeValue: s.discoverSync.Unix()},
 		&pbs.State{Key: "discover_start", TimeValue: s.discoverStartup.Unix()},
+		&pbs.State{Key: "discover_sync", TimeValue: s.discoverSync.Unix()},
 		&pbs.State{Key: "state_map", Text: fmt.Sprintf("%v", s.stateMap)},
 		&pbs.State{Key: "access_point", Text: s.accessPoint},
 		&pbs.State{Key: "oldest_command", TimeValue: oldest},
