@@ -34,17 +34,17 @@ type testBuilder struct {
 	fail     bool
 }
 
-func (p *testBuilder) build(ctx context.Context, job *pb.Job) ([]*pbb.Version, error) {
+func (p *testBuilder) build(ctx context.Context, job *pb.Job) (*pbb.Version, error) {
 	if p.fail {
-		return []*pbb.Version{}, fmt.Errorf("Built to fail")
+		return &pbb.Version{}, fmt.Errorf("Built to fail")
 	}
 	if p.count == 0 {
-		return []*pbb.Version{}, nil
+		return &pbb.Version{}, nil
 	}
 	if !p.change {
-		return []*pbb.Version{&pbb.Version{Version: "test"}}, nil
+		return &pbb.Version{Version: "test"}, nil
 	} else {
-		return []*pbb.Version{&pbb.Version{Version: "newtest"}}, nil
+		return &pbb.Version{Version: "newtest"}, nil
 	}
 }
 

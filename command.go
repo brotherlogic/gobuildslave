@@ -97,20 +97,17 @@ type prodBuilder struct {
 	Log    func(string)
 }
 
-func (p *prodBuilder) build(ctx context.Context, job *pb.Job) ([]*pbb.Version, error) {
-	conn, err := p.dial("buildserver")
+func (p *prodBuilder) build(ctx context.Context, job *pb.Job) (*pbb.Version, error) {
+	file := fmt.Sprintf("/home/simon/gobuild/bin/%v.version", job.Name)
+	data, err := ioutil.ReadFile(file)
 	if err != nil {
-		return []*pbb.Version{}, err
-	}
-	defer conn.Close()
-	builder := pbb.NewBuildServiceClient(conn)
-	versions, err := builder.GetVersions(ctx, &pbb.VersionRequest{Job: job, JustLatest: true})
-
-	if err != nil {
-		return []*pbb.Version{}, err
+		return nil, err
 	}
 
-	return versions.Versions, nil
+	version := &pbb.Version{}
+	proto.Unmarshal(data, version)
+
+	return version, nil
 }
 
 func (p *prodBuilder) copy(ctx context.Context, v *pbb.Version) (*pbfc.CopyResponse, error) {
