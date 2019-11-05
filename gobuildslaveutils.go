@@ -2,14 +2,12 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os/exec"
 	"time"
 
 	pbb "github.com/brotherlogic/buildserver/proto"
 	pbfc "github.com/brotherlogic/filecopier/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
-	"github.com/golang/protobuf/proto"
 	"golang.org/x/net/context"
 )
 
@@ -141,16 +139,12 @@ type checker interface {
 }
 
 func (s *Server) getVersion(ctx context.Context, job *pb.Job) (*pbb.Version, error) {
-	versions, err := s.builder.build(ctx, job)
+	version, err := s.builder.build(ctx, job)
 	if err != nil {
 		return &pbb.Version{}, err
 	}
 
-	if len(versions) == 0 {
-		return &pbb.Version{}, nil
-	}
-
-	return versions[0], nil
+	return version, nil
 
 }
 
@@ -168,50 +162,8 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) strin
 		return s.scheduler.Schedule(&rCommand{command: c, base: job.Job.Name})
 	}
 
-	versions, err := s.builder.build(ctx, job.Job)
-
-	s.lastCopyStatus = fmt.Sprintf("%v", err)
-	if len(versions) == 0 {
-		s.stateMutex.Lock()
-		s.stateMap[job.Job.Name] = fmt.Sprintf("No Versions: %v", err)
-		s.stateMutex.Unlock()
-		return ""
-	}
-
-	t := time.Now()
-
-	//Only copy if the latest version is different to the local version
-	s.versionsMutex.Lock()
-	v, ok := s.versions[job.Job.Name]
-	s.versionsMutex.Unlock()
-	if !ok || v.Version != versions[0].Version {
-		s.copies++
-
-		resp, err := s.builder.copy(ctx, versions[0])
-		s.lastCopyTime = time.Now().Sub(t)
-		s.lastCopyStatus = fmt.Sprintf("%v", err)
-		if err != nil || resp.Status != pbfc.CopyStatus_COMPLETE || len(resp.Error) > 0 {
-			updateJob(err, job, resp)
-			s.stateMutex.Lock()
-			s.stateMap[job.Job.Name] = fmt.Sprintf("Copy fail (%v) -> %v", time.Now().Sub(t), err)
-			s.stateMutex.Unlock()
-			return ""
-		}
-		s.stateMutex.Lock()
-		s.stateMap[job.Job.Name] = fmt.Sprintf("Copied version %v", versions[0].Version)
-		s.stateMutex.Unlock()
-
-		//Save the version file alongside the binary
-		data, _ := proto.Marshal(versions[0])
-		ioutil.WriteFile("/home/simon/gobuild/bin/"+job.Job.Name+".version", data, 0644)
-	} else {
-		s.skippedCopies++
-	}
-
-	s.versionsMutex.Lock()
-	s.versions[job.Job.Name] = versions[0]
-	s.versionsMutex.Unlock()
-	return versions[0].Version
+	val, _ := s.builder.build(ctx, job.Job)
+	return val.Version
 }
 
 func (s *Server) scheduleRun(job *pb.Job) string {

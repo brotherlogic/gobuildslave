@@ -14,7 +14,7 @@ import (
 
 //Builder builds out binaries
 type Builder interface {
-	build(ctx context.Context, job *pb.Job) ([]*pbb.Version, error)
+	build(ctx context.Context, job *pb.Job) (*pbb.Version, error)
 	copy(ctx context.Context, v *pbb.Version) (*pbfc.CopyResponse, error)
 }
 

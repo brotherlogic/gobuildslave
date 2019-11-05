@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	pbb "github.com/brotherlogic/buildserver/proto"
 	pbfc "github.com/brotherlogic/filecopier/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	"golang.org/x/net/context"
@@ -89,18 +88,6 @@ func TestBadBuild(t *testing.T) {
 	}
 }
 
-func TestSkipCopy(t *testing.T) {
-	s := getTestServer()
-	s.builder = &testBuilder{count: 1}
-	s.versions["blah"] = &pbb.Version{Version: "test"}
-
-	s.scheduleBuild(context.Background(), &pb.JobAssignment{Job: &pb.Job{Name: "blah"}})
-
-	if s.skippedCopies != 1 {
-		t.Errorf("Wrong number of copies skipped: %v", s.skippedCopies)
-	}
-}
-
 func TestTransitions(t *testing.T) {
 	s := getTestServer()
 	s.translator = &testTranslator{}
@@ -131,24 +118,33 @@ func TestBuildFail(t *testing.T) {
 	}
 }
 
-func TestBuildFailNBS(t *testing.T) {
+func TestFailDiscover(t *testing.T) {
+	s := getTestServer()
+	s.discover = &testDiscover{fail: true}
+	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_RUNNING}
+	for i := 0; i < 32; i++ {
+		s.runTransition(context.Background(), job)
+	}
+}
+
+func TestMoveFromTheBrink(t *testing.T) {
+	s := getTestServer()
+	s.discover = &testDiscover{fail: true}
+	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_BRINK_OF_DEATH}
+	s.runTransition(context.Background(), job)
+}
+
+func TestResp(t *testing.T) {
+	updateJob(nil, &pb.JobAssignment{}, &pbfc.CopyResponse{})
+}
+
+func TestBuildJobBaseTrans(t *testing.T) {
 	s := getTestServer()
 	s.builder = &testBuilder{count: 2}
 	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
 	s.runTransition(context.Background(), job)
 
 	if job.State != pb.State_BUILT {
-		t.Errorf("Multiple failures did not fail: %v", job.State)
-	}
-}
-
-func TestBuildFailCopy(t *testing.T) {
-	s := getTestServer()
-	s.builder = &testBuilder{copyFail: true, count: 2}
-	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
-	s.runTransition(context.Background(), job)
-
-	if job.State != pb.State_ACKNOWLEDGED {
 		t.Errorf("Multiple failures did not fail: %v", job.State)
 	}
 }
@@ -173,46 +169,4 @@ func TestKill(t *testing.T) {
 	s.builder = &testBuilder{change: true, count: 2}
 	s.runTransition(context.Background(), job)
 	log.Printf("NOW %v", job.State)
-}
-
-func TestKillBadRead(t *testing.T) {
-	s := getTestServer()
-	s.builder = &testBuilder{count: 2}
-	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
-	s.runTransition(context.Background(), job)
-
-	if job.State != pb.State_BUILT {
-		t.Errorf("Was not built")
-	}
-
-	s.runTransition(context.Background(), job)
-	log.Printf("NOW %v", job.State)
-
-	time.Sleep(time.Minute * 2)
-	s.runTransition(context.Background(), job)
-	log.Printf("NOW %v", job.State)
-
-	s.builder = &testBuilder{change: true}
-	s.runTransition(context.Background(), job)
-	log.Printf("NOW %v", job.State)
-}
-
-func TestFailDiscover(t *testing.T) {
-	s := getTestServer()
-	s.discover = &testDiscover{fail: true}
-	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_RUNNING}
-	for i := 0; i < 32; i++ {
-		s.runTransition(context.Background(), job)
-	}
-}
-
-func TestMoveFromTheBrink(t *testing.T) {
-	s := getTestServer()
-	s.discover = &testDiscover{fail: true}
-	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_BRINK_OF_DEATH}
-	s.runTransition(context.Background(), job)
-}
-
-func TestResp(t *testing.T) {
-	updateJob(nil, &pb.JobAssignment{}, &pbfc.CopyResponse{})
 }
