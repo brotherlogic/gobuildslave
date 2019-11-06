@@ -170,3 +170,14 @@ func TestKill(t *testing.T) {
 	s.runTransition(context.Background(), job)
 	log.Printf("NOW %v", job.State)
 }
+
+func TestSchedule(t *testing.T) {
+	s := getTestServer()
+	s.builder = &testBuilder{fail: true}
+
+	val := s.scheduleBuild(context.Background(), &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED})
+
+	if val != "" {
+		t.Errorf("Returned non-blank: %v", val)
+	}
+}
