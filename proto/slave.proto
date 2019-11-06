@@ -40,6 +40,10 @@ message Job {
   bool sudo = 4;
   bool bootstrap = 5;
   bool breakout = 6;
+
+  // We partial bootstrap if we need something to come up
+  // when it doesn't currently exist.
+  bool partial_bootstrap = 7;
 }
 
 message JobAssignment {
