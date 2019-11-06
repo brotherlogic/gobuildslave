@@ -162,7 +162,11 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) strin
 		return s.scheduler.Schedule(&rCommand{command: c, base: job.Job.Name})
 	}
 
-	val, _ := s.builder.build(ctx, job.Job)
+	val, err := s.builder.build(ctx, job.Job)
+	if err != nil {
+		s.Log(fmt.Sprintf("Error on build: %v", err))
+		return ""
+	}
 	return val.Version
 }
 
