@@ -181,3 +181,16 @@ func TestSchedule(t *testing.T) {
 		t.Errorf("Returned non-blank: %v", val)
 	}
 }
+
+func TestPartialChange(t *testing.T) {
+	s := getTestServer()
+	s.builder = &testBuilder{fail: true}
+
+	joba := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah", PartialBootstrap: true}, State: pb.State_ACKNOWLEDGED}
+	s.runTransition(context.Background(), joba)
+
+	if !joba.Job.Bootstrap {
+		t.Errorf("Job did not bootstrap")
+	}
+
+}

@@ -28,6 +28,11 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 				job.Server = s.Registry.Identifier
 				job.State = pb.State_BUILT
 				job.RunningVersion = key
+			} else {
+				// Bootstrap this job since we don't have an initial version
+				if job.Job.PartialBootstrap {
+					job.Job.Bootstrap = true
+				}
 			}
 		} else {
 			job.CommandKey = key
