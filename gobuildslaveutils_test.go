@@ -62,7 +62,7 @@ var transitionTable = []struct {
 	pb.State_DIED,
 	true,
 }, {
-	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_PENDING},
+	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah", PartialBootstrap: true, Bootstrap: true}, State: pb.State_PENDING},
 	"",
 	pb.State_RUNNING,
 	true,
