@@ -182,7 +182,7 @@ func (s *Server) scheduleRun(job *pb.Job) string {
 	c := s.translator.run(job)
 
 	//Copy over any existing new versions
-	s.scheduler.Schedule(&rCommand{command: exec.Command("cp", "$GOPATH/bin/"+job.GetName()+".new", "$GOPATH/bin/"+job.GetName()), base: job.Name})
+	s.scheduler.Schedule(&rCommand{command: exec.Command("mv", "$GOPATH/bin/"+job.GetName()+".new", "$GOPATH/bin/"+job.GetName()), base: job.Name})
 	return s.scheduler.Schedule(&rCommand{command: c, base: job.Name})
 }
 
