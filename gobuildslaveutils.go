@@ -70,6 +70,9 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			s.pendingMap[time.Now().Weekday()][job.Job.Name]++
 		}
 	case pb.State_PENDING:
+		if job.Job.PartialBootstrap && job.Job.Bootstrap {
+			job.Job.Bootstrap = false
+		}
 		s.stateMutex.Lock()
 		out, _ := s.scheduler.getOutput(job.CommandKey)
 		s.stateMap[job.Job.Name] = fmt.Sprintf("OUTPUT = %v", out)
