@@ -179,10 +179,13 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) strin
 }
 
 func (s *Server) scheduleRun(job *pb.Job) string {
-	c := s.translator.run(job)
-
 	//Copy over any existing new versions
-	s.scheduler.Schedule(&rCommand{command: exec.Command("mv", "$GOPATH/bin/"+job.GetName()+".new", "$GOPATH/bin/"+job.GetName()), base: job.Name})
+	key := s.scheduler.Schedule(&rCommand{command: exec.Command("mv", "$GOPATH/bin/"+job.GetName()+".new", "$GOPATH/bin/"+job.GetName()), base: job.Name})
+	for !s.taskComplete(key) {
+		time.Sleep(time.Second)
+	}
+
+	c := s.translator.run(job)
 	return s.scheduler.Schedule(&rCommand{command: c, base: job.Name})
 }
 
