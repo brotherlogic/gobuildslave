@@ -24,10 +24,11 @@ func (s *Server) trackUpTime(ctx context.Context) error {
 	for _, st := range state.GetStates() {
 		if st.Key == "startup_time" {
 			s.discoverStartup = time.Unix(st.Value, 0)
+			return nil
 		}
 	}
 
-	return nil
+	return fmt.Errorf("No change made")
 }
 
 func (s *Server) runOnChange(ctx context.Context) error {
