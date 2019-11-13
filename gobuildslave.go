@@ -27,7 +27,7 @@ func (s *Server) trackUpTime(ctx context.Context) error {
 
 	for _, st := range state.GetStates() {
 		if st.Key == "startup_time" {
-			s.discoverStartup = time.Unix(st.Value, 0)
+			s.discoverStartup = time.Unix(st.TimeValue, 0)
 			return nil
 		}
 	}
