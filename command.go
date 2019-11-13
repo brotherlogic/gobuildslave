@@ -674,6 +674,7 @@ func main() {
 	s.RegisterServingTask(s.checkOnSsh, "check_on_ssh")
 	s.RegisterServingTask(s.cleanCommands, "clean_commands")
 	s.RegisterRepeatingTaskNonMaster(s.trackUpTime, "track_up_time", time.Minute)
+	s.RegisterRepeatingTaskNonMaster(s.runOnChange, "run_on_change", time.Minute)
 	s.RegisterRepeatingTask(s.stateChecker, "state_checker", time.Minute*5)
 	s.RegisterRepeatingTask(s.badHeartChecker, "bad_heart_checker", time.Minute*5)
 
