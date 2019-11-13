@@ -21,6 +21,10 @@ func (s *Server) trackUpTime(ctx context.Context) error {
 	client := pbgs.NewGoserverServiceClient(conn)
 	state, err := client.State(ctx, &pbgs.Empty{})
 
+	if err != nil {
+		return err
+	}
+
 	for _, st := range state.GetStates() {
 		if st.Key == "startup_time" {
 			s.discoverStartup = time.Unix(st.Value, 0)
@@ -28,7 +32,7 @@ func (s *Server) trackUpTime(ctx context.Context) error {
 		}
 	}
 
-	return fmt.Errorf("No change made")
+	return fmt.Errorf("No change made: %v -> %v", err, state)
 }
 
 func (s *Server) runOnChange(ctx context.Context) error {
