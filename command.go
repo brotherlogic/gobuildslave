@@ -663,6 +663,8 @@ func main() {
 		log.Fatalf("Error registering: %v", err)
 	}
 
+	s.Registry.IgnoresMaster = true
+
 	err = s.unregisterChildren()
 	if err != nil {
 		log.Fatalf("Error unregistering: %v", err)
