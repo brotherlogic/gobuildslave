@@ -94,6 +94,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		}
 
 		if s.discover != nil {
+			fmt.Printf("DISCOVER %v", s.discover)
 			err := s.discover.discover(job.Job.Name, s.Registry.Identifier)
 			if err != nil {
 				if job.DiscoverCount > 30 {
