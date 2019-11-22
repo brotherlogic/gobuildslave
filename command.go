@@ -683,6 +683,16 @@ func main() {
 
 	s.loadCurrentVersions()
 
+	// Run a discover server to allow us to do a local register
+	ctx, cancel := utils.ManualContext("gbs", "gbs", time.Minute)
+	defer cancel()
+	s.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{
+		Name:             "discovery",
+		GoPath:           "github.com/brotherlogic/discovery",
+		PartialBootstrap: true,
+		Breakout:         true,
+	}})
+
 	err := s.Serve()
 	log.Fatalf("Unable to serve: %v", err)
 }
