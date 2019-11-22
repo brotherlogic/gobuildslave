@@ -92,7 +92,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			s.deliverCrashReport(ctx, job, output)
 			job.State = pb.State_DIED
 		}
-
+    
 		if s.discover != nil && s.Registry != nil {
 			err := s.discover.discover(job.Job.Name, s.Registry.Identifier)
 			if err != nil {
