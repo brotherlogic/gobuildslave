@@ -93,15 +93,17 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.State = pb.State_DIED
 		}
 
-		err := s.discover.discover(job.Job.Name, s.Registry.Identifier)
-		if err != nil {
-			if job.DiscoverCount > 30 {
-				output2, errout2 := s.scheduler.getErrOutput(job.CommandKey)
-				s.RaiseIssue(ctx, "Cannot Discover Running Server", fmt.Sprintf("%v on %v is not discoverable, despite running (%v) the output says %v (%v), %v, %v", job.Job.Name, s.Registry.Identifier, err, output, errout, output2, errout2), false)
+		if s.discover != nil {
+			err := s.discover.discover(job.Job.Name, s.Registry.Identifier)
+			if err != nil {
+				if job.DiscoverCount > 30 {
+					output2, errout2 := s.scheduler.getErrOutput(job.CommandKey)
+					s.RaiseIssue(ctx, "Cannot Discover Running Server", fmt.Sprintf("%v on %v is not discoverable, despite running (%v) the output says %v (%v), %v, %v", job.Job.Name, s.Registry.Identifier, err, output, errout, output2, errout2), false)
+				}
+				job.DiscoverCount++
+			} else {
+				job.DiscoverCount = 0
 			}
-			job.DiscoverCount++
-		} else {
-			job.DiscoverCount = 0
 		}
 
 		// Restart this job if we need to
