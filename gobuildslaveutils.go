@@ -37,7 +37,6 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		} else {
 			job.CommandKey = key
 			job.State = pb.State_BUILDING
-			job.Server = s.Registry.Identifier
 		}
 	case pb.State_BUILDING:
 		s.stateMutex.Lock()
