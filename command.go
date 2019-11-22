@@ -643,7 +643,7 @@ func (s *Server) stateChecker(ctx context.Context) error {
 func (s *Server) backgroundRegister() {
 	err := fmt.Errorf("Initial error")
 	for err != nil {
-		err = s.RegisterServer("gobuildslave", false)
+		err = s.RegisterServerV2("gobuildslave", false)
 		if err != nil {
 			fmt.Printf("REgister: %v", err)
 		}
