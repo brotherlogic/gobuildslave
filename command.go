@@ -640,6 +640,16 @@ func (s *Server) stateChecker(ctx context.Context) error {
 	return nil
 }
 
+func (s *Server) backgroundRegister() {
+	err := fmt.Errorf("Initial error")
+	for err != nil {
+		err = s.RegisterServer("gobuildslave", false)
+		time.Sleep(time.Minute)
+	}
+
+	s.version = &prodVersion{s.DialMaster, s.Registry.Identifier, s.Log}
+}
+
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	var build = flag.Bool("builds", true, "Responds to build requests")
@@ -658,19 +668,10 @@ func main() {
 	s.Register = s
 	s.PrepServer()
 	s.GoServer.Killme = false
-	err := s.RegisterServer("gobuildslave", false)
-	if err != nil {
-		log.Fatalf("Error registering: %v", err)
-	}
 
 	s.Registry.IgnoresMaster = true
 
-	err = s.unregisterChildren()
-	if err != nil {
-		log.Fatalf("Error unregistering: %v", err)
-	}
-
-	s.version = &prodVersion{s.DialMaster, s.Registry.Identifier, s.Log}
+	go s.backgroundRegister()
 
 	s.RegisterServingTask(s.checkOnUpdate, "check_on_update")
 	s.RegisterServingTask(s.checkOnSsh, "check_on_ssh")
@@ -682,6 +683,6 @@ func main() {
 
 	s.loadCurrentVersions()
 
-	err = s.Serve()
+	err := s.Serve()
 	log.Fatalf("Unable to serve: %v", err)
 }
