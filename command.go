@@ -672,8 +672,6 @@ func main() {
 	s.PrepServer()
 	s.GoServer.Killme = false
 
-	s.Registry.IgnoresMaster = true
-
 	go s.backgroundRegister()
 
 	s.RegisterServingTask(s.checkOnUpdate, "check_on_update")
@@ -696,6 +694,11 @@ func main() {
 		Breakout:         true,
 	}})
 
+	// Wait until we can register
+	for s.Registry == nil {
+		time.Sleep(time.Minute)
+	}
+	s.Registry.IgnoresMaster = true
 	err := s.Serve()
 	log.Fatalf("Unable to serve: %v", err)
 }
