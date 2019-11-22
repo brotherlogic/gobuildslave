@@ -56,6 +56,7 @@ func main() {
 	buildFlags := flag.NewFlagSet("BuildServer", flag.ExitOnError)
 	var name = buildFlags.String("name", "", "Name of the binary to build")
 	var server = buildFlags.String("server", "", "Name of the server to build on")
+	var hosta = buildFlags.String("hosta", "", "Name of the server to build on")
 
 	ctx, cancel := utils.BuildContext("gobuildslavecli-"+os.Args[1], "gobuildslave")
 	defer cancel()
@@ -121,9 +122,7 @@ func main() {
 			}
 		case "nlist":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
-				host, port := findServer(ctx, "gobuildslave", *server)
-
-				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
+				conn, _ := grpc.Dial(*hosta+":53604", grpc.WithInsecure())
 				defer conn.Close()
 
 				registry := pb.NewBuildSlaveClient(conn)
