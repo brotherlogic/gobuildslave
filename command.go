@@ -670,6 +670,7 @@ func main() {
 	s.runner.logger = s.Log
 	s.Register = s
 	s.PrepServer()
+	s.Killme = false
 
 	go s.backgroundRegister()
 
