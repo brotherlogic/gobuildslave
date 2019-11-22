@@ -692,6 +692,13 @@ func main() {
 		PartialBootstrap: true,
 		Breakout:         true,
 	}})
+	// Run a gobuildmaster to get jobs running
+	s.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{
+		Name:             "gobuildmaster",
+		GoPath:           "github.com/brotherlogic/gobuildmaster",
+		PartialBootstrap: true,
+		Breakout:         true,
+	}})
 
 	// Wait until we can register
 	for s.Registry == nil {
