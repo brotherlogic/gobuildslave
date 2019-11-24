@@ -38,6 +38,7 @@ func (s *Server) trackUpTime(ctx context.Context) error {
 func (s *Server) runOnChange(ctx context.Context) error {
 	if s.discoverSync.Before(s.discoverStartup) {
 		s.Log(fmt.Sprintf("Resyncing"))
+		s.Reregister(ctx, &pbgs.ReregisterRequest{})
 		for _, job := range s.njobs {
 			conn, err := s.DoDial(&dpb.RegistryEntry{Ip: s.Registry.Ip, Port: job.Port})
 			if err != nil {
