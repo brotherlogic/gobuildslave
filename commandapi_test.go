@@ -19,11 +19,11 @@ type testDiscover struct {
 	fail bool
 }
 
-func (p *testDiscover) discover(job string, server string) error {
+func (p *testDiscover) discover(job string, server string) (int32, error) {
 	if p.fail {
-		return fmt.Errorf("Built to faiul")
+		return -1, fmt.Errorf("Built to faiul")
 	}
-	return nil
+	return 25, nil
 }
 
 type testDisker struct {

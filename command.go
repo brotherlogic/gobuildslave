@@ -70,25 +70,25 @@ func (p *prodVersion) confirm(ctx context.Context, job string) bool {
 }
 
 type discover interface {
-	discover(job string, server string) error
+	discover(job string, server string) (int32, error)
 }
 
 type prodDiscover struct{}
 
-func (p *prodDiscover) discover(job string, server string) error {
+func (p *prodDiscover) discover(job string, server string) (int32, error) {
 	entries, err := utils.ResolveAll(job)
 
 	if err != nil {
-		return err
+		return -1, err
 	}
 
 	for _, entry := range entries {
 		if entry.Identifier == server {
-			return nil
+			return entry.Port, nil
 		}
 	}
 
-	return fmt.Errorf("Unable to find %v on %v", job, server)
+	return -1, fmt.Errorf("Unable to find %v on %v", job, server)
 }
 
 type prodBuilder struct {

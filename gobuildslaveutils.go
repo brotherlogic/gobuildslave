@@ -92,9 +92,9 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			s.deliverCrashReport(ctx, job, output)
 			job.State = pb.State_DIED
 		}
-    
+
 		if s.discover != nil && s.Registry != nil {
-			err := s.discover.discover(job.Job.Name, s.Registry.Identifier)
+			port, err := s.discover.discover(job.Job.Name, s.Registry.Identifier)
 			if err != nil {
 				if job.DiscoverCount > 30 {
 					output2, errout2 := s.scheduler.getErrOutput(job.CommandKey)
@@ -102,6 +102,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 				}
 				job.DiscoverCount++
 			} else {
+				job.Port = port
 				job.DiscoverCount = 0
 			}
 		}
