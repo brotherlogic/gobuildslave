@@ -25,7 +25,6 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		s.stateMutex.Unlock()
 		if !job.Job.Bootstrap {
 			if key != "" {
-				job.Server = s.Registry.Identifier
 				job.State = pb.State_BUILT
 				job.RunningVersion = key
 			} else {
