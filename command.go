@@ -647,7 +647,7 @@ func (s *Server) stateChecker(ctx context.Context) error {
 func (s *Server) backgroundRegister() {
 	err := fmt.Errorf("Initial error")
 	for err != nil {
-		err = s.RegisterServerV2("gobuildslave", false)
+		err = s.RegisterServerV2("gobuildslave", false, true)
 		if err != nil {
 			fmt.Printf("REgister: %v", err)
 		}
@@ -709,7 +709,6 @@ func main() {
 	for s.Registry == nil {
 		time.Sleep(time.Minute)
 	}
-	s.Registry.IgnoresMaster = true
 	err := s.Serve()
 	log.Fatalf("Unable to serve: %v", err)
 }

@@ -122,13 +122,16 @@ func main() {
 			}
 		case "nlist":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
-				conn, _ := grpc.Dial(*hosta+":53604", grpc.WithInsecure())
+				conn, err := grpc.Dial(*hosta+":53604", grpc.WithInsecure())
+				if err != nil {
+					log.Fatalf("Error dialling: %v", err)
+				}
 				defer conn.Close()
 
 				registry := pb.NewBuildSlaveClient(conn)
 				res, err := registry.ListJobs(ctx, &pb.ListRequest{})
 				if err != nil {
-					log.Fatalf("Error listing job: %v", err)
+					log.Fatalf("Error listing job with: %v", err)
 				}
 				for _, r := range res.Jobs {
 					fmt.Printf("%v -> %v [%v - %v] given %v\n", r.Job.Name, r.State, r.RunningVersion, r.BuildFail, r)
