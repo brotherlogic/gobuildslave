@@ -712,6 +712,6 @@ func main() {
 	for s.Registry == nil {
 		time.Sleep(time.Minute)
 	}
-	err := s.Serve()
+	err = s.Serve()
 	log.Fatalf("Unable to serve: %v", err)
 }
