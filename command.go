@@ -698,12 +698,15 @@ func main() {
 		Breakout:         true,
 	}})
 	// Run a gobuildmaster to get jobs running
-	s.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{
+	_, err := s.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{
 		Name:             "gobuildmaster",
 		GoPath:           "github.com/brotherlogic/gobuildmaster",
 		PartialBootstrap: true,
 		Breakout:         true,
 	}})
+	if err != nil {
+		log.Fatalf("Error in setup: %v", err)
+	}
 
 	// Wait until we can register
 	for s.Registry == nil {
