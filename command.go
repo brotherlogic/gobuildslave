@@ -691,14 +691,17 @@ func main() {
 	// Run a discover server to allow us to do a local register
 	ctx, cancel := utils.ManualContext("gbs", "gbs", time.Minute)
 	defer cancel()
-	s.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{
+	_, err := s.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{
 		Name:             "discovery",
 		GoPath:           "github.com/brotherlogic/discovery",
 		PartialBootstrap: true,
 		Breakout:         true,
 	}})
+	if err != nil {
+		log.Fatalf("Error in setup:%v", err)
+	}
 	// Run a gobuildmaster to get jobs running
-	_, err := s.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{
+	_, err = s.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{
 		Name:             "gobuildmaster",
 		GoPath:           "github.com/brotherlogic/gobuildmaster",
 		PartialBootstrap: true,
