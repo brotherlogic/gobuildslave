@@ -77,7 +77,7 @@ type prodDiscover struct{}
 
 func (p *prodDiscover) discover(job string, server string) (int32, error) {
 	// Short circuit discover since it doesn't self report.
-	if job == "discover" {
+	if job == "discovery" {
 		return 50055, nil
 	}
 	entries, err := utils.ResolveAll(job)
