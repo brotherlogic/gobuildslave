@@ -701,7 +701,7 @@ func main() {
 		log.Fatalf("Error in setup:%v", err)
 	}
 	// Run a gobuildmaster to get jobs running
-	_, err := s.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{
+	_, err = s.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{
 		Name:             "gobuildmaster",
 		GoPath:           "github.com/brotherlogic/gobuildmaster",
 		PartialBootstrap: true,
