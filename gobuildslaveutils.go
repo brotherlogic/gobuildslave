@@ -173,7 +173,6 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) strin
 
 	val, err := s.builder.build(ctx, job.Job)
 	if err != nil {
-		s.Log(fmt.Sprintf("Error on build: %v", err))
 		return ""
 	}
 	return val.Version
