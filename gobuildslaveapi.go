@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
 )
@@ -15,7 +17,7 @@ import (
 // RunJob - runs the job
 func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunResponse, error) {
 	if !s.doesBuild && !req.Job.Breakout {
-		return &pb.RunResponse{}, fmt.Errorf("Refusing to build")
+		return &pb.RunResponse{}, status.Errorf(codes.FailedPrecondition, "Refusing to build")
 	}
 	s.nMut.Lock()
 	defer s.nMut.Unlock()
