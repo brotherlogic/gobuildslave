@@ -43,16 +43,18 @@ func (s *Server) runOnChange(ctx context.Context) error {
 			return err
 		}
 		for _, job := range s.njobs {
-			conn, err := s.DoDial(&dpb.RegistryEntry{Ip: s.Registry.Ip, Port: job.Port})
-			if err != nil {
-				s.Log(fmt.Sprintf("Cannot dial %v,%v -> %v", s.Registry.Ip, job.Port, err))
-				break
-			}
-			defer conn.Close()
-			client := pbgs.NewGoserverServiceClient(conn)
-			_, err = client.Reregister(ctx, &pbgs.ReregisterRequest{})
-			if err != nil {
-				s.Log(fmt.Sprintf("Reregister failed: %v", err))
+			if job.Port > 0 {
+				conn, err := s.DoDial(&dpb.RegistryEntry{Ip: s.Registry.Ip, Port: job.Port})
+				if err != nil {
+					s.Log(fmt.Sprintf("Cannot dial %v,%v -> %v", s.Registry.Ip, job.Port, err))
+					break
+				}
+				defer conn.Close()
+				client := pbgs.NewGoserverServiceClient(conn)
+				_, err = client.Reregister(ctx, &pbgs.ReregisterRequest{})
+				if err != nil {
+					s.Log(fmt.Sprintf("Reregister failed: %v", err))
+				}
 			}
 		}
 		s.discoverSync = time.Now()
