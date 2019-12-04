@@ -22,7 +22,7 @@ func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunRespons
 	s.nMut.Lock()
 	defer s.nMut.Unlock()
 	if _, ok := s.njobs[req.GetJob().GetName()]; ok {
-		return &pb.RunResponse{}, nil
+		return &pb.RunResponse{}, fmt.Errorf("Already running this job!")
 	}
 
 	s.njobs[req.GetJob().GetName()] = &pb.JobAssignment{Job: req.GetJob(), State: pb.State_ACKNOWLEDGED, LastTransitionTime: time.Now().Unix()}
