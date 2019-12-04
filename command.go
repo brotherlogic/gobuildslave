@@ -649,7 +649,7 @@ func (s *Server) backgroundRegister() {
 	for err != nil {
 		err = s.RegisterServerV2("gobuildslave", false, true)
 		if err != nil {
-			fmt.Printf("REgister: %v", err)
+			fmt.Printf("Register: %v\n", err)
 		}
 		time.Sleep(time.Minute)
 	}
