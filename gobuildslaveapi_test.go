@@ -69,7 +69,7 @@ func TestDoubleRunJob(t *testing.T) {
 	_, err := s.RunJob(context.Background(), &pb.RunRequest{Job: &pb.Job{Name: "test1"}})
 	_, err = s.RunJob(context.Background(), &pb.RunRequest{Job: &pb.Job{Name: "test1"}})
 
-	if err != nil {
+	if err == nil {
 		t.Errorf("Error running job: %v", err)
 	}
 }
