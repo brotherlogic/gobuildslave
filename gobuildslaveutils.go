@@ -16,6 +16,7 @@ const (
 )
 
 func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
+	fmt.Sprintf("Trans %v -> %v\n", job.Job.Name, job.State)
 	startState := job.State
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
