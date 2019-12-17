@@ -227,7 +227,7 @@ func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, ou
 	s.crashAttempts++
 
 	if j.Job.Name == "buildserver" {
-		s.RaiseIssue(ctx, "Buildserver failing", fmt.Sprintf("%v", output), false)
+		s.RaiseIssue(ctx, "Buildserver failing", fmt.Sprintf("on %v -> %v", s.Registry, output), false)
 	}
 
 	if len(output) > 0 && !s.SkipLog {
