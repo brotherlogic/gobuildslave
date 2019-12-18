@@ -226,7 +226,7 @@ func InitServer(build bool) *Server {
 func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, output string) {
 	s.crashAttempts++
 
-	if j.Job.Name == "buildserver" {
+	if j.Job.Name == "buildserver" && len(output) > 0 {
 		s.RaiseIssue(ctx, "Buildserver failing", fmt.Sprintf("on %v -> %v", s.Registry, output), false)
 	}
 
