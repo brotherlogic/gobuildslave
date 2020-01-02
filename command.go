@@ -656,6 +656,7 @@ func (s *Server) backgroundRegister() {
 
 			conn, err := s.DialLocal("discover")
 			if err == nil {
+				defer conn.Close()
 				client := pbd.NewDiscoveryServiceV2Client(conn)
 				_, err = client.Unregister(ctx, &pbd.UnregisterRequest{Service: &pbd.RegistryEntry{Identifier: s.Registry.Identifier}})
 				if err == nil {
