@@ -57,6 +57,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 				job.BuildFail = 0
 			}
 			job.BuildFail++
+			fmt.Sprintf("BUILD FAIL: %v", output)
 			job.State = pb.State_DIED
 		} else {
 			job.BuildFail = 0
