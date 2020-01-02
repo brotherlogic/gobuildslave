@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os/exec"
 	"time"
 
@@ -16,6 +17,7 @@ const (
 )
 
 func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
+	log.Printf("TRANSITION %v", job)
 	startState := job.State
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
