@@ -650,6 +650,19 @@ func (s *Server) backgroundRegister() {
 		err = s.RegisterServerV2("gobuildslave", false, true)
 		if err != nil {
 			fmt.Printf("Register: %v\n", err)
+		} else {
+			ctx, cancel := utils.ManualContext("gbs-rereg", "gbs-rereg", time.Minute)
+			defer cancel()
+
+			conn, err := s.DialLocal("discover")
+			if err == nil {
+				defer conn.Close()
+				client := pbd.NewDiscoveryServiceV2Client(conn)
+				_, err = client.Unregister(ctx, &pbd.UnregisterRequest{Service: &pbd.RegistryEntry{Identifier: s.Registry.Identifier}})
+				if err == nil {
+					err = s.RegisterServerV2("gobuildslave", false, true)
+				}
+			}
 		}
 		time.Sleep(time.Minute)
 	}
