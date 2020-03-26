@@ -682,6 +682,11 @@ func (s *Server) updateAccess(ctx context.Context) error {
 		s.lastAccess = time.Now()
 	}
 
+	if time.Now().Sub(s.lastAccess) > time.Minute*5 {
+		cmd := exec.Command("sudo", "reboot")
+		cmd.Run()
+	}
+
 	return nil
 }
 
