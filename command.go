@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
@@ -179,6 +180,7 @@ type Server struct {
 	accessPoint     string
 	discoverStartup time.Time
 	discoverSync    time.Time
+	lastAccess      time.Time
 }
 
 // InitServer builds out a server
@@ -217,6 +219,7 @@ func InitServer(build bool) *Server {
 		&prodVersion{},
 		0,
 		"",
+		time.Now(),
 		time.Now(),
 		time.Now(),
 	}
@@ -368,6 +371,7 @@ func (s *Server) GetState() []*pbs.State {
 	s.versionsMutex.Lock()
 	defer s.versionsMutex.Unlock()
 	return []*pbs.State{
+		&pbs.State{Key: "last_access", TimeValue: s.lastAccess.Unix()},
 		&pbs.State{Key: "discover_start", TimeValue: s.discoverStartup.Unix()},
 		&pbs.State{Key: "discover_sync", TimeValue: s.discoverSync.Unix()},
 		&pbs.State{Key: "state_map", Text: fmt.Sprintf("%v", s.stateMap)},
@@ -670,6 +674,17 @@ func (s *Server) backgroundRegister() {
 	s.version = &prodVersion{s.DialMaster, s.Registry.Identifier, s.Log}
 }
 
+func (s *Server) updateAccess(ctx context.Context) error {
+	url := "http://tour.golang.org/welcome/1"
+	_, err := http.Get(url)
+
+	if err == nil {
+		s.lastAccess = time.Now()
+	}
+
+	return nil
+}
+
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	var build = flag.Bool("builds", true, "Responds to build requests")
@@ -696,6 +711,7 @@ func main() {
 	s.RegisterServingTask(s.cleanCommands, "clean_commands")
 	s.RegisterRepeatingTaskNonMaster(s.trackUpTime, "track_up_time", time.Minute)
 	s.RegisterRepeatingTaskNonMaster(s.runOnChange, "run_on_change", time.Minute)
+	s.RegisterRepeatingTaskNonMaster(s.updateAccess, "update_access", time.Minute)
 	s.RegisterRepeatingTask(s.stateChecker, "state_checker", time.Minute*5)
 	s.RegisterRepeatingTask(s.badHeartChecker, "bad_heart_checker", time.Minute*5)
 
