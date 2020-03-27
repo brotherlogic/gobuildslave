@@ -690,6 +690,21 @@ func (s *Server) updateAccess(ctx context.Context) error {
 	return nil
 }
 
+func (s *Server) lookForDiscover(ctx context.Context) error {
+	for _, job := range s.jobs {
+		if job.GetSpec().GetName() == "discovery" {
+			if job.GetState() == pb.State_RUNNING {
+				return nil
+			}
+
+			s.RaiseIssue(ctx, "Discover is in a bad state", fmt.Sprintf("%v is the current state at %v", job, time.Now()), false)
+		}
+	}
+
+	s.RaiseIssue(ctx, "Missing discover", fmt.Sprintf("Discover is missing"), false)
+	return nil
+}
+
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	var build = flag.Bool("builds", true, "Responds to build requests")
@@ -717,6 +732,7 @@ func main() {
 	s.RegisterRepeatingTaskNonMaster(s.trackUpTime, "track_up_time", time.Minute)
 	s.RegisterRepeatingTaskNonMaster(s.runOnChange, "run_on_change", time.Minute)
 	s.RegisterRepeatingTaskNonMaster(s.updateAccess, "update_access", time.Minute)
+	s.RegisterRepeatingTaskNonMaster(s.lookForDiscover, "look_for_discover", time.Minute*5)
 	s.RegisterRepeatingTask(s.stateChecker, "state_checker", time.Minute*5)
 	s.RegisterRepeatingTask(s.badHeartChecker, "bad_heart_checker", time.Minute*5)
 
