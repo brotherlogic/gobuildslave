@@ -553,15 +553,11 @@ func (s *Server) checkOnSsh(ctx context.Context) error {
 	for true {
 		_, err := os.Stat(f)
 		if err != nil {
-			ip, port, _ := utils.Resolve("githubcard", "gobuildslave-checkonssh")
-			if port > 0 {
-				conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
-				if err == nil {
-					defer conn.Close()
-					client := pbgh.NewGithubClient(conn)
-					client.AddIssue(ctx, &pbgh.Issue{Service: "gobuildslave", Title: "SSH Needed", Body: s.Registry.Identifier}, grpc.FailFast(false))
-				}
-
+			conn, err := s.NewBaseDial("githubcard")
+			if err == nil {
+				defer conn.Close()
+				client := pbgh.NewGithubClient(conn)
+				client.AddIssue(ctx, &pbgh.Issue{Service: "gobuildslave", Title: "SSH Needed", Body: s.Registry.Identifier}, grpc.FailFast(false))
 			}
 		}
 		time.Sleep(time.Hour)
@@ -577,14 +573,12 @@ func (s *Server) checkOnUpdate(ctx context.Context) error {
 		info, err := os.Stat(f)
 		if err == nil {
 			if info.ModTime().Before(time.Now().AddDate(0, -1, 0)) {
-				ip, port, _ := utils.Resolve("githubcard", "gobuildslave-checkonupdate")
-				if port > 0 {
-					conn, err := grpc.Dial(ip+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
-					if err == nil {
-						defer conn.Close()
-						client := pbgh.NewGithubClient(conn)
-						client.AddIssue(ctx, &pbgh.Issue{Service: "gobuildslave", Title: "UDPATE NEEDED", Body: fmt.Sprintf("%v -> %v", s.Registry.Identifier, s.Registry.Ip)}, grpc.FailFast(false))
-					}
+				conn, err := s.NewBaseDial("githubcard")
+				if err == nil {
+					defer conn.Close()
+					client := pbgh.NewGithubClient(conn)
+					client.AddIssue(ctx, &pbgh.Issue{Service: "gobuildslave", Title: "UDPATE NEEDED", Body: fmt.Sprintf("%v -> %v", s.Registry.Identifier, s.Registry.Ip)}, grpc.FailFast(false))
+
 				}
 
 			}
