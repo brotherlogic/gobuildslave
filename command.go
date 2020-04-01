@@ -695,7 +695,7 @@ func (s *Server) lookForDiscover(ctx context.Context) error {
 		}
 	}
 
-	s.RaiseIssue(ctx, "Missing discover", fmt.Sprintf("Discover is missing"), false)
+	s.RaiseIssue(ctx, "Missing discover", fmt.Sprintf("Discover is missing on %v", s.Registry), false)
 	return nil
 }
 
