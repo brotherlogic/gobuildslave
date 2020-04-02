@@ -685,8 +685,8 @@ func (s *Server) updateAccess(ctx context.Context) error {
 }
 
 func (s *Server) lookForDiscover(ctx context.Context) error {
-	for _, job := range s.jobs {
-		if job.GetSpec().GetName() == "discovery" {
+	for _, job := range s.njobs {
+		if job.GetJob().GetName() == "discovery" {
 			if job.GetState() == pb.State_RUNNING {
 				return nil
 			}
@@ -696,7 +696,7 @@ func (s *Server) lookForDiscover(ctx context.Context) error {
 		}
 	}
 
-	s.RaiseIssue(ctx, "Missing discover", fmt.Sprintf("Discover is missing on %v (%v)", s.Registry, s.jobs), false)
+	s.RaiseIssue(ctx, "Missing discover", fmt.Sprintf("Discover is missing on %v (%v)", s.Registry, s.njobs), false)
 	return nil
 }
 
