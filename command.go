@@ -670,10 +670,11 @@ func (s *Server) backgroundRegister() {
 
 func (s *Server) updateAccess(ctx context.Context) error {
 	url := "http://tour.golang.org/welcome/1"
-	_, err := http.Get(url)
+	r, err := http.Get(url)
 
 	if err == nil {
 		s.lastAccess = time.Now()
+		r.Body.Close()
 	}
 
 	if time.Now().Sub(s.lastAccess) > time.Minute*5 {
