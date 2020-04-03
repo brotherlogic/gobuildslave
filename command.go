@@ -692,7 +692,7 @@ func (s *Server) lookForDiscover(ctx context.Context) error {
 				return nil
 			}
 
-			s.RaiseIssue(ctx, "Discover is in a bad state", fmt.Sprintf("%v is the current state at %v", job, time.Now()), false)
+			s.RaiseIssue(ctx, "Discover is in a bad state", fmt.Sprintf("[%v] %v is the current state at %v", s.Registry, job, time.Now()), false)
 			return nil
 		}
 	}
