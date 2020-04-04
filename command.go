@@ -691,8 +691,9 @@ func (s *Server) lookForDiscover(ctx context.Context) error {
 			if job.GetState() == pb.State_RUNNING {
 				return nil
 			}
-
-			s.RaiseIssue(ctx, "Discover is in a bad state", fmt.Sprintf("[%v] %v is the current state at %v (trans at %v)", s.Registry, job, time.Now(), time.Unix(job.GetLastTransitionTime(), 0)), false)
+			if time.Now().Sub(time.Unix(job.GetLastTransitionTime(), 0)) > time.Minute*10 {
+				s.RaiseIssue(ctx, "Discover is in a bad state", fmt.Sprintf("[%v] %v is the current state at %v (trans at %v)", s.Registry, job, time.Now(), time.Unix(job.GetLastTransitionTime(), 0)), false)
+			}
 			return nil
 		}
 	}
