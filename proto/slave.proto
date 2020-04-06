@@ -62,6 +62,7 @@ message JobAssignment {
   int32 queue_pos = 13;
   int64 last_version_pull = 14;
   int64 last_update_time = 15;
+  string sub_state = 16;
 }
 
 message SlaveConfig {
