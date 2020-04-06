@@ -17,6 +17,7 @@ const (
 
 func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	startState := job.State
+	job.LastUpdateTime = time.Now().Unix()
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
 		key := s.scheduleBuild(ctx, job)
