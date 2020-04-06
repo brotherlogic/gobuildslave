@@ -46,20 +46,23 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.State = pb.State_BUILT
 		}
 	case pb.State_BUILT:
+		job.SubState = "Getting Output"
 		output, _ := s.scheduler.getOutput(job.CommandKey)
+		job.SubState = "Entering Lock"
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("BUILT(%v): (%v): %v", job.CommandKey, len(output), output)
 		s.stateMutex.Unlock()
 		if job.Job.Bootstrap && len(output) > 0 {
 			if job.BuildFail == 5 {
+				job.SubState = "Sending Report"
 				s.deliverCrashReport(ctx, job, output)
 				job.BuildFail = 0
 			}
 			job.BuildFail++
-			fmt.Sprintf("BUILD FAIL: %v", output)
 			job.State = pb.State_DIED
 		} else {
 			job.BuildFail = 0
+			job.SubState = "Scheduling Run"
 			key := s.scheduleRun(job.Job)
 			job.CommandKey = key
 			job.StartTime = time.Now().Unix()
@@ -69,6 +72,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			}
 			s.pendingMap[time.Now().Weekday()][job.Job.Name]++
 		}
+		job.SubState = "Out of case"
 	case pb.State_PENDING:
 		if job.Job.PartialBootstrap && job.Job.Bootstrap {
 			job.Job.Bootstrap = false
