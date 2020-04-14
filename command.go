@@ -235,7 +235,7 @@ func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, ou
 
 	if len(output) > 0 && !s.SkipLog {
 		conn, err := s.DialMaster("buildserver")
-		if err == nil {
+		if err == nil && s.Registry != nil {
 			defer conn.Close()
 			client := pbb.NewBuildServiceClient(conn)
 			_, err := client.ReportCrash(ctx, &pbb.CrashRequest{Origin: s.Registry.Identifier, Version: j.RunningVersion, Job: j.Job, Crash: &pbb.Crash{ErrorMessage: output}})
