@@ -238,7 +238,7 @@ func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, ou
 		if err == nil {
 			defer conn.Close()
 			client := pbb.NewBuildServiceClient(conn)
-			_, err := client.ReportCrash(ctx, &pbb.CrashRequest{Version: j.RunningVersion, Job: j.Job, Crash: &pbb.Crash{ErrorMessage: output}})
+			_, err := client.ReportCrash(ctx, &pbb.CrashRequest{Origin: s.Registry.Identifier, Version: j.RunningVersion, Job: j.Job, Crash: &pbb.Crash{ErrorMessage: output}})
 
 			if err != nil {
 				s.crashFails++
