@@ -164,7 +164,7 @@ func main() {
 				}
 				fmt.Printf("%v\n", res)
 			}
-		case "config":
+		case "nlistall":
 			servers := findServers(ctx)
 
 			if len(servers) == 0 {
@@ -176,11 +176,14 @@ func main() {
 				defer conn.Close()
 
 				registry := pb.NewBuildSlaveClient(conn)
-				res, err := registry.SlaveConfig(ctx, &pb.ConfigRequest{})
+				res, err := registry.ListJobs(ctx, &pb.ListRequest{})
 				if err != nil {
-					log.Fatalf("Error listing job: %v", err)
+					fmt.Printf("Error discovering job with: %v\n", err)
+				} else {
+					for _, r := range res.Jobs {
+						fmt.Printf("%v:%v -> %v [%v] (%v)\n", r.Job.Name, s.GetIdentifier(), r.State, r.GetSubState(), time.Unix(r.GetLastUpdateTime(), 0))
+					}
 				}
-				fmt.Printf("%v. %v\n", s.Identifier, res)
 			}
 		}
 
