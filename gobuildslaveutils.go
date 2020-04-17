@@ -63,7 +63,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		} else {
 			job.BuildFail = 0
 			job.SubState = "Scheduling Run"
-			key := s.scheduleRun(job.Job)
+			key := s.scheduleRun(job)
 			job.CommandKey = key
 			job.StartTime = time.Now().Unix()
 			job.State = pb.State_PENDING
@@ -184,15 +184,16 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) strin
 	return val.Version
 }
 
-func (s *Server) scheduleRun(job *pb.Job) string {
+func (s *Server) scheduleRun(job *pb.JobAssignment) string {
 	//Copy over any existing new versions
-	key := s.scheduler.Schedule(&rCommand{command: exec.Command("mv", "$GOPATH/bin/"+job.GetName()+".new", "$GOPATH/bin/"+job.GetName()), base: job.Name})
+	key := s.scheduler.Schedule(&rCommand{command: exec.Command("mv", "$GOPATH/bin/"+job.GetJob().GetName()+".new", "$GOPATH/bin/"+job.GetJob().GetName()), base: job.GetJob().GetName()})
+	job.SubState = "WAITING FOR COPY"
 	for !s.taskComplete(key) {
 		time.Sleep(time.Second)
 	}
 
-	c := s.translator.run(job)
-	return s.scheduler.Schedule(&rCommand{command: c, base: job.Name})
+	c := s.translator.run(job.GetJob())
+	return s.scheduler.Schedule(&rCommand{command: c, base: job.GetJob().GetName()})
 }
 
 func (s *Server) taskComplete(key string) bool {
