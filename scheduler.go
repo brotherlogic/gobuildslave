@@ -30,6 +30,7 @@ type Scheduler struct {
 	rMutex   *sync.Mutex
 	rMap     map[string]*rCommand
 	Log      func(string)
+	lastRun  string
 }
 
 func (s *Scheduler) clean() {
@@ -137,6 +138,7 @@ func (s *Scheduler) processCommands() {
 	if len(s.commands) > 0 {
 		c := s.commands[0]
 		s.commands = s.commands[1:]
+		s.lastRun = c.command.Path + " -> " + fmt.Sprintf("%v", c.command.Args)
 		err := run(c)
 		if err != nil {
 			c.endTime = time.Now().Unix()
