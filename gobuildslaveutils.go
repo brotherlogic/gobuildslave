@@ -188,7 +188,7 @@ func (s *Server) scheduleRun(job *pb.JobAssignment) string {
 	//Copy over any existing new versions
 	key := s.scheduler.Schedule(&rCommand{command: exec.Command("mv", "$GOPATH/bin/"+job.GetJob().GetName()+".new", "$GOPATH/bin/"+job.GetJob().GetName()), base: job.GetJob().GetName()})
 	for !s.taskComplete(key) {
-		job.SubState = "WAITING FOR COPY - " + key + " (" + s.scheduler.lastRun + ")"
+		job.SubState = "WAITING FOR COPY - " + key + " (" + s.scheduler.lastRun + ") - " + fmt.Sprintf("%v", time.Now())
 		time.Sleep(time.Second)
 	}
 
