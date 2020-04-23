@@ -72,6 +72,7 @@ func (s *Scheduler) Schedule(c *rCommand) string {
 	s.rMap[key] = c
 	s.rMutex.Unlock()
 	s.processCommands()
+	c.status = "InQueue"
 	return key
 }
 
@@ -148,6 +149,7 @@ func (s *Scheduler) processCommands() {
 }
 
 func run(c *rCommand) error {
+	c.status = "Running"
 	env := os.Environ()
 	home := ""
 	for _, s := range env {
@@ -206,6 +208,7 @@ func run(c *rCommand) error {
 		outr.Close()
 	}()
 
+	c.status = "StartCommand"
 	err := c.command.Start()
 	if err != nil {
 		return err
