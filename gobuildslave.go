@@ -1,14 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"time"
 
-	"golang.org/x/net/context"
+	"github.com/brotherlogic/goserver/utils"
 
 	dpb "github.com/brotherlogic/discovery/proto"
 	pbgs "github.com/brotherlogic/goserver/proto"
-	"github.com/brotherlogic/goserver/utils"
 )
 
 func (s *Server) trackUpTime(ctx context.Context) error {

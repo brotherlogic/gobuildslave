@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"crypto/md5"
 	"flag"
 	"fmt"
@@ -17,20 +18,20 @@ import (
 	"sync"
 	"time"
 
+	"github.com/brotherlogic/goserver"
+	"github.com/brotherlogic/goserver/utils"
+	"github.com/golang/protobuf/proto"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	pbb "github.com/brotherlogic/buildserver/proto"
 	pbd "github.com/brotherlogic/discovery/proto"
 	pbfc "github.com/brotherlogic/filecopier/proto"
 	pbgh "github.com/brotherlogic/githubcard/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
-	"github.com/brotherlogic/goserver"
 	pbs "github.com/brotherlogic/goserver/proto"
-	"github.com/brotherlogic/goserver/utils"
 	pbv "github.com/brotherlogic/versionserver/proto"
-	"github.com/golang/protobuf/proto"
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type version interface {
