@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package gobuildslave;
 
+option go_package = ".;gobuildslave";
+
 message Empty {}
 
 enum RequirementCategory {
