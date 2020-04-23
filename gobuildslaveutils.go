@@ -190,7 +190,7 @@ func (s *Server) scheduleRun(job *pb.JobAssignment) string {
 	for !s.taskComplete(key) {
 		str, err := s.scheduler.getOutput(key)
 		str2, err2 := s.scheduler.getErrOutput(key)
-		job.SubState = "WAITING FOR COPY - " + key + " (" + s.scheduler.lastRun + ") - " + fmt.Sprintf("%v - (%v,%v) (%v,%v) with %v outstanding", time.Now(), str, err, str2, err2, len(s.scheduler.commands))
+		job.SubState = "WAITING FOR COPY - " + key + " (" + s.scheduler.lastRun + ") - " + fmt.Sprintf("%v - (%v,%v) (%v,%v) with %v outstanding and %v", time.Now(), str, err, str2, err2, len(s.scheduler.commands), s.scheduler.getStatus(key))
 		time.Sleep(time.Second)
 	}
 
