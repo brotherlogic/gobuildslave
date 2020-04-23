@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os/exec"
 	"sync"
 	"syscall"
@@ -9,7 +10,6 @@ import (
 	pbb "github.com/brotherlogic/buildserver/proto"
 	pbfc "github.com/brotherlogic/filecopier/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
-	"golang.org/x/net/context"
 )
 
 //Builder builds out binaries

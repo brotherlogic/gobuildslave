@@ -1,12 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"runtime"
 	"strconv"
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
-	"golang.org/x/net/context"
 )
 
 // BuildJob builds out a job
