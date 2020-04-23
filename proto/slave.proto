@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package gobuildslave;
 
-option go_package = ".;gobuildslave";
+option go_package = "github.com/brotherlogic/gobuildslave/proto";
 
 message Empty {}
 
