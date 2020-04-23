@@ -68,6 +68,7 @@ func (s *Scheduler) markComplete(key string) {
 func (s *Scheduler) Schedule(c *rCommand) string {
 	key := fmt.Sprintf("%v-%v", time.Now().Nanosecond(), c.command.Path)
 	s.commands = append(s.commands, c)
+	c.status = "InQueue"
 	s.rMutex.Lock()
 	s.rMap[key] = c
 	s.rMutex.Unlock()
