@@ -680,7 +680,7 @@ func (s *Server) backgroundRegister() {
 }
 
 func (s *Server) updateAccess(ctx context.Context) error {
-	url := "http://tour.golang.org/welcome/1"
+	url := "http://www.google.com/"
 	r, err := http.Get(url)
 
 	if err == nil {
