@@ -21,6 +21,8 @@ import (
 	"github.com/brotherlogic/goserver"
 	"github.com/brotherlogic/goserver/utils"
 	"github.com/golang/protobuf/proto"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -32,6 +34,13 @@ import (
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	pbs "github.com/brotherlogic/goserver/proto"
 	pbv "github.com/brotherlogic/versionserver/proto"
+)
+
+var (
+	fails = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "gobuildslave_pingfails",
+		Help: "The size of the print queue",
+	})
 )
 
 type version interface {
@@ -677,6 +686,9 @@ func (s *Server) updateAccess(ctx context.Context) error {
 	if err == nil {
 		s.lastAccess = time.Now()
 		r.Body.Close()
+	} else {
+		s.Log(fmt.Sprintf("Ping fail %v", err))
+		fails.Inc()
 	}
 
 	if time.Now().Sub(s.lastAccess) > time.Minute*5 && time.Now().Hour() < 22 && time.Now().Hour() > 7 {
