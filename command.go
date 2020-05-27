@@ -692,6 +692,7 @@ func (s *Server) updateAccess(ctx context.Context) error {
 	}
 
 	if time.Now().Sub(s.lastAccess) > time.Minute*5 && time.Now().Hour() < 22 && time.Now().Hour() > 7 {
+		fmt.Printf("REBOOTING -> %v, %v\n", err, s.lastAccess)
 		cmd := exec.Command("sudo", "reboot")
 		cmd.Run()
 	}
