@@ -21,6 +21,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
 		key := s.scheduleBuild(ctx, job)
+		job.SubState = fmt.Sprintf("BUILD RESULT: %v", key)
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("SCHED: %v @ %v", key, time.Now())
 		s.stateMutex.Unlock()
@@ -179,7 +180,7 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) strin
 
 	val, err := s.builder.build(ctx, job.Job)
 	if err != nil {
-		return ""
+		return fmt.Sprintf("%v", err)
 	}
 	return val.Version
 }
