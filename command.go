@@ -657,9 +657,7 @@ func (s *Server) backgroundRegister() {
 	err := fmt.Errorf("Initial error")
 	for err != nil {
 		err = s.RegisterServerV2("gobuildslave", false, true)
-		if err != nil {
-			fmt.Printf("Register: %v\n", err)
-		} else {
+		if err == nil {
 			ctx, cancel := utils.ManualContext("gbs-rereg", "gbs-rereg", time.Minute)
 			defer cancel()
 
