@@ -48,6 +48,7 @@ func getTestServer() *Server {
 	s.Register = s
 	s.Registry = &pbd.RegistryEntry{Identifier: "MadeUp"}
 	s.SkipLog = true
+	s.SkipIssue = true
 	s.disk = prodDiskChecker{}
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".testfolder")
 	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand), Log: testLog}
