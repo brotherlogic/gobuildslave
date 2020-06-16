@@ -658,7 +658,7 @@ func (s *Server) backgroundRegister() {
 	for err != nil {
 		err = s.RegisterServerV2("gobuildslave", false, true)
 		if err == nil {
-			ctx, cancel := utils.ManualContext("gbs-rereg", "gbs-rereg", time.Minute)
+			ctx, cancel := utils.ManualContext("gbs-rereg", "gbs-rereg", time.Minute, true)
 			defer cancel()
 
 			conn, err := s.DialLocal("discover")
@@ -749,7 +749,7 @@ func main() {
 	s.loadCurrentVersions()
 
 	// Run a discover server to allow us to do a local register
-	ctx, cancel := utils.ManualContext("gbs", "gbs", time.Minute)
+	ctx, cancel := utils.ManualContext("gbs", "gbs", time.Minute, true)
 	defer cancel()
 	_, err := s.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{
 		Name:             "discovery",
