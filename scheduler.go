@@ -224,9 +224,7 @@ func run(c *rCommand) error {
 			c.err = err
 		}
 		c.endTime = time.Now().Unix()
-		if len(c.mainOut) > 0 || len(c.output) > 0 {
-			fmt.Printf("RESULT %v and %v", c.mainOut, c.output)
-		}
+		fmt.Printf("RESULT %v and %v", c.mainOut, c.output)
 	}()
 
 	return nil
