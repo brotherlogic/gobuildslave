@@ -127,12 +127,6 @@ func (s *Scheduler) schedulerComplete(key string) bool {
 	s.rMutex.Lock()
 	defer s.rMutex.Unlock()
 	if val, ok := s.rMap[key]; ok {
-		//Validate that this in the process queue
-		if val.status == "InQueue" && len(s.commands) == 0 {
-			s.commands = append(s.commands, val)
-			s.processCommands()
-		}
-
 		return val.endTime > 0
 	}
 

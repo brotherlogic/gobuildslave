@@ -240,7 +240,7 @@ func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, ou
 	s.crashAttempts++
 
 	if j.Job.Name == "buildserver" && len(output) > 0 {
-		s.RaiseIssue(ctx, "Buildserver failing", fmt.Sprintf("on %v -> %v", s.Registry, output), false)
+		s.RaiseIssue("Buildserver failing", fmt.Sprintf("on %v -> %v", s.Registry, output))
 	}
 
 	if len(output) > 0 && !s.SkipLog {
@@ -564,7 +564,7 @@ func (s *Server) checkOnSsh(ctx context.Context) error {
 	for true {
 		_, err := os.Stat(f)
 		if err != nil {
-			conn, err := s.NewBaseDial("githubcard")
+			conn, err := s.FDialServer(ctx, "githubcard")
 			if err == nil {
 				defer conn.Close()
 				client := pbgh.NewGithubClient(conn)
@@ -584,7 +584,7 @@ func (s *Server) checkOnUpdate(ctx context.Context) error {
 		info, err := os.Stat(f)
 		if err == nil {
 			if info.ModTime().Before(time.Now().AddDate(0, -1, 0)) {
-				conn, err := s.NewBaseDial("githubcard")
+				conn, err := s.FDialServer(ctx, "githubcard")
 				if err == nil {
 					defer conn.Close()
 					client := pbgh.NewGithubClient(conn)
@@ -705,13 +705,13 @@ func (s *Server) lookForDiscover(ctx context.Context) error {
 				return nil
 			}
 			if time.Now().Sub(time.Unix(job.GetLastTransitionTime(), 0)) > time.Minute*10 {
-				s.RaiseIssue(ctx, "Discover is in a bad state", fmt.Sprintf("[%v] %v is the current state at %v (trans at %v)", s.Registry, job, time.Now(), time.Unix(job.GetLastTransitionTime(), 0)), false)
+				s.RaiseIssue("Discover is in a bad state", fmt.Sprintf("[%v] %v is the current state at %v (trans at %v)", s.Registry, job, time.Now(), time.Unix(job.GetLastTransitionTime(), 0)))
 			}
 			return nil
 		}
 	}
 
-	s.RaiseIssue(ctx, "Missing discover", fmt.Sprintf("Discover is missing on %v (%v)", s.Registry, s.njobs), false)
+	s.RaiseIssue("Missing discover", fmt.Sprintf("Discover is missing on %v (%v)", s.Registry, s.njobs))
 	return nil
 }
 
