@@ -564,7 +564,7 @@ func (s *Server) checkOnSsh(ctx context.Context) error {
 	for true {
 		_, err := os.Stat(f)
 		if err != nil {
-			conn, err := s.NewBaseDial("githubcard")
+			conn, err := s.FDialServer(ctx, "githubcard")
 			if err == nil {
 				defer conn.Close()
 				client := pbgh.NewGithubClient(conn)
@@ -584,7 +584,7 @@ func (s *Server) checkOnUpdate(ctx context.Context) error {
 		info, err := os.Stat(f)
 		if err == nil {
 			if info.ModTime().Before(time.Now().AddDate(0, -1, 0)) {
-				conn, err := s.NewBaseDial("githubcard")
+				conn, err := s.FDialServer(ctx, "githubcard")
 				if err == nil {
 					defer conn.Close()
 					client := pbgh.NewGithubClient(conn)
