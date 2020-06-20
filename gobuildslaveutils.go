@@ -103,7 +103,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			if err != nil {
 				if job.DiscoverCount > 30 {
 					output2, errout2 := s.scheduler.getErrOutput(job.CommandKey)
-					s.RaiseIssue(ctx, "Cannot Discover Running Server", fmt.Sprintf("%v on %v is not discoverable, despite running (%v) the output says %v (%v), %v, %v", job.Job.Name, s.Registry.Identifier, err, output, errout, output2, errout2), false)
+					s.RaiseIssue("Cannot Discover Running Server", fmt.Sprintf("%v on %v is not discoverable, despite running (%v) the output says %v (%v), %v, %v", job.Job.Name, s.Registry.Identifier, err, output, errout, output2, errout2))
 				}
 				job.DiscoverCount++
 			} else {
