@@ -66,6 +66,7 @@ func (s *Scheduler) markComplete(key string) {
 
 // Schedule schedules a task
 func (s *Scheduler) Schedule(c *rCommand) string {
+	fmt.Printf("Scheduling: %v", c.command.Path)
 	key := fmt.Sprintf("%v-%v", time.Now().Nanosecond(), c.command.Path)
 	s.commands = append(s.commands, c)
 	c.status = "InQueue"
@@ -142,6 +143,7 @@ func (s *Scheduler) processCommands() {
 		s.lastRun = c.command.Path + " -> " + fmt.Sprintf("%v", c.command.Args)
 		err := run(c)
 		if err != nil {
+			fmt.Printf("Command failure: %v", err)
 			c.endTime = time.Now().Unix()
 		}
 	}
