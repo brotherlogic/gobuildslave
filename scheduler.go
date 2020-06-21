@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime/debug"
 	"strings"
-	"sync"
 	"time"
 )
 
 type rCommand struct {
 	command   *exec.Cmd
+	key       string
 	output    string
 	startTime int64
 	endTime   int64
@@ -21,133 +22,110 @@ type rCommand struct {
 	crash1    bool
 	crash2    bool
 	base      string
+	block     bool
+	comp      chan bool
 }
 
 //Scheduler the main task scheduler
 type Scheduler struct {
-	commands []*rCommand
-	cMutex   *sync.Mutex
-	rMutex   *sync.Mutex
-	rMap     map[string]*rCommand
-	Log      func(string)
-	lastRun  string
-}
-
-func (s *Scheduler) clean() {
-	s.rMutex.Lock()
-	defer s.rMutex.Unlock()
-	for key, command := range s.rMap {
-		if command.endTime > 0 && time.Now().Sub(time.Unix(command.endTime, 0)) > time.Minute*5 {
-			delete(s.rMap, key)
-		}
-	}
+	Log              func(string)
+	blockingQueue    chan *rCommand
+	nonblockingQueue chan *rCommand
+	complete         []*rCommand
 }
 
 func (s *Scheduler) getState(key string) string {
-	s.rMutex.Lock()
-	defer s.rMutex.Unlock()
-	if _, ok := s.rMap[key]; ok {
-		return fmt.Sprintf("%v -> %v", s.rMap[key].endTime, s.rMap[key].output)
+	for _, c := range s.complete {
+		if c.key == key {
+			return fmt.Sprintf("%v -> %v", c.endTime, c.output)
+		}
 	}
 
 	return "UNKNOWN"
 }
 
-func (s *Scheduler) markComplete(key string) {
-	s.rMutex.Lock()
-	defer s.rMutex.Unlock()
-	if val, ok := s.rMap[key]; ok {
-		val.endTime = time.Now().Unix()
-		val.output = key
-	} else {
-		s.rMap[key] = &rCommand{endTime: time.Now().Unix(), output: key, base: key}
-	}
-}
-
 // Schedule schedules a task
 func (s *Scheduler) Schedule(c *rCommand) string {
-	fmt.Printf("Scheduling: %v", c.command.Path)
-	key := fmt.Sprintf("%v-%v", time.Now().Nanosecond(), c.command.Path)
-	s.commands = append(s.commands, c)
+	debug.PrintStack()
+	fmt.Printf("Scheduling: %v\n", c.command.Path)
+	key := fmt.Sprintf("%v", time.Now().UnixNano())
+	s.complete = append(s.complete, c)
 	c.status = "InQueue"
-	s.rMutex.Lock()
-	s.rMap[key] = c
-	s.rMutex.Unlock()
-	s.processCommands()
+	if c.block {
+		s.blockingQueue <- c
+	} else {
+		s.nonblockingQueue <- c
+	}
 	return key
 }
 
 func (s *Scheduler) getOutput(key string) (string, error) {
-	s.rMutex.Lock()
-	defer s.rMutex.Unlock()
-	if val, ok := s.rMap[key]; ok {
-		return val.output, nil
+	for _, c := range s.complete {
+		if c.key == key {
+			return c.output, nil
+		}
 	}
 
-	return "", fmt.Errorf("KEY NOT_IN_MAP: %v", key)
+	return key, fmt.Errorf("KEY NOT_IN_MAP: %v", key)
 }
 
 func (s *Scheduler) getErrOutput(key string) (string, error) {
-	s.rMutex.Lock()
-	defer s.rMutex.Unlock()
-	if val, ok := s.rMap[key]; ok {
-		return val.mainOut, nil
+	for _, c := range s.complete {
+		if c.key == key {
+			return c.mainOut, nil
+		}
 	}
 
 	return "", fmt.Errorf("KEY NOT_IN_MAP: %v", key)
 }
 
+func (s *Scheduler) wait(key string) {
+	for _, c := range s.complete {
+		if c.key == key {
+			<-c.comp
+		}
+	}
+}
+
 func (s *Scheduler) getStatus(key string) string {
-	s.rMutex.Lock()
-	defer s.rMutex.Unlock()
-	if val, ok := s.rMap[key]; ok {
-		return val.status
+	for _, val := range s.complete {
+		if val.key == key {
+			return val.status
+		}
 	}
 
 	return fmt.Sprintf("KEY NOT_IN_MAP: %v", key)
 }
 
 func (s *Scheduler) killJob(key string) {
-	s.rMutex.Lock()
-	defer s.rMutex.Unlock()
-	if val, ok := s.rMap[key]; ok {
-		if val.command.Process != nil {
-			val.command.Process.Kill()
-			val.command.Process.Wait()
+	for _, val := range s.complete {
+		if val.key == key {
+			if val.command.Process != nil {
+				val.command.Process.Kill()
+				val.command.Process.Wait()
+			}
 		}
 	}
 }
 
-func (s *Scheduler) removeJob(key string) {
-	s.rMutex.Lock()
-	defer s.rMutex.Unlock()
-	delete(s.rMap, key)
-}
-
-func (s *Scheduler) schedulerComplete(key string) bool {
-	s.rMutex.Lock()
-	defer s.rMutex.Unlock()
-	if val, ok := s.rMap[key]; ok {
-		return val.endTime > 0
-	}
-
-	// Default to true if the key is not found
-	return true
-}
-
-func (s *Scheduler) processCommands() {
-	s.cMutex.Lock()
-	if len(s.commands) > 0 {
-		c := s.commands[0]
-		s.commands = s.commands[1:]
-		s.lastRun = c.command.Path + " -> " + fmt.Sprintf("%v", c.command.Args)
+func (s *Scheduler) processBlockingCommands() {
+	for c := range s.blockingQueue {
 		err := run(c)
 		if err != nil {
 			fmt.Printf("Command failure: %v", err)
 			c.endTime = time.Now().Unix()
 		}
 	}
-	s.cMutex.Unlock()
+}
+
+func (s *Scheduler) processNonblockingCommands() {
+	for c := range s.nonblockingQueue {
+		err := run(c)
+		if err != nil {
+			fmt.Printf("Command failure: %v", err)
+			c.endTime = time.Now().Unix()
+		}
+	}
 }
 
 func run(c *rCommand) error {
@@ -218,7 +196,7 @@ func run(c *rCommand) error {
 	c.startTime = time.Now().Unix()
 
 	// Monitor the job and report completion
-	go func() {
+	r := func() {
 		c.status = "Entering Wait"
 		err := c.command.Wait()
 		c.status = "Completed Wait"
@@ -226,8 +204,14 @@ func run(c *rCommand) error {
 			c.err = err
 		}
 		c.endTime = time.Now().Unix()
-		fmt.Printf("RESULT %v and %v", c.mainOut, c.output)
-	}()
+		c.comp <- true
+	}
+
+	if c.block {
+		r()
+	} else {
+		go r()
+	}
 
 	return nil
 }

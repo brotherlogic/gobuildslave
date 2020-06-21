@@ -42,9 +42,8 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("BUILD(%v): %v", job.CommandKey, s.scheduler.getState(job.CommandKey))
 		s.stateMutex.Unlock()
-		if s.taskComplete(job.CommandKey) {
-			job.State = pb.State_BUILT
-		}
+		s.scheduler.wait(job.CommandKey)
+		job.State = pb.State_BUILT
 	case pb.State_BUILT:
 		job.SubState = "Getting Output"
 		output, _ := s.scheduler.getOutput(job.CommandKey)
@@ -90,7 +89,8 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		s.stateMap[job.Job.Name] = fmt.Sprintf("ROUTPUT = %v, %v", output, s.scheduler.getStatus(job.CommandKey))
 		job.Status = s.scheduler.getStatus(job.CommandKey)
 		s.stateMutex.Unlock()
-		if len(job.CommandKey) > 0 && s.taskComplete(job.CommandKey) {
+		if len(job.CommandKey) > 0 {
+			s.scheduler.wait(job.CommandKey)
 			s.stateMutex.Lock()
 			s.stateMap[job.Job.Name] = fmt.Sprintf("COMPLETE = (%v, %v)", job, output)
 			s.stateMutex.Unlock()
@@ -135,7 +135,6 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("DIED %v", job.CommandKey)
 		s.stateMutex.Unlock()
-		s.scheduler.removeJob(job.CommandKey)
 		job.State = pb.State_ACKNOWLEDGED
 	}
 
@@ -174,7 +173,8 @@ func updateJob(err error, job *pb.JobAssignment, resp *pbfc.CopyResponse) {
 func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) string {
 	if job.Job.Bootstrap {
 		c := s.translator.build(job.Job)
-		return s.scheduler.Schedule(&rCommand{command: c, base: job.Job.Name})
+		// Block builds to prevent clashes
+		return s.scheduler.Schedule(&rCommand{command: c, base: job.Job.Name, block: true})
 	}
 
 	val, err := s.builder.build(ctx, job.Job)
@@ -187,17 +187,8 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) strin
 func (s *Server) scheduleRun(job *pb.JobAssignment) string {
 	//Copy over any existing new versions
 	key := s.scheduler.Schedule(&rCommand{command: exec.Command("mv", "$GOPATH/bin/"+job.GetJob().GetName()+".new", "$GOPATH/bin/"+job.GetJob().GetName()), base: job.GetJob().GetName()})
-	for !s.taskComplete(key) {
-		str, err := s.scheduler.getOutput(key)
-		str2, err2 := s.scheduler.getErrOutput(key)
-		job.SubState = "WAITING FOR COPY - " + key + " (" + s.scheduler.lastRun + ") - " + fmt.Sprintf("%v - (%v,%v) (%v,%v) with %v outstanding and %v", time.Now(), str, err, str2, err2, len(s.scheduler.commands), s.scheduler.getStatus(key))
-		time.Sleep(time.Second)
-	}
+	s.scheduler.wait(key)
 
 	c := s.translator.run(job.GetJob())
 	return s.scheduler.Schedule(&rCommand{command: c, base: job.GetJob().GetName()})
-}
-
-func (s *Server) taskComplete(key string) bool {
-	return s.scheduler.schedulerComplete(key)
 }

@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -204,9 +203,9 @@ func InitServer(build bool) *Server {
 		make(map[string]*pb.JobAssignment),
 		&pTranslator{},
 		&Scheduler{
-			cMutex: &sync.Mutex{},
-			rMutex: &sync.Mutex{},
-			rMap:   make(map[string]*rCommand),
+			blockingQueue:    make(chan *rCommand),
+			nonblockingQueue: make(chan *rCommand),
+			complete:         make([]*rCommand, 0),
 		},
 		&pChecker{},
 		&prodDisker{},
@@ -233,6 +232,11 @@ func InitServer(build bool) *Server {
 		time.Now(),
 		time.Now(),
 	}
+
+	// Run the processing queues
+	go s.scheduler.processBlockingCommands()
+	go s.scheduler.processNonblockingCommands()
+
 	return s
 }
 
@@ -271,7 +275,7 @@ func (s *Server) addMessage(details *pb.JobDetails, message string) {
 
 func (s *Server) nmonitor(job *pb.JobAssignment) {
 	for job.State != pb.State_DEAD {
-		ctx, cancel := utils.BuildContext("nmonitor", job.Job.Name)
+		ctx, cancel := utils.ManualContext("nmonitor", job.Job.Name, time.Minute, true)
 		s.runTransition(ctx, job)
 		cancel()
 		time.Sleep(time.Second * 10)
@@ -364,45 +368,7 @@ func (s *Server) Mote(ctx context.Context, master bool) error {
 
 // GetState gets the state of the server
 func (s *Server) GetState() []*pbs.State {
-	s.stateMutex.Lock()
-	defer s.stateMutex.Unlock()
-
-	oldest := time.Now().Unix()
-	stale := int64(0)
-	for _, cm := range s.scheduler.rMap {
-		if cm.startTime < oldest {
-			oldest = cm.startTime
-		}
-		if cm.endTime > 0 {
-			stale++
-		}
-	}
-
-	s.versionsMutex.Lock()
-	defer s.versionsMutex.Unlock()
-	return []*pbs.State{
-		&pbs.State{Key: "rMap", Text: fmt.Sprintf("%v", s.scheduler.rMap)},
-		&pbs.State{Key: "last_access", TimeValue: s.lastAccess.Unix()},
-		&pbs.State{Key: "discover_start", TimeValue: s.discoverStartup.Unix()},
-		&pbs.State{Key: "discover_sync", TimeValue: s.discoverSync.Unix()},
-		&pbs.State{Key: "state_map", Text: fmt.Sprintf("%v", s.stateMap)},
-		&pbs.State{Key: "access_point", Text: s.accessPoint},
-		&pbs.State{Key: "oldest_command", TimeValue: oldest},
-		&pbs.State{Key: "stale_commands", Value: stale},
-		&pbs.State{Key: "crash_report_fails", Value: s.crashFails},
-		&pbs.State{Key: "crash_report_attempts", Value: s.crashAttempts},
-		&pbs.State{Key: "crash_reason", Text: s.crashError},
-		&pbs.State{Key: "jobs_size", Value: int64(len(s.njobs))},
-		&pbs.State{Key: "running_keys", Value: int64(len(s.scheduler.rMap))},
-		&pbs.State{Key: "go_version", Text: fmt.Sprintf("%v", runtime.Version())},
-		&pbs.State{Key: "reject", Text: fmt.Sprintf("%v", s.rejecting)},
-		&pbs.State{Key: "last_copy_time", TimeDuration: s.lastCopyTime.Nanoseconds()},
-		&pbs.State{Key: "last_copy_status", Text: s.lastCopyStatus},
-		&pbs.State{Key: "versions", Value: int64(len(s.versions))},
-		&pbs.State{Key: "copies", Value: s.copies},
-		&pbs.State{Key: "skipped_copies", Value: s.skippedCopies},
-		&pbs.State{Key: "commands", Value: int64(len(s.scheduler.rMap))},
-	}
+	return []*pbs.State{}
 }
 
 //Init builds the default runner framework
@@ -621,15 +587,6 @@ func (s *Server) loadCurrentVersions() {
 	}
 }
 
-func (s *Server) cleanCommands(ctx context.Context) error {
-	for !s.LameDuck {
-		time.Sleep(time.Minute)
-		s.scheduler.clean()
-	}
-
-	return nil
-}
-
 func (s *Server) badHeartChecker(ctx context.Context) error {
 	badHearts := s.BadHearts
 	if badHearts-s.lastBadHearts > 100 {
@@ -726,7 +683,7 @@ func main() {
 	}
 
 	s := InitServer(*build)
-	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand), Log: s.Log}
+	s.scheduler.Log = s.Log
 	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName, dial: s.DialMaster}
 	s.runner.getip = s.GetIP
 	s.runner.logger = s.Log
@@ -735,16 +692,6 @@ func main() {
 	s.Killme = false
 
 	go s.backgroundRegister()
-
-	s.RegisterServingTask(s.checkOnUpdate, "check_on_update")
-	s.RegisterServingTask(s.checkOnSsh, "check_on_ssh")
-	s.RegisterServingTask(s.cleanCommands, "clean_commands")
-	s.RegisterRepeatingTaskNonMaster(s.trackUpTime, "track_up_time", time.Minute)
-	s.RegisterRepeatingTaskNonMaster(s.runOnChange, "run_on_change", time.Minute)
-	s.RegisterRepeatingTaskNonMaster(s.updateAccess, "update_access", time.Minute)
-	s.RegisterRepeatingTaskNonMaster(s.lookForDiscover, "look_for_discover", time.Minute*5)
-	s.RegisterRepeatingTask(s.stateChecker, "state_checker", time.Minute*5)
-	s.RegisterRepeatingTask(s.badHeartChecker, "bad_heart_checker", time.Minute*5)
 
 	s.loadCurrentVersions()
 
