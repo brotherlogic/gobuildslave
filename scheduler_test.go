@@ -78,20 +78,6 @@ func TestFailStdout(t *testing.T) {
 	err = run(rc)
 }
 
-func TestMarkComplete(t *testing.T) {
-	str, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("WHAAAA %v", err)
-	}
-	rc := &rCommand{command: exec.Command(str + "/run.sh")}
-	s := InitTestScheduler()
-	s.Schedule(rc)
-
-	if rc.endTime == 0 {
-		t.Errorf("Mark complete failed")
-	}
-}
-
 func TestBasicRun(t *testing.T) {
 	os.Setenv("GOBIN", "blah")
 	os.Setenv("GOPATH", "wha")
@@ -140,14 +126,5 @@ func TestBadCommand(t *testing.T) {
 	err := run(rc)
 	if err == nil {
 		t.Errorf("No error running command")
-	}
-}
-
-func TestInMap(t *testing.T) {
-	s := InitTestScheduler()
-	out, err := s.getErrOutput("key")
-
-	if err != nil {
-		t.Errorf("Error in getting output %v -> %v", err, out)
 	}
 }
