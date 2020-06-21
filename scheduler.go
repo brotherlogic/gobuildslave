@@ -51,6 +51,7 @@ func (s *Scheduler) Schedule(c *rCommand) string {
 	key := fmt.Sprintf("%v", time.Now().UnixNano())
 	s.complete = append(s.complete, c)
 	c.status = "InQueue"
+	c.key = key
 	if c.block {
 		s.blockingQueue <- c
 	} else {
