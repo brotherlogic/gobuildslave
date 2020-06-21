@@ -52,6 +52,7 @@ func (s *Scheduler) Schedule(c *rCommand) string {
 	s.complete = append(s.complete, c)
 	c.status = "InQueue"
 	c.key = key
+	c.comp = make(chan bool)
 	if c.block {
 		s.blockingQueue <- c
 	} else {
