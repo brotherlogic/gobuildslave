@@ -16,6 +16,7 @@ const (
 )
 
 func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
+	fmt.Printf("TRANS: %v\n", job)
 	startState := job.State
 	job.LastUpdateTime = time.Now().Unix()
 	switch job.State {
