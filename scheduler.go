@@ -86,7 +86,7 @@ func (s *Scheduler) wait(key string) {
 			return
 		}
 	}
-	fmt.Sprintf("Wait Failed for %v with %v\n", key, len(s.complete))
+	fmt.Printf("Wait Failed for %v with %v\n", key, len(s.complete))
 }
 
 func (s *Scheduler) getStatus(key string) string {
