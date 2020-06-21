@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"runtime/debug"
@@ -81,10 +80,8 @@ func (s *Scheduler) getErrOutput(key string) (string, error) {
 }
 
 func (s *Scheduler) wait(key string) {
-	log.Printf("HERE %v", len(s.complete))
 	for _, c := range s.complete {
 		if c.key == key {
-			log.Printf("WAITING FOR %v", key)
 			<-c.comp
 		}
 	}
@@ -113,7 +110,6 @@ func (s *Scheduler) killJob(key string) {
 
 func (s *Scheduler) processBlockingCommands() {
 	for c := range s.blockingQueue {
-		log.Printf("Blocking: %v", c)
 		err := run(c)
 		if err != nil {
 			fmt.Printf("Command failure: %v", err)
@@ -124,9 +120,7 @@ func (s *Scheduler) processBlockingCommands() {
 
 func (s *Scheduler) processNonblockingCommands() {
 	for c := range s.nonblockingQueue {
-		log.Printf("Nonblocking: %v", c)
 		err := run(c)
-		log.Printf("Nonblocking run; %v", err)
 		if err != nil {
 			fmt.Printf("Command failure: %v", err)
 			c.endTime = time.Now().Unix()

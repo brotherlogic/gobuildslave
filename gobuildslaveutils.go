@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os/exec"
 	"time"
 
@@ -17,7 +16,6 @@ const (
 )
 
 func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
-	log.Printf("Running Transition: %v", job)
 	startState := job.State
 	job.LastUpdateTime = time.Now().Unix()
 	switch job.State {
