@@ -173,7 +173,8 @@ func updateJob(err error, job *pb.JobAssignment, resp *pbfc.CopyResponse) {
 func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) string {
 	if job.Job.Bootstrap {
 		c := s.translator.build(job.Job)
-		return s.scheduler.Schedule(&rCommand{command: c, base: job.Job.Name})
+		// Block builds to prevent clashes
+		return s.scheduler.Schedule(&rCommand{command: c, base: job.Job.Name, block: true})
 	}
 
 	val, err := s.builder.build(ctx, job.Job)
