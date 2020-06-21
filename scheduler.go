@@ -83,7 +83,9 @@ func (s *Scheduler) getErrOutput(key string) (string, error) {
 func (s *Scheduler) wait(key string) {
 	for _, c := range s.complete {
 		if c.key == key {
+			fmt.Printf("Waiting for %v\n", key)
 			<-c.comp
+			fmt.Printf("Waited for %v\n", key)
 			return
 		}
 	}
