@@ -209,7 +209,9 @@ func run(c *rCommand) error {
 			c.err = err
 		}
 		c.endTime = time.Now().Unix()
+		fmt.Printf("ENDED - Writing to channel\n")
 		c.comp <- true
+		fmt.Printf("COMPLETE\n")
 	}
 
 	if c.block {
