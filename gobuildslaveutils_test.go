@@ -47,7 +47,7 @@ var transitionTable = []struct {
 	pb.State_BUILDING,
 	true,
 }, {
-	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah", Bootstrap: true}, State: pb.State_BUILDING},
+	&pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah", Bootstrap: true}, CommandKey: "blah", State: pb.State_BUILDING},
 	"blah-build",
 	pb.State_BUILT,
 	true,
@@ -92,7 +92,7 @@ func TestTransitions(t *testing.T) {
 	s := getTestServer()
 	s.translator = &testTranslator{}
 	for _, test := range transitionTable {
-		s.scheduler.markComplete(test.complete)
+		log.Printf("RUNNING %v", test)
 		s.checker = &testChecker{alive: test.alive}
 		s.runTransition(context.Background(), test.job)
 
@@ -108,7 +108,6 @@ func TestBuildFail(t *testing.T) {
 	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah", Bootstrap: true}, State: pb.State_BUILT, CommandKey: "this thing crashed"}
 	for i := 0; i < 10; i++ {
 		job.State = pb.State_BUILT
-		s.scheduler.markComplete("this thing crashed")
 		s.runTransition(context.Background(), job)
 		log.Printf("NOW %v", job)
 	}

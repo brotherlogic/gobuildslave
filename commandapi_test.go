@@ -39,7 +39,7 @@ func testLog(str string) {
 }
 
 func getTestServer() *Server {
-	s := &Server{}
+	s := InitServer(false)
 	s.GoServer = &goserver.GoServer{}
 	s.runner = InitTest()
 	s.jobs = make(map[string]*pb.JobDetails)
@@ -51,7 +51,6 @@ func getTestServer() *Server {
 	s.SkipIssue = true
 	s.disk = prodDiskChecker{}
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".testfolder")
-	s.scheduler = &Scheduler{cMutex: &sync.Mutex{}, rMutex: &sync.Mutex{}, rMap: make(map[string]*rCommand), Log: testLog}
 	s.disker = &testDisker{}
 	s.translator = &testTranslator{}
 	s.builder = &testBuilder{}
@@ -63,6 +62,7 @@ func getTestServer() *Server {
 	s.versions = make(map[string]*pbb.Version)
 	s.version = &testVersion{}
 	s.versionsMutex = &sync.Mutex{}
+
 	return s
 }
 
