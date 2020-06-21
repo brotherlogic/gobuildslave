@@ -83,8 +83,10 @@ func (s *Scheduler) wait(key string) {
 	for _, c := range s.complete {
 		if c.key == key {
 			<-c.comp
+			return
 		}
 	}
+	fmt.Sprintf("Wait Failed for %v with %v\n", key, len(s.complete))
 }
 
 func (s *Scheduler) getStatus(key string) string {
