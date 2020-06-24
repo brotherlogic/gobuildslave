@@ -26,6 +26,14 @@ func TestGetState(t *testing.T) {
 		t.Errorf("Error: %v", state)
 	}
 }
+func TestGetStateGot(t *testing.T) {
+	s := InitTestScheduler()
+	rc := &rCommand{command: exec.Command("balls"), block: true}
+	state := s.getState("balls")
+	if state == "UNKNOWN" {
+		t.Errorf("Error: %v", state)
+	}
+}
 
 func TestBadRun(t *testing.T) {
 	s := InitTestScheduler()
