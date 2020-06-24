@@ -21,10 +21,9 @@ func InitTestScheduler() Scheduler {
 
 func TestGetState(t *testing.T) {
 	s := InitTestScheduler()
-	s.complete = append(s.complete, &rCommand{key: "blah"})
 	state := s.getState("blah")
 	if state != "UNKNOWN" {
-		t.Errorf("Error")
+		t.Errorf("Error: %v", state)
 	}
 }
 
