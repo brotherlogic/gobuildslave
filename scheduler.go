@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"runtime/debug"
 	"strings"
 	"time"
 )
@@ -46,7 +45,6 @@ func (s *Scheduler) getState(key string) string {
 
 // Schedule schedules a task
 func (s *Scheduler) Schedule(c *rCommand) string {
-	debug.PrintStack()
 	fmt.Printf("Scheduling: %v\n", c.command.Path)
 	key := fmt.Sprintf("%v", time.Now().UnixNano())
 	s.complete = append(s.complete, c)
