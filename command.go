@@ -618,7 +618,7 @@ func (s *Server) backgroundRegister() {
 			ctx, cancel := utils.ManualContext("gbs-rereg", "gbs-rereg", time.Minute, true)
 			defer cancel()
 
-			conn, err := s.DialLocal("discover")
+			conn, err := s.FDial("localhost:50055")
 			if err == nil {
 				defer conn.Close()
 				client := pbd.NewDiscoveryServiceV2Client(conn)
