@@ -19,6 +19,22 @@ func InitTestScheduler() Scheduler {
 	return s
 }
 
+func TestGetState(t *testing.T) {
+	s := InitTestScheduler()
+	state := s.getState("blah")
+	if state != "UNKNOWN" {
+		t.Errorf("Error: %v", state)
+	}
+}
+func TestGetStateGot(t *testing.T) {
+	s := InitTestScheduler()
+	s.complete = append(s.complete, &rCommand{key: "balls", block: true})
+	state := s.getState("balls")
+	if state == "UNKNOWN" {
+		t.Errorf("Error: %v", state)
+	}
+}
+
 func TestBadRun(t *testing.T) {
 	s := InitTestScheduler()
 	s.Log = Log
