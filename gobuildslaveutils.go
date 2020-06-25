@@ -22,9 +22,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	switch job.State {
 	case pb.State_ACKNOWLEDGED:
 		key := s.scheduleBuild(ctx, job)
-		s.stateMutex.Lock()
-		s.stateMap[job.Job.Name] = fmt.Sprintf("SCHED: %v @ %v", key, time.Now())
-		s.stateMutex.Unlock()
+		job.SubState = fmt.Sprintf("SCHED: %v @ %v", key, time.Now())
 		if !job.Job.Bootstrap {
 			if key != "" {
 				job.State = pb.State_BUILT

@@ -19,6 +19,15 @@ func InitTestScheduler() Scheduler {
 	return s
 }
 
+func TestGetErr(t *testing.T) {
+	s := InitTestScheduler()
+	s.complete = append(s.complete, &rCommand{key: "balls", block: true})
+	_, err := s.getErrOutput("balls")
+	if err != nil {
+		t.Errorf("Bad err get")
+	}
+}
+
 func TestGetState(t *testing.T) {
 	s := InitTestScheduler()
 	state := s.getState("blah")
