@@ -16,7 +16,8 @@ enum RequirementCategory {
 }
 
 enum State {
-  ACKNOWLEDGED = 0;
+  WARMUP = 0;
+  ACKNOWLEDGED = 11;
   BUILDING = 1;
   BUILT = 2;
   RUNNING = 3;

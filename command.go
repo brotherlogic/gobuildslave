@@ -190,6 +190,7 @@ type Server struct {
 	discoverStartup time.Time
 	discoverSync    time.Time
 	lastAccess      time.Time
+	ackChan         chan *pb.JobAssignment
 }
 
 // InitServer builds out a server
@@ -231,6 +232,7 @@ func InitServer(build bool) *Server {
 		time.Now(),
 		time.Now(),
 		time.Now(),
+		make(chan *pb.JobAssignment, 100),
 	}
 
 	// Run the processing queues
@@ -722,6 +724,9 @@ func main() {
 	for s.Registry == nil {
 		time.Sleep(time.Minute)
 	}
+
+	go s.procAcks()
+
 	err = s.Serve()
 	log.Fatalf("Unable to serve: %v", err)
 }
