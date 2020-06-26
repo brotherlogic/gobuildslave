@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/brotherlogic/goserver/utils"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 
 	pbb "github.com/brotherlogic/buildserver/proto"
 	pbfc "github.com/brotherlogic/filecopier/proto"
@@ -18,8 +20,16 @@ const (
 	pendWait = time.Minute
 )
 
+var (
+	ackQueueLen = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "gobuildslave_ackqueuelen",
+		Help: "The size of the ack queue",
+	})
+)
+
 func (s *Server) procAcks() {
 	for job := range s.ackChan {
+		ackQueueLen.Set(float64(len(s.ackChan)))
 		ctx, cancel := utils.ManualContext("gobuildslaveack", "gobuildslaveack", time.Minute, false)
 		conn, err := s.FDialSpecificServer(ctx, s.Registry.GetIdentifier(), "versiontracker")
 		if err != nil {
