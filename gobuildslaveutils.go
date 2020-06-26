@@ -31,7 +31,7 @@ func (s *Server) procAcks() {
 	for job := range s.ackChan {
 		ackQueueLen.Set(float64(len(s.ackChan)))
 		ctx, cancel := utils.ManualContext("gobuildslaveack", "gobuildslaveack", time.Minute, false)
-		conn, err := s.FDialSpecificServer(ctx, s.Registry.GetIdentifier(), "versiontracker")
+		conn, err := s.FDialSpecificServer(ctx, "versiontracker", s.Registry.GetIdentifier())
 		if err != nil {
 			fmt.Printf("Dial error: %v\n", err)
 			s.ackChan <- job
