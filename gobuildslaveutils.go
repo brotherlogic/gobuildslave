@@ -6,20 +6,44 @@ import (
 	"os/exec"
 	"time"
 
+	"github.com/brotherlogic/goserver/utils"
+
 	pbb "github.com/brotherlogic/buildserver/proto"
 	pbfc "github.com/brotherlogic/filecopier/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
+	pbvt "github.com/brotherlogic/versiontracker/proto"
 )
 
 const (
 	pendWait = time.Minute
 )
 
+func (s *Server) procAcks() {
+	for job := range s.ackChan {
+		ctx, cancel := utils.ManualContext("gobuildslaveack", "gobuildslaveack", time.Minute, false)
+		conn, err := s.FDialSpecificServer(ctx, s.Registry.GetIdentifier(), "versiontracker")
+		if err != nil {
+			s.ackChan <- job
+		}
+
+		client := pbvt.NewVersionTrackerServiceClient(conn)
+		_, err = client.NewJob(ctx, &pbvt.NewJobRequest{Version: &pbb.Version{Job: job.GetJob()}})
+		if err != nil {
+			s.ackChan <- job
+		}
+		conn.Close()
+		cancel()
+	}
+}
+
 func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	fmt.Printf("TRANS: %v\n", job)
 	startState := job.State
 	job.LastUpdateTime = time.Now().Unix()
 	switch job.State {
+	case pb.State_WARMUP:
+		s.ackChan <- job
+		job.State = pb.State_ACKNOWLEDGED
 	case pb.State_ACKNOWLEDGED:
 		key := s.scheduleBuild(ctx, job)
 		job.SubState = fmt.Sprintf("SCHED: %v @ %v", key, time.Now())
@@ -158,7 +182,6 @@ func (s *Server) getVersion(ctx context.Context, job *pb.Job) (*pbb.Version, err
 	}
 
 	return version, nil
-
 }
 
 func updateJob(err error, job *pb.JobAssignment, resp *pbfc.CopyResponse) {
