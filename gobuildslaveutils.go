@@ -44,6 +44,9 @@ func (s *Server) procAcks() {
 			conn.Close()
 		}
 		cancel()
+
+		// Don't rush the system
+		time.Sleep(time.Second * 10)
 	}
 }
 
