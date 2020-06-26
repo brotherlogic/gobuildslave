@@ -25,7 +25,7 @@ func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunRespons
 		return &pb.RunResponse{}, fmt.Errorf("Already running this job!")
 	}
 
-	s.njobs[req.GetJob().GetName()] = &pb.JobAssignment{Job: req.GetJob(), State: pb.State_ACKNOWLEDGED, LastTransitionTime: time.Now().Unix()}
+	s.njobs[req.GetJob().GetName()] = &pb.JobAssignment{Job: req.GetJob(), LastTransitionTime: time.Now().Unix()}
 	go s.nmonitor(s.njobs[req.GetJob().GetName()])
 
 	return &pb.RunResponse{}, nil
