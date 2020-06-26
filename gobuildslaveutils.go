@@ -34,14 +34,15 @@ func (s *Server) procAcks() {
 		conn, err := s.FDialSpecificServer(ctx, s.Registry.GetIdentifier(), "versiontracker")
 		if err != nil {
 			s.ackChan <- job
-		}
+		} else {
 
-		client := pbvt.NewVersionTrackerServiceClient(conn)
-		_, err = client.NewJob(ctx, &pbvt.NewJobRequest{Version: &pbb.Version{Job: job.GetJob()}})
-		if err != nil {
-			s.ackChan <- job
+			client := pbvt.NewVersionTrackerServiceClient(conn)
+			_, err = client.NewJob(ctx, &pbvt.NewJobRequest{Version: &pbb.Version{Job: job.GetJob()}})
+			if err != nil {
+				s.ackChan <- job
+			}
+			conn.Close()
 		}
-		conn.Close()
 		cancel()
 	}
 }
