@@ -33,12 +33,14 @@ func (s *Server) procAcks() {
 		ctx, cancel := utils.ManualContext("gobuildslaveack", "gobuildslaveack", time.Minute, false)
 		conn, err := s.FDialSpecificServer(ctx, s.Registry.GetIdentifier(), "versiontracker")
 		if err != nil {
+			fmt.Printf("Dial error: %v\n", err)
 			s.ackChan <- job
 		} else {
 
 			client := pbvt.NewVersionTrackerServiceClient(conn)
 			_, err = client.NewJob(ctx, &pbvt.NewJobRequest{Version: &pbb.Version{Job: job.GetJob()}})
 			if err != nil {
+				fmt.Printf("Ack error: %v\n", err)
 				s.ackChan <- job
 			}
 			conn.Close()
