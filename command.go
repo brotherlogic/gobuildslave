@@ -630,6 +630,9 @@ func (s *Server) backgroundRegister() {
 				}
 			}
 		}
+
+		fmt.Printf("Registring us to discover: %v", err)
+
 		time.Sleep(time.Minute)
 	}
 
