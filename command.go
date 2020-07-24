@@ -639,25 +639,27 @@ func (s *Server) backgroundRegister() {
 	s.version = &prodVersion{s.DialMaster, s.Registry.Identifier, s.Log}
 }
 
-func (s *Server) updateAccess(ctx context.Context) error {
-	url := "http://www.google.com/"
-	r, err := http.Get(url)
+func (s *Server) updateAccess() {
+	for true {
+		url := "http://192.168.86.1"
+		r, err := http.Get(url)
 
-	if err == nil {
-		s.lastAccess = time.Now()
-		r.Body.Close()
-	} else {
-		s.Log(fmt.Sprintf("Ping fail %v", err))
-		fails.Inc()
+		if err == nil {
+			s.lastAccess = time.Now()
+			r.Body.Close()
+		} else {
+			s.Log(fmt.Sprintf("Ping fail %v", err))
+			fails.Inc()
+		}
+
+		if time.Now().Sub(s.lastAccess) > time.Minute*5 && time.Now().Hour() < 22 && time.Now().Hour() > 7 {
+			fmt.Printf("REBOOTING -> %v, %v\n", err, s.lastAccess)
+			cmd := exec.Command("sudo", "reboot")
+			cmd.Run()
+		}
+
+		time.Sleep(time.Second * 30)
 	}
-
-	if time.Now().Sub(s.lastAccess) > time.Minute*5 && time.Now().Hour() < 22 && time.Now().Hour() > 7 {
-		fmt.Printf("REBOOTING -> %v, %v\n", err, s.lastAccess)
-		cmd := exec.Command("sudo", "reboot")
-		cmd.Run()
-	}
-
-	return nil
 }
 
 func (s *Server) lookForDiscover(ctx context.Context) error {
@@ -729,6 +731,7 @@ func main() {
 	}
 
 	go s.procAcks()
+	go s.updateAccess()
 
 	err = s.Serve()
 	log.Fatalf("Unable to serve: %v", err)
