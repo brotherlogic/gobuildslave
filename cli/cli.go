@@ -152,9 +152,7 @@ func main() {
 			}
 		case "nconfig":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
-				host, port := findServer(ctx, "gobuildslave", *server)
-
-				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
+				conn, err := grpc.Dial(*hosta+":53604", grpc.WithInsecure())
 				defer conn.Close()
 
 				registry := pb.NewBuildSlaveClient(conn)
