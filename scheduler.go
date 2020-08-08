@@ -195,6 +195,9 @@ func run(c *rCommand) error {
 	c.status = "StartCommand"
 	err := c.command.Start()
 	if err != nil {
+		c.endTime = time.Now().Unix()
+		c.comp <- true
+		c.err = err
 		return err
 	}
 	c.startTime = time.Now().Unix()
