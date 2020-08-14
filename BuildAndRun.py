@@ -45,7 +45,7 @@ if size_1 != size_2 or new_hash != current_hash or not running:
             pass
         for line in os.popen('killall ' + name).readlines():
             pass
-    if socket.gethostname() == "stationone":
+    if socket.gethostname() == "stationone" or socket.gethostname() == "natframe":
         subprocess.Popen(['./' + name, '--builds=false'])
     else:
         subprocess.Popen(['./' + name])
