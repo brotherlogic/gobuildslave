@@ -633,7 +633,7 @@ func (s *Server) backgroundRegister() {
 			}
 		}
 
-		fmt.Printf("Registring us to discover: %v\n", err)
+		s.DLog(fmt.Sprintf("Registring us to discover: %v\n", err))
 
 		time.Sleep(time.Minute)
 	}
@@ -655,7 +655,7 @@ func (s *Server) updateAccess() {
 		}
 
 		if time.Now().Sub(s.lastAccess) > time.Minute*5 && time.Now().Hour() < 22 && time.Now().Hour() > 7 {
-			fmt.Printf("REBOOTING -> %v, %v\n", err, s.lastAccess)
+			s.DLog(fmt.Sprintf("REBOOTING -> %v, %v\n", err, s.lastAccess))
 			cmd := exec.Command("sudo", "reboot")
 			cmd.Run()
 		}

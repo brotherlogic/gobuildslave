@@ -33,17 +33,14 @@ func (s *Server) procAcks() {
 		ctx, cancel := utils.ManualContext("gobuildslaveack", "gobuildslaveack", time.Minute, false)
 		conn, err := s.FDialSpecificServer(ctx, "versiontracker", s.Registry.GetIdentifier())
 		if err != nil {
-			fmt.Printf("Dial error: (%v), %v\n", job.GetJob(), err)
+			s.DLog(fmt.Sprintf("Dial error: (%v), %v\n", job.GetJob(), err))
 			s.ackChan <- job
 		} else {
 
 			client := pbvt.NewVersionTrackerServiceClient(conn)
 			_, err = client.NewJob(ctx, &pbvt.NewJobRequest{Version: &pbb.Version{Job: job.GetJob()}})
 			if err != nil {
-				fmt.Printf("Ack error: (%v) %v\n", job.GetJob(), err)
 				s.ackChan <- job
-			} else {
-				fmt.Printf("ACKED %v", job.GetJob())
 			}
 			conn.Close()
 		}
@@ -55,7 +52,7 @@ func (s *Server) procAcks() {
 }
 
 func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
-	fmt.Printf("TRANS: %v\n", job)
+	s.DLog(fmt.Sprintf("TRANS: %v\n", job))
 	startState := job.State
 	job.LastUpdateTime = time.Now().Unix()
 	switch job.State {
@@ -219,7 +216,7 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) strin
 
 	val, err := s.builder.build(ctx, job.Job)
 	if err != nil {
-		fmt.Printf("BUILD Error: %v\n", err)
+		s.DLog(fmt.Sprintf("BUILD Error: %v\n", err))
 		return ""
 	}
 	return val.Version
