@@ -45,7 +45,6 @@ func (s *Scheduler) getState(key string) string {
 
 // Schedule schedules a task
 func (s *Scheduler) Schedule(c *rCommand) string {
-	fmt.Printf("Scheduling: %v\n", c.command.Path)
 	key := fmt.Sprintf("%v", time.Now().UnixNano())
 	s.complete = append(s.complete, c)
 	c.status = "InQueue"
@@ -82,13 +81,10 @@ func (s *Scheduler) getErrOutput(key string) (string, error) {
 func (s *Scheduler) wait(key string) {
 	for _, c := range s.complete {
 		if c.key == key {
-			fmt.Printf("Waiting for %v\n", key)
 			<-c.comp
-			fmt.Printf("Waited for %v\n", key)
 			return
 		}
 	}
-	fmt.Printf("Wait Failed for %v with %v\n", key, len(s.complete))
 }
 
 func (s *Scheduler) getStatus(key string) string {
@@ -116,7 +112,6 @@ func (s *Scheduler) processBlockingCommands() {
 	for c := range s.blockingQueue {
 		err := run(c)
 		if err != nil {
-			fmt.Printf("Command failure: %v", err)
 			c.endTime = time.Now().Unix()
 		}
 	}
@@ -126,7 +121,6 @@ func (s *Scheduler) processNonblockingCommands() {
 	for c := range s.nonblockingQueue {
 		err := run(c)
 		if err != nil {
-			fmt.Printf("Command failure: %v", err)
 			c.endTime = time.Now().Unix()
 		}
 	}
@@ -211,9 +205,7 @@ func run(c *rCommand) error {
 			c.err = err
 		}
 		c.endTime = time.Now().Unix()
-		fmt.Printf("ENDED - Writing to channel\n")
 		c.comp <- true
-		fmt.Printf("COMPLETE\n")
 	}
 
 	if c.block {
