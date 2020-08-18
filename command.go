@@ -627,6 +627,8 @@ func (s *Server) backgroundRegister() {
 				_, err = client.Unregister(ctx, &pbd.UnregisterRequest{Service: &pbd.RegistryEntry{Identifier: s.Registry.Identifier}})
 				if err == nil {
 					err = s.RegisterServerV2("gobuildslave", false, true)
+				} else {
+					log.Fatalf("Unable to unregister: %v", err)
 				}
 			}
 		}
