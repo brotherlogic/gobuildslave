@@ -123,6 +123,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		}
 	case pb.State_RUNNING:
 		output, errout := s.scheduler.getOutput(job.CommandKey)
+		output2, _ := s.scheduler.getErrOutput(job.CommandKey)
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("ROUTPUT = %v, %v", output, s.scheduler.getStatus(job.CommandKey))
 		job.Status = s.scheduler.getStatus(job.CommandKey)
@@ -132,7 +133,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			s.stateMutex.Lock()
 			s.stateMap[job.Job.Name] = fmt.Sprintf("COMPLETE = (%v, %v)", job, output)
 			s.stateMutex.Unlock()
-			s.deliverCrashReport(ctx, job, output+"\n"+errout)
+			s.deliverCrashReport(ctx, job, output+"\n"+output2)
 			job.State = pb.State_DIED
 		}
 
