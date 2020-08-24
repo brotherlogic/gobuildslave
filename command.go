@@ -625,10 +625,9 @@ func (s *Server) backgroundRegister() {
 				defer conn.Close()
 				client := pbd.NewDiscoveryServiceV2Client(conn)
 				_, err = client.Unregister(ctx, &pbd.UnregisterRequest{Service: &pbd.RegistryEntry{Identifier: s.Registry.Identifier}})
+				time.Sleep(time.Second * 5)
 				if err == nil {
 					err = s.RegisterServerV2("gobuildslave", false, true)
-				} else {
-					log.Fatalf("Unable to unregister: %v", err)
 				}
 			}
 		}
