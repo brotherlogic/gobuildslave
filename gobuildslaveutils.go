@@ -119,7 +119,15 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		s.stateMap[job.Job.Name] = fmt.Sprintf("OUTPUT = %v", out)
 		s.stateMutex.Unlock()
 		if time.Now().Add(-time.Minute).Unix() > job.StartTime {
-			job.State = pb.State_RUNNING
+			var err error
+			if job.Job.Name == "discovery" {
+				err = s.runOnChange()
+			}
+			if err == nil {
+				job.State = pb.State_RUNNING
+			} else {
+				s.Log(fmt.Sprintf("Cannot reregister: %v", err))
+			}
 		}
 	case pb.State_RUNNING:
 		output, errout := s.scheduler.getOutput(job.CommandKey)
