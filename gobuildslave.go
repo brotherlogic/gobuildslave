@@ -35,7 +35,9 @@ func (s *Server) trackUpTime(ctx context.Context) error {
 	return fmt.Errorf("No change made: %v -> %v", err, state)
 }
 
-func (s *Server) runOnChange(ctx context.Context) error {
+func (s *Server) runOnChange() error {
+	ctx, cancel := utils.ManualContext("gbsrr", "gbsrr", time.Minute, false)
+	defer cancel()
 	s.Log(fmt.Sprintf("Resyncing"))
 	_, err := s.Reregister(ctx, &pbgs.ReregisterRequest{})
 	if err != nil {
