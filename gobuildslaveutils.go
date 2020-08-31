@@ -9,6 +9,8 @@ import (
 	"github.com/brotherlogic/goserver/utils"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	pbb "github.com/brotherlogic/buildserver/proto"
 	pbfc "github.com/brotherlogic/filecopier/proto"
@@ -123,7 +125,10 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			if job.Job.Name == "discovery" {
 				err = s.runOnChange()
 			}
-			if err == nil {
+			code = status.Convert(err).Code()
+
+			//Unavailable allows the job to die here
+			if code == codes.OK || code == codes.Unavailable {
 				job.State = pb.State_RUNNING
 			} else {
 				s.Log(fmt.Sprintf("Cannot reregister: %v", err))
