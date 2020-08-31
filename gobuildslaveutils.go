@@ -125,7 +125,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			if job.Job.Name == "discovery" {
 				err = s.runOnChange()
 			}
-			code = status.Convert(err).Code()
+			code := status.Convert(err).Code()
 
 			//Unavailable allows the job to die here
 			if code == codes.OK || code == codes.Unavailable {
