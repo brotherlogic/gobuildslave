@@ -47,13 +47,13 @@ type version interface {
 }
 
 type prodVersion struct {
-	dial   func(server string) (*grpc.ClientConn, error)
+	dial   func(ctx context.Context, server string) (*grpc.ClientConn, error)
 	server string
 	log    func(line string)
 }
 
 func (p *prodVersion) confirm(ctx context.Context, job string) bool {
-	conn, err := p.dial("versionserver")
+	conn, err := p.dial(ctx, "versionserver")
 	if err != nil {
 		return false
 	}
@@ -106,7 +106,7 @@ func (p *prodDiscover) discover(job string, server string) (int32, error) {
 }
 
 type prodBuilder struct {
-	dial   func(server string) (*grpc.ClientConn, error)
+	dial   func(ctx context.Context, server string) (*grpc.ClientConn, error)
 	server func() string
 	Log    func(string)
 }
@@ -125,7 +125,7 @@ func (p *prodBuilder) build(ctx context.Context, job *pb.Job) (*pbb.Version, err
 }
 
 func (p *prodBuilder) copy(ctx context.Context, v *pbb.Version) (*pbfc.CopyResponse, error) {
-	conn, err := p.dial("filecopier")
+	conn, err := p.dial(ctx, "filecopier")
 	if err != nil {
 		return nil, err
 	}
@@ -635,7 +635,7 @@ func (s *Server) backgroundRegister() {
 		time.Sleep(time.Minute)
 	}
 
-	s.version = &prodVersion{s.DialMaster, s.Registry.Identifier, s.Log}
+	s.version = &prodVersion{s.FDialServer, s.Registry.Identifier, s.Log}
 }
 
 func (s *Server) updateAccess() {
@@ -690,7 +690,7 @@ func main() {
 
 	s := InitServer(*build)
 	s.scheduler.Log = s.Log
-	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName, dial: s.DialMaster}
+	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName, dial: s.FDialServer}
 	s.runner.getip = s.GetIP
 	s.runner.logger = s.Log
 	s.Register = s
