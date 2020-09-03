@@ -83,7 +83,8 @@ type discover interface {
 	discover(job string, server string) (int32, error)
 }
 
-type prodDiscover struct{}
+type prodDiscover struct {
+}
 
 func (p *prodDiscover) discover(job string, server string) (int32, error) {
 	// Short circuit discover since it doesn't self report.
