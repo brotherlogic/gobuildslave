@@ -151,7 +151,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		}
 
 		if s.discover != nil && s.Registry != nil {
-			port, err := s.discover.discover(job.Job.Name, s.Registry.Identifier)
+			entry, err := s.FFindSpecificServer(ctx, job.Job.Name, s.Registry.Identifier)
 			if err != nil {
 				if job.DiscoverCount > 30 {
 					output2, errout2 := s.scheduler.getErrOutput(job.CommandKey)
@@ -159,7 +159,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 				}
 				job.DiscoverCount++
 			} else {
-				job.Port = port
+				job.Port = entry.GetPort()
 				job.DiscoverCount = 0
 			}
 		}
