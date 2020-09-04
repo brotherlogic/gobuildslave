@@ -50,4 +50,7 @@ if size_1 != size_2 or new_hash != current_hash or not running:
     if socket.gethostname() == "stationone" or socket.gethostname() == "natframe" or socket.gethostname() == 'framethree' or socket.gethostname() == "printer": 
         subprocess.Popen(['./' + name, '--builds=false'])
     else:
-        subprocess.Popen(['./' + name])
+        if socket.gethostname() == "argon":
+            subprocess.Popen(['./' + name, '--max_jobs=50'])
+        else:
+            subprocess.Popen(['./' + name])

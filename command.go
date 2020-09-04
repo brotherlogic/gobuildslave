@@ -192,6 +192,7 @@ type Server struct {
 	discoverSync    time.Time
 	lastAccess      time.Time
 	ackChan         chan *pb.JobAssignment
+	maxJobs         int
 }
 
 // InitServer builds out a server
@@ -234,6 +235,7 @@ func InitServer(build bool) *Server {
 		time.Now(),
 		time.Now(),
 		make(chan *pb.JobAssignment, 100),
+		10,
 	}
 
 	// Run the processing queues
@@ -682,6 +684,7 @@ func (s *Server) lookForDiscover(ctx context.Context) error {
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	var build = flag.Bool("builds", true, "Responds to build requests")
+	var maxnum = flag.Int("max_jobs", 10, "Maxiumum jobs")
 	flag.Parse()
 
 	if *quiet {
@@ -690,6 +693,7 @@ func main() {
 	}
 
 	s := InitServer(*build)
+	s.maxJobs = *maxnum
 	s.scheduler.Log = s.Log
 	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName, dial: s.FDialServer}
 	s.runner.getip = s.GetIP
