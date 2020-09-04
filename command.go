@@ -694,6 +694,20 @@ func main() {
 
 	s := InitServer(*build)
 	s.maxJobs = *maxnum
+	dets, err := ioutil.ReadFile("/sys/firmware/devicetree/base/model")
+	if err == nil {
+		model := string(dets)
+		if strings.HasPrefix(model, "Raspberry Pi 4") {
+			s.maxJobs = 100
+		} else {
+			s.maxJobs = 10
+		}
+
+		s.Log(fmt.Sprintf("Got model %v -> set max jobs %v", s.maxJobs))
+	} else {
+		s.Log(fmt.Sprintf("BAD READ: %v", err))
+	}
+
 	s.scheduler.Log = s.Log
 	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName, dial: s.FDialServer}
 	s.runner.getip = s.GetIP
@@ -709,7 +723,7 @@ func main() {
 	// Run a discover server to allow us to do a local register
 	ctx, cancel := utils.ManualContext("gbs", "gbs", time.Minute, true)
 	defer cancel()
-	_, err := s.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{
+	_, err = s.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{
 		Name:             "discovery",
 		GoPath:           "github.com/brotherlogic/discovery",
 		PartialBootstrap: true,
