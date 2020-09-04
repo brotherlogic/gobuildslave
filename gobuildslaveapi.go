@@ -26,7 +26,7 @@ func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunRespons
 	}
 
 	if len(s.njobs) > s.maxJobs {
-		return nil, fmt.Errorf("We're running %v jobs, can't run no more", len(s.njobs))
+		return nil, status.Errorf(codes.FailedPrecondition, "We're running %v jobs, can't run no more", len(s.njobs))
 	}
 
 	s.njobs[req.GetJob().GetName()] = &pb.JobAssignment{Job: req.GetJob(), LastTransitionTime: time.Now().Unix()}
