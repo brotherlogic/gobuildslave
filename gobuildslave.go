@@ -45,7 +45,7 @@ func (s *Server) runOnChange() error {
 	}
 	for _, job := range s.njobs {
 		if job.Port > 0 {
-			conn, err := s.DoDial(&dpb.RegistryEntry{Ip: s.Registry.Ip, Port: job.Port})
+			conn, err := s.FDial(fmt.Sprintf("%v:%v", s.Registry.Ip, job.Port))
 			if err != nil {
 				s.Log(fmt.Sprintf("Cannot dial %v,%v -> %v", s.Registry.Ip, job.Port, err))
 				break
