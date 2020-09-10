@@ -150,7 +150,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.State = pb.State_DIED
 		}
 
-		if s.discover != nil && s.Registry != nil {
+		if s.Registry != nil {
 			entry, err := s.FFindSpecificServer(ctx, job.Job.Name, s.Registry.Identifier)
 			if err != nil {
 				if job.DiscoverCount > 30 {
