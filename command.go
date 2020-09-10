@@ -79,33 +79,6 @@ func (p *prodVersion) confirm(ctx context.Context, job string) bool {
 	return resp.Success
 }
 
-type discover interface {
-	discover(job string, server string) (int32, error)
-}
-
-type prodDiscover struct {
-}
-
-func (p *prodDiscover) discover(job string, server string) (int32, error) {
-	// Short circuit discover since it doesn't self report.
-	if job == "discovery" {
-		return 50055, nil
-	}
-	entries, err := utils.ResolveAll(job)
-
-	if err != nil {
-		return -1, err
-	}
-
-	for _, entry := range entries {
-		if entry.Identifier == server {
-			return entry.Port, nil
-		}
-	}
-
-	return -1, fmt.Errorf("Unable to find %v on %v", job, server)
-}
-
 type prodBuilder struct {
 	dial   func(ctx context.Context, server string) (*grpc.ClientConn, error)
 	server func() string
@@ -174,7 +147,6 @@ type Server struct {
 	crashAttempts   int64
 	builder         Builder
 	doesBuild       bool
-	discover        discover
 	stateMap        map[string]string
 	pendingMap      map[time.Weekday]map[string]int
 	stateMutex      *sync.Mutex
@@ -217,7 +189,6 @@ func InitServer(build bool) *Server {
 		int64(0),
 		&prodBuilder{},
 		build,
-		&prodDiscover{},
 		make(map[string]string),
 		make(map[time.Weekday]map[string]int),
 		&sync.Mutex{},
