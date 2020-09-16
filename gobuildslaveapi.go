@@ -25,7 +25,7 @@ func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunRespons
 		return &pb.RunResponse{}, fmt.Errorf("Already running this job!")
 	}
 
-	if len(s.njobs) > s.maxJobs {
+	if len(s.njobs) > s.maxJobs && !req.GetJob().GetBreakout() {
 		return nil, status.Errorf(codes.FailedPrecondition, "We're running %v jobs, can't run no more", len(s.njobs))
 	}
 
