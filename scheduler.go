@@ -7,6 +7,9 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 type rCommand struct {
@@ -126,6 +129,13 @@ func (s *Scheduler) processNonblockingCommands() {
 	}
 }
 
+var (
+	outputsize = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "gobuildslave_outputsize",
+		Help: "The size of the scheduler output",
+	}, []string{"job", "dest"})
+)
+
 func run(c *rCommand) error {
 	c.status = "Running"
 	env := os.Environ()
@@ -174,6 +184,7 @@ func run(c *rCommand) error {
 	go func() {
 		for scanner != nil && scanner.Scan() {
 			c.output += scanner.Text()
+			outputsize.With(prometheus.Labels{"dest": "err", "job": c.command.Path}).Add(float64(len(scanner.Text())))
 		}
 		out.Close()
 	}()
@@ -182,6 +193,7 @@ func run(c *rCommand) error {
 	go func() {
 		for scanner2 != nil && scanner2.Scan() {
 			c.mainOut += scanner2.Text()
+			outputsize.With(prometheus.Labels{"dest": "out", "job": c.command.Path}).Add(float64(len(scanner2.Text())))
 		}
 		outr.Close()
 	}()

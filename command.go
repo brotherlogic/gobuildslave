@@ -674,7 +674,7 @@ func main() {
 			s.maxJobs = 10
 		}
 
-		s.Log(fmt.Sprintf("Got model %v -> set max jobs %v", s.maxJobs))
+		s.Log(fmt.Sprintf("Got model %v -> set max jobs %v", model, s.maxJobs))
 	} else {
 		s.Log(fmt.Sprintf("BAD READ: %v", err))
 	}
