@@ -11,7 +11,7 @@ import (
 	pbd "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	"github.com/brotherlogic/goserver"
-	"github.com/brotherlogic/keystore/client"
+	keystoreclient "github.com/brotherlogic/keystore/client"
 	"golang.org/x/net/context"
 )
 
@@ -55,7 +55,7 @@ func getTestServer() *Server {
 	s.translator = &testTranslator{}
 	s.builder = &testBuilder{}
 	s.doesBuild = true
-	s.discover = &testDiscover{}
+	//s.discover = &testDiscover{}
 	s.stateMap = make(map[string]string)
 	s.pendingMap = make(map[time.Weekday]map[string]int)
 	s.stateMutex = &sync.Mutex{}
