@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	pb "github.com/brotherlogic/gobuildslave/proto"
 	"github.com/brotherlogic/goserver/utils"
 
 	dpb "github.com/brotherlogic/discovery/proto"
@@ -38,7 +39,14 @@ func (s *Server) trackUpTime(ctx context.Context) error {
 func (s *Server) runOnChange() error {
 	ctx, cancel := utils.ManualContext("gbsrr", "gbsrr", time.Minute, false)
 	defer cancel()
-	s.Log(fmt.Sprintf("Resyncing"))
+
+	var jj *pb.JobAssignment
+	if len(s.njobs) > 0 {
+		for _, val := range s.njobs {
+			jj = val
+		}
+	}
+	s.Log(fmt.Sprintf("Resyncing on %v jobs (First is %v)", len(s.njobs), jj))
 	_, err := s.Reregister(ctx, &pbgs.ReregisterRequest{})
 	if err != nil {
 		return err
