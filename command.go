@@ -671,7 +671,7 @@ func main() {
 		if strings.HasPrefix(model, "Raspberry Pi 4") {
 			s.maxJobs = 100
 		} else {
-			s.maxJobs = 10
+			s.maxJobs = 0
 		}
 
 		s.Log(fmt.Sprintf("Got model %v -> set max jobs %v", model, s.maxJobs))
