@@ -64,6 +64,9 @@ func (s *Server) runOnChange() error {
 			if err != nil {
 				s.Log(fmt.Sprintf("Reregister failed: %v", err))
 			}
+		} else {
+			time.Sleep(time.Second)
+			s.Log(fmt.Sprintf("Job %v has no port", job))
 		}
 	}
 
