@@ -130,7 +130,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			//Unavailable allows the job to die here
 			if code == codes.OK || code == codes.Unavailable {
 				// Validate that the job is alive
-				if !isJobAlive(ctx, job) {
+				if !s.isJobAlive(ctx, job) {
 					s.Log(fmt.Sprintf("Job %v is not alive", job))
 				}
 				job.State = pb.State_RUNNING

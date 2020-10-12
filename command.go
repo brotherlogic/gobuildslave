@@ -140,7 +140,6 @@ type Server struct {
 	njobs           map[string]*pb.JobAssignment
 	translator      translator
 	scheduler       *Scheduler
-	checker         checker
 	disker          disker
 	crashFails      int64
 	crashError      string
@@ -182,7 +181,6 @@ func InitServer(build bool) *Server {
 			nonblockingQueue: make(chan *rCommand),
 			complete:         make([]*rCommand, 0),
 		},
-		&pChecker{},
 		&prodDisker{},
 		int64(0),
 		"",
@@ -436,16 +434,12 @@ func (p *pTranslator) run(job *pb.Job) *exec.Cmd {
 	return exec.Command("$GOPATH/bin/" + command)
 }
 
-type pChecker struct{}
-
-func (p *pChecker) isAlive(ctx context.Context, job *pb.JobAssignment) bool {
-	return isJobAlive(ctx, job)
-}
-
 // updateState of the runner command
-func isJobAlive(ctx context.Context, job *pb.JobAssignment) bool {
+func (s *Server) isJobAlive(ctx context.Context, job *pb.JobAssignment) bool {
 	if job.GetPort() == 0 {
 		dServer, dPort, err := getIP(ctx, job.Job.Name, job.Server)
+
+		s.Log(fmt.Sprintf("GOT PORT %v with %v", dPort, err))
 
 		e, ok := status.FromError(err)
 		if ok && e.Code() == codes.DeadlineExceeded {
