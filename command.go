@@ -475,7 +475,7 @@ func (s *Server) isJobAlive(ctx context.Context, job *pb.JobAssignment) bool {
 }
 
 func getIP(ctx context.Context, name string, server string) (string, int32, error) {
-	conn, err := grpc.Dial(utils.RegistryIP+":"+strconv.Itoa(utils.RegistryPort), grpc.WithInsecure())
+	conn, err := grpc.Dial(utils.LocalDiscover, grpc.WithInsecure())
 	defer conn.Close()
 
 	if err != nil {
