@@ -482,16 +482,17 @@ func getIP(ctx context.Context, name string, server string) (string, int32, erro
 		return "", -1, err
 	}
 
-	registry := pbd.NewDiscoveryServiceClient(conn)
-	entry := pbd.RegistryEntry{Name: name, Identifier: server}
-
-	r, err := registry.Discover(ctx, &pbd.DiscoverRequest{Request: &entry}, grpc.FailFast(false))
+	registry := pbd.NewDiscoveryServiceV2Client(conn)
+	r, err := registry.Get(ctx, &pbd.GetRequest{Job: name, Server: server})
 
 	if err != nil {
 		return "", -1, err
 	}
+	if len(r.GetServices()) == 0 {
+		return "", -1, fmt.Errorf("No services found for %v and %v", name, server)
+	}
 
-	return r.GetService().Ip, r.GetService().Port, nil
+	return r.GetServices()[0].Ip, r.GetServices()[0].Port, nil
 }
 
 func (s *Server) checkOnSsh(ctx context.Context) error {
