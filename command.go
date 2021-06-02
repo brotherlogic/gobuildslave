@@ -217,6 +217,8 @@ func InitServer(build bool) *Server {
 func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, output string) {
 	s.crashAttempts++
 
+	s.Log(fmt.Sprintf("Attempting to send crash report: %v -> %v", j.Job, output))
+
 	if j.Job.Name == "buildserver" && len(output) > 0 {
 		s.RaiseIssue("Buildserver failing", fmt.Sprintf("on %v -> %v", s.Registry, output))
 	}
@@ -231,6 +233,8 @@ func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, ou
 			if err != nil {
 				s.crashFails++
 				s.crashError = fmt.Sprintf("%v-%v", j.Job, err)
+				s.Log(fmt.Sprintf("Failed to send crash report: %v -> %v because %v", j.Job, output, err))
+
 			}
 		}
 	} else {
