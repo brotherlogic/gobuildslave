@@ -245,6 +245,8 @@ func (s *Server) scheduleRun(job *pb.JobAssignment) string {
 	key := s.scheduler.Schedule(&rCommand{command: exec.Command("mv", "$GOPATH/bin/"+job.GetJob().GetName()+".new", "$GOPATH/bin/"+job.GetJob().GetName()), base: job.GetJob().GetName()})
 	s.scheduler.wait(key)
 
+	// Wait a while before starting the job JIC
+	time.Sleep(time.Second * 10)
 	c := s.translator.run(job.GetJob())
 	return s.scheduler.Schedule(&rCommand{command: c, base: job.GetJob().GetName()})
 }
