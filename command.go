@@ -253,7 +253,7 @@ func (s *Server) addMessage(details *pb.JobDetails, message string) {
 
 func (s *Server) nmonitor(job *pb.JobAssignment) {
 	for job.State != pb.State_DEAD {
-		ctx, cancel := utils.ManualContext("nmonitor", job.Job.Name, time.Minute, true)
+		ctx, cancel := utils.ManualContext(fmt.Sprintf("nmonitor-%v", job.Job.Name), time.Minute)
 		s.runTransition(ctx, job)
 		cancel()
 		time.Sleep(time.Second * 10)
@@ -590,7 +590,7 @@ func (s *Server) backgroundRegister() {
 	for err != nil {
 		err = s.RegisterServerV2("gobuildslave", false, true)
 		if err == nil {
-			ctx, cancel := utils.ManualContext("gbs-rereg", "gbs-rereg", time.Minute, true)
+			ctx, cancel := utils.ManualContext("gbs-rereg", time.Minute)
 			defer cancel()
 
 			conn, err := s.FDial("localhost:50055")
@@ -603,7 +603,7 @@ func (s *Server) backgroundRegister() {
 			}
 		}
 
-		s.DLog(fmt.Sprintf("Registring us to discover: %v\n", err))
+		s.DLog(context.Background(), fmt.Sprintf("Registring us to discover: %v\n", err))
 
 		time.Sleep(time.Minute)
 	}
@@ -625,7 +625,7 @@ func (s *Server) updateAccess() {
 		}
 
 		if time.Now().Sub(s.lastAccess) > time.Minute*5 && time.Now().Hour() < 22 && time.Now().Hour() > 7 {
-			s.DLog(fmt.Sprintf("REBOOTING -> %v, %v\n", err, s.lastAccess))
+			s.DLog(context.Background(), fmt.Sprintf("REBOOTING -> %v, %v\n", err, s.lastAccess))
 			cmd := exec.Command("sudo", "reboot")
 			cmd.Run()
 		}
@@ -691,7 +691,7 @@ func main() {
 	s.loadCurrentVersions()
 
 	// Run a discover server to allow us to do a local register
-	ctx, cancel := utils.ManualContext("gbs", "gbs", time.Minute, true)
+	ctx, cancel := utils.ManualContext("gbs", time.Minute)
 	defer cancel()
 	_, err = s.RunJob(ctx, &pb.RunRequest{Job: &pb.Job{
 		Name:             "discovery",

@@ -37,7 +37,7 @@ func (s *Server) trackUpTime(ctx context.Context) error {
 }
 
 func (s *Server) runOnChange() error {
-	ctx, cancel := utils.ManualContext("gbsrr", "gbsrr", time.Minute, false)
+	ctx, cancel := utils.ManualContext("gbsrr", time.Minute)
 	defer cancel()
 
 	var jj *pb.JobAssignment

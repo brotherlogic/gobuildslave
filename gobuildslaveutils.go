@@ -32,10 +32,10 @@ var (
 func (s *Server) procAcks() {
 	for job := range s.ackChan {
 		ackQueueLen.Set(float64(len(s.ackChan)))
-		ctx, cancel := utils.ManualContext("gobuildslaveack", "gobuildslaveack", time.Minute, false)
+		ctx, cancel := utils.ManualContext("gobuildslaveack", time.Minute)
 		conn, err := s.FDialSpecificServer(ctx, "versiontracker", s.Registry.GetIdentifier())
 		if err != nil {
-			s.DLog(fmt.Sprintf("Dial error: (%v), %v\n", job.GetJob(), err))
+			s.DLog(ctx, fmt.Sprintf("Dial error: (%v), %v\n", job.GetJob(), err))
 			s.ackChan <- job
 		} else {
 
@@ -54,7 +54,7 @@ func (s *Server) procAcks() {
 }
 
 func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
-	s.DLog(fmt.Sprintf("TRANS: %v\n", job))
+	s.DLog(ctx, fmt.Sprintf("TRANS: %v\n", job))
 	startState := job.State
 	job.LastUpdateTime = time.Now().Unix()
 	switch job.State {
@@ -234,7 +234,7 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) strin
 
 	val, err := s.builder.build(ctx, job.Job)
 	if err != nil {
-		s.DLog(fmt.Sprintf("BUILD Error: %v\n", err))
+		s.DLog(ctx, fmt.Sprintf("BUILD Error: %v\n", err))
 		return ""
 	}
 	return val.Version
