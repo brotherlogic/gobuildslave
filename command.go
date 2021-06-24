@@ -426,7 +426,7 @@ func (diskChecker prodDiskChecker) diskUsage(path string) int64 {
 type pTranslator struct{}
 
 func (p *pTranslator) build(job *pb.Job) *exec.Cmd {
-	return exec.Command("go", "get", "-u", job.GoPath)
+	return exec.Command("go", "get", job.GoPath)
 }
 
 func (p *pTranslator) run(job *pb.Job) *exec.Cmd {
