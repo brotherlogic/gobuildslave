@@ -443,7 +443,7 @@ func (s *Server) isJobAlive(ctx context.Context, job *pb.JobAssignment) bool {
 	if job.GetPort() == 0 {
 		dServer, dPort, err := getIP(ctx, job.Job.Name, job.Server)
 
-		s.Log(fmt.Sprintf("GOT PORT %v with %v", dPort, err))
+		s.Log(fmt.Sprintf("GOT THE PORT %v with %v", dPort, err))
 
 		e, ok := status.FromError(err)
 		if ok && e.Code() == codes.DeadlineExceeded {
