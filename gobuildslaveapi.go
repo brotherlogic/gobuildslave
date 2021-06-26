@@ -95,10 +95,11 @@ func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.Co
 		requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_EXTERNAL, Properties: "external_ready"})
 	}
 
-	data, err := exec.Command("lsusb").Output()
+	data, err := exec.Command("/usr/bin/lsusb").Output()
 	if err != nil {
-		return nil, fmt.Errorf("Error listing usb components: %v", err)
+		return nil, fmt.Errorf("error listing usb components: %v", err)
 	}
+	s.Log(fmt.Sprintf("USBRES: %v", string(data)))
 	if strings.Contains(string(data), "TSP100II") {
 		requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_RECEIPT_PRINTER})
 	}
