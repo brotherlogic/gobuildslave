@@ -25,5 +25,6 @@ _testmain.go
 
 gobuildslave
 cli/cli
+gobuildslave_cli/gobuildslave_cli
 
 *~

@@ -13,6 +13,7 @@ enum RequirementCategory {
   SERVER = 3;
   NETWORK = 4;
   ACCESS_POINT = 5;
+  RECEIPT_PRINTER = 6;
 }
 
 enum State {

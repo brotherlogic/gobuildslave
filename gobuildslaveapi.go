@@ -95,11 +95,21 @@ func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.Co
 		requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_EXTERNAL, Properties: "external_ready"})
 	}
 
+	data, err := exec.Command("lsusb").Output()
+	if err != nil {
+		return nil, fmt.Errorf("Error listing usb components: %v", err)
+	}
+	if strings.Contains(string(data), "TSP100II") {
+		requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_RECEIPT_PRINTER})
+	}
+
 	out, _ := exec.Command("/sbin/iwconfig").Output()
 	br, ap := extractBitRate(string(out))
 	s.accessPoint = ap
 	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_NETWORK, Properties: br})
 	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_ACCESS_POINT, Properties: ap})
+
+	// Add in the printer
 
 	return &pb.ConfigResponse{Config: &pb.SlaveConfig{Requirements: requirements}}, nil
 }
