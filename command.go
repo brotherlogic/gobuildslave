@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -625,9 +626,43 @@ func (s *Server) updateAccess() {
 		}
 
 		if time.Now().Sub(s.lastAccess) > time.Minute*5 && time.Now().Hour() < 22 && time.Now().Hour() > 7 {
-			s.DLog(context.Background(), fmt.Sprintf("REBOOTING -> %v, %v\n", err, s.lastAccess))
+			s.Log(fmt.Sprintf("REBOOTING -> %v, %v\n", err, s.lastAccess))
 			cmd := exec.Command("sudo", "reboot")
 			cmd.Run()
+		}
+
+		foundIP := false
+		ifaces, err := net.Interfaces()
+		if err != nil {
+			s.Log(fmt.Sprintf("NETINT ERROR: %v", err))
+			foundIP = true
+		} else {
+			for _, i := range ifaces {
+				addrs, err := i.Addrs()
+				if err != nil {
+					s.Log(fmt.Sprintf("ADDR ERROR: %v", err))
+					foundIP = true
+				} else {
+					for _, addr := range addrs {
+						var ip net.IP
+						switch v := addr.(type) {
+						case *net.IPNet:
+							ip = v.IP
+						case *net.IPAddr:
+							ip = v.IP
+						}
+						// process IP address
+
+						if ip != nil {
+							foundIP = true
+							s.Log(fmt.Sprintf("FOUNDIP %v", ip))
+						}
+					}
+				}
+			}
+		}
+		if foundIP {
+			s.Log(fmt.Sprintf("NOIP"))
 		}
 
 		time.Sleep(time.Second * 30)
