@@ -653,7 +653,7 @@ func (s *Server) updateAccess() {
 						}
 						// process IP address
 
-						if ip != nil {
+						if ip != nil && !ip.IsLoopback() {
 							foundIP = true
 							s.Log(fmt.Sprintf("FOUNDIP %v", ip))
 						}
