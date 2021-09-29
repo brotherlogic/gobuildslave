@@ -621,7 +621,7 @@ func (s *Server) updateAccess() {
 			s.lastAccess = time.Now()
 			r.Body.Close()
 		} else {
-			s.Log(fmt.Sprintf("Ping fail %v", err))
+			s.Log(fmt.Sprintf("Ping fail %v (%v = %v)", err, s.lastAccess, time.Now().Sub(s.lastAccess).Minutes()))
 			fails.Inc()
 		}
 
