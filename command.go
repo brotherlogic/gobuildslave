@@ -625,7 +625,7 @@ func (s *Server) updateAccess() {
 			fails.Inc()
 		}
 
-		if time.Now().Sub(s.lastAccess) > time.Minute*5 && time.Now().Hour() < 22 && time.Now().Hour() > 7 {
+		if time.Now().Sub(s.lastAccess) > time.Minute*5 && time.Now().Hour() < 22 && time.Now().Hour() >= 7 {
 			s.Log(fmt.Sprintf("REBOOTING -> %v, %v\n", err, s.lastAccess))
 			cmd := exec.Command("sudo", "reboot")
 			cmd.Run()
