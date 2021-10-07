@@ -14,9 +14,9 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/common v0.31.1 // indirect
-	golang.org/x/net v0.0.0-20210928044308-7d9f5e0b762b
-	golang.org/x/sys v0.0.0-20210927094055-39ccf1dd6fa6 // indirect
-	google.golang.org/genproto v0.0.0-20210928142010-c7af6a1a74c9 // indirect
+	golang.org/x/net v0.0.0-20211007125505-59d4e928ea9d
+	golang.org/x/sys v0.0.0-20211007075335-d3039528d8ac // indirect
+	google.golang.org/genproto v0.0.0-20211005153810-c76a74d43a8e // indirect
 	google.golang.org/grpc v1.41.0
 	google.golang.org/protobuf v1.27.1
 )
