@@ -555,7 +555,7 @@ func (s *Server) loadCurrentVersions() {
 				val := &pbb.Version{}
 				proto.Unmarshal(data, val)
 				s.versionsMutex.Lock()
-				s.versions[val.Job.Name] = val
+				s.versions[val.GetJob().GetName()] = val
 				s.versionsMutex.Unlock()
 			}
 		}
