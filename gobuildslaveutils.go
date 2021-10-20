@@ -147,6 +147,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		s.stateMutex.Unlock()
 		if len(job.CommandKey) > 0 {
 			s.scheduler.wait(job.CommandKey)
+			s.stateMap[job.Job.Name] = fmt.Sprintf("ONLOCk = (%v, %v)", job, output)
 			s.stateMutex.Lock()
 			s.stateMap[job.Job.Name] = fmt.Sprintf("COMPLETE = (%v, %v)", job, output)
 			s.stateMutex.Unlock()
