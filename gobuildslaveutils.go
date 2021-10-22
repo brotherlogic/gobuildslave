@@ -100,6 +100,20 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.BuildFail++
 			job.State = pb.State_DIED
 		} else {
+			job.State = pb.State_VERSION_CHECK
+		}
+		job.SubState = "Out of case"
+	case pb.State_VERSION_CHECK:
+		s.loadCurrentVersions()
+		version, err := s.getLatestVersion(ctx, job.GetJob().Name)
+		if err != nil {
+			s.Log(fmt.Sprintf("Error getting version: %v", err))
+			break
+		}
+
+		if time.Unix(version.GetVersionDate(), 0).Sub(time.Unix(s.versions[job.GetJob().GetName()].GetVersionDate(), 0)) > time.Hour*24 {
+			s.RaiseIssue("Old Version Attempt", fmt.Sprintf("Trying to run old version %v vs %v", version, s.versions[job.GetJob().GetName()]))
+		} else {
 			job.BuildFail = 0
 			job.SubState = "Scheduling Run"
 			key := s.scheduleRun(job)
@@ -111,7 +125,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			}
 			s.pendingMap[time.Now().Weekday()][job.Job.Name]++
 		}
-		job.SubState = "Out of case"
+
 	case pb.State_PENDING:
 		if job.Job.PartialBootstrap && job.Job.Bootstrap {
 			job.Job.Bootstrap = false

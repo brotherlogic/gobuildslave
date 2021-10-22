@@ -563,6 +563,20 @@ func (s *Server) loadCurrentVersions() {
 	}
 }
 
+func (s *Server) getLatestVersion(ctx context.Context, jobName string) (*pbb.Version, error) {
+	conn, err := s.FDialServer(ctx, "buildserver")
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	client := pbb.NewBuildServiceClient(conn)
+	resp, err := client.GetVersions(ctx, &pbb.VersionRequest{JustLatest: true})
+	if err != nil {
+		return nil, err
+	}
+	return resp.GetVersions()[0], nil
+}
+
 func (s *Server) badHeartChecker(ctx context.Context) error {
 	badHearts := s.BadHearts
 	if badHearts-s.lastBadHearts > 100 {

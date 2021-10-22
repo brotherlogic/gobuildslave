@@ -21,6 +21,7 @@ enum State {
   ACKNOWLEDGED = 11;
   BUILDING = 1;
   BUILT = 2;
+  VERSION_CHECK = 12;
   RUNNING = 3;
   UPDATE_STARTING = 4;
   UPDATING = 5;
@@ -29,6 +30,7 @@ enum State {
   PENDING = 8;
   DIED = 9;
   BRINK_OF_DEATH = 10;
+
 }
 
 
