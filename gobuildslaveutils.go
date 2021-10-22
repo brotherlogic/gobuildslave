@@ -101,6 +101,19 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.State = pb.State_DIED
 		} else {
 			job.State = pb.State_VERSION_CHECK
+			// Don't check version on pb jobs
+			if job.GetJob().GetPartialBootstrap() {
+				job.BuildFail = 0
+				job.SubState = "Scheduling Run"
+				key := s.scheduleRun(job)
+				job.CommandKey = key
+				job.StartTime = time.Now().Unix()
+				job.State = pb.State_PENDING
+				if _, ok := s.pendingMap[time.Now().Weekday()]; !ok {
+					s.pendingMap[time.Now().Weekday()] = make(map[string]int)
+				}
+				s.pendingMap[time.Now().Weekday()][job.Job.Name]++
+			}
 		}
 		job.SubState = "Out of case"
 	case pb.State_VERSION_CHECK:
