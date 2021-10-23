@@ -570,7 +570,7 @@ func (s *Server) getLatestVersion(ctx context.Context, jobName string) (*pbb.Ver
 	}
 	defer conn.Close()
 	client := pbb.NewBuildServiceClient(conn)
-	resp, err := client.GetVersions(ctx, &pbb.VersionRequest{JustLatest: true})
+	resp, err := client.GetVersions(ctx, &pbb.VersionRequest{JustLatest: true, Job: &pb.Job{Name: jobName}})
 	if err != nil {
 		return nil, err
 	}
