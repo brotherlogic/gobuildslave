@@ -53,6 +53,7 @@ func (s *Scheduler) Schedule(c *rCommand) string {
 	c.status = "InQueue"
 	c.key = key
 	c.comp = make(chan bool)
+	s.Log(fmt.Sprintf("Running %+v with %v", c.command, c.block))
 	if c.block {
 		s.blockingQueue <- c
 	} else {
