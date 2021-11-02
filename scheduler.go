@@ -56,8 +56,10 @@ func (s *Scheduler) Schedule(c *rCommand) string {
 	s.Log(fmt.Sprintf("Running %+v with %v", c.command, c.block))
 	if c.block {
 		s.blockingQueue <- c
+		bqSize.Set(float64(len(s.blockingQueue)))
 	} else {
 		s.nonblockingQueue <- c
+		nbqSize.Set(float64(len(s.nonblockingQueue)))
 	}
 	return key
 }
@@ -114,6 +116,7 @@ func (s *Scheduler) killJob(key string) {
 
 func (s *Scheduler) processBlockingCommands() {
 	for c := range s.blockingQueue {
+		bqSize.Set(float64(len(s.blockingQueue)))
 		err := run(c)
 		if err != nil {
 			c.endTime = time.Now().Unix()
@@ -123,6 +126,7 @@ func (s *Scheduler) processBlockingCommands() {
 
 func (s *Scheduler) processNonblockingCommands() {
 	for c := range s.nonblockingQueue {
+		nbqSize.Set(float64(len(s.nonblockingQueue)))
 		err := run(c)
 		if err != nil {
 			c.endTime = time.Now().Unix()
@@ -135,6 +139,14 @@ var (
 		Name: "gobuildslave_outputsize",
 		Help: "The size of the scheduler output",
 	}, []string{"job", "dest"})
+	nbqSize = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "gobuildslave_nbqsize",
+		Help: "The size of the scheduler output",
+	})
+	bqSize = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "gobuildslave_bqsize",
+		Help: "The size of the scheduler output",
+	})
 )
 
 func run(c *rCommand) error {
