@@ -118,7 +118,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		job.SubState = "Out of case"
 	case pb.State_VERSION_CHECK:
 		s.loadCurrentVersions()
-		version, err := s.getLatestVersion(ctx, job.GetJob().Name)
+		version, err := s.getLatestVersion(ctx, job.GetJob().Name, job.GetJob().GetGoPath())
 		if err != nil {
 			s.Log(fmt.Sprintf("Error getting version: %v", err))
 			break

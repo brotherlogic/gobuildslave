@@ -563,14 +563,14 @@ func (s *Server) loadCurrentVersions() {
 	}
 }
 
-func (s *Server) getLatestVersion(ctx context.Context, jobName string) (*pbb.Version, error) {
+func (s *Server) getLatestVersion(ctx context.Context, jobName, path string) (*pbb.Version, error) {
 	conn, err := s.FDialServer(ctx, "buildserver")
 	if err != nil {
 		return nil, err
 	}
 	defer conn.Close()
 	client := pbb.NewBuildServiceClient(conn)
-	resp, err := client.GetVersions(ctx, &pbb.VersionRequest{JustLatest: true, Job: &pb.Job{Name: jobName}})
+	resp, err := client.GetVersions(ctx, &pbb.VersionRequest{JustLatest: true, Job: &pb.Job{Name: jobName, GoPath: path)}})
 	if err != nil {
 		return nil, err
 	}
