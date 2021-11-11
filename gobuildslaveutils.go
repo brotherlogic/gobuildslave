@@ -104,7 +104,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			// Don't check version on pb jobs
 			if job.GetJob().GetPartialBootstrap() {
 				job.BuildFail = 0
-				job.SubState = "Scheduling Run"
+				job.SubState = "Scheduling A Run"
 				key := s.scheduleRun(job)
 				job.CommandKey = key
 				job.StartTime = time.Now().Unix()
