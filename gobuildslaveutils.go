@@ -188,6 +188,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 					s.RaiseIssue("Cannot Discover Running Server", fmt.Sprintf("%v on %v is not discoverable, despite running (%v) the output says %v (%v), %v, %v", job.Job.Name, s.Registry.Identifier, err, output, errout, output2, errout2))
 				}
 				job.DiscoverCount++
+				s.Log(fmt.Sprintf("Missing discover for %+v, %v -> %v", job, entry, err))
 			} else {
 				job.Port = entry.GetPort()
 				job.DiscoverCount = 0
