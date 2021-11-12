@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/brotherlogic/goserver/utils"
@@ -122,6 +123,15 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		if err != nil {
 			s.Log(fmt.Sprintf("Error getting version: %v", err))
 			break
+		}
+
+		res, err := exec.Command("md5sum", fmt.Sprintf("/home/simon/gobuild/bin/%v", job.GetJob().GetName())).Output()
+		if err != nil {
+			s.Log(fmt.Sprintf("Error reading md5sum: %v", err))
+		}
+		elems := strings.Fields(string(res))
+		if elems[0] != s.versions[job.GetJob().GetName()].Version {
+			s.RaiseIssue("Bad version found in the wild", fmt.Sprintf("Bad version on %v for %v -> %v vs %v", s.Registry.Identifier, job.GetJob().GetName(), elems[0], s.versions[job.GetJob().GetName()].Version))
 		}
 
 		if time.Unix(version.GetVersionDate(), 0).Sub(time.Unix(s.versions[job.GetJob().GetName()].GetVersionDate(), 0)) < time.Hour*24 {
