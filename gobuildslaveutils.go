@@ -131,7 +131,9 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		}
 		elems := strings.Fields(string(res))
 		if elems[0] != s.versions[job.GetJob().GetName()].Version {
-			s.RaiseIssue("Bad version found in the wild", fmt.Sprintf("Bad version on %v for %v -> %v vs %v", s.Registry.Identifier, job.GetJob().GetName(), elems[0], s.versions[job.GetJob().GetName()].Version))
+			s.Log(fmt.Sprintf("Bad version found in the wild", fmt.Sprintf("Bad version on %v for %v -> %v vs %v", s.Registry.Identifier, job.GetJob().GetName(), elems[0], s.versions[job.GetJob().GetName()].Version)))
+			job.SubState = "Dealing With Version Mismatch"
+			break
 		}
 
 		if time.Unix(version.GetVersionDate(), 0).Sub(time.Unix(s.versions[job.GetJob().GetName()].GetVersionDate(), 0)) < time.Hour*24 {
