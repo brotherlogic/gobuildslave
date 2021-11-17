@@ -132,7 +132,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		elems := strings.Fields(string(res))
 		s.versionsMutex.Lock()
 		defer s.versionsMutex.Unlock()
-		if elems[0] != s.versions[job.GetJob().GetName()].Version {
+		if elems[0] != version.GetVersion() {
 			s.Log(fmt.Sprintf("Bad version found in the wild", fmt.Sprintf("Bad version on %v for %v -> %v vs %v", s.Registry.Identifier, job.GetJob().GetName(), elems[0], s.versions[job.GetJob().GetName()].Version)))
 			job.SubState = fmt.Sprintf("Dealing With Version Mismatch: %v", job.BuildFail)
 
@@ -140,6 +140,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.BuildFail++
 			if job.BuildFail > 10 {
 				job.State = pb.State_ACKNOWLEDGED
+
 			}
 			break
 		}
