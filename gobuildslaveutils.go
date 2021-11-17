@@ -146,7 +146,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			break
 		}
 
-		if time.Unix(version.GetVersionDate(), 0).Sub(time.Unix(s.versions[job.GetJob().GetName()].GetVersionDate(), 0)) < time.Hour*24 {
+		if time.Since(time.Unix(version.GetVersionDate(), 0)) < time.Hour*24 {
 			job.BuildFail = 0
 			job.SubState = "Scheduling of the Run"
 			key := s.scheduleRun(job)
