@@ -157,6 +157,8 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 				s.pendingMap[time.Now().Weekday()] = make(map[string]int)
 			}
 			s.pendingMap[time.Now().Weekday()][job.Job.Name]++
+		} else {
+			job.SubState = fmt.Sprintf("%v -> %v is too old (%v)", time.Unix(version.GetVersionDate(), 0), time.Unix(s.versions[job.GetJob().GetName()].GetVersionDate(), 0), time.Unix(version.GetVersionDate(), 0).Sub(time.Unix(s.versions[job.GetJob().GetName()].GetVersionDate(), 0)))
 		}
 
 	case pb.State_PENDING:
