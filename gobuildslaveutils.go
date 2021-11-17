@@ -118,6 +118,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		}
 		job.SubState = "Out of case"
 	case pb.State_VERSION_CHECK:
+		s.doCopy(job)
 		s.loadCurrentVersions()
 		version, err := s.getLatestVersion(ctx, job.GetJob().Name, job.GetJob().GetGoPath())
 		if err != nil {
@@ -288,13 +289,15 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) strin
 	return val.Version
 }
 
-func (s *Server) scheduleRun(job *pb.JobAssignment) string {
+func (s *Server) doCopy(job *pb.JobAssignment) {
 	//Copy over any existing new versions
 	key := s.scheduler.Schedule(&rCommand{command: exec.Command("mv", "$GOPATH/bin/"+job.GetJob().GetName()+".new", "$GOPATH/bin/"+job.GetJob().GetName()), base: job.GetJob().GetName()})
 	s.scheduler.wait(key)
+}
 
+func (s *Server) scheduleRun(job *pb.JobAssignment) string {
 	// Wait a while before starting the job JIC
-	time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 2)
 	c := s.translator.run(job.GetJob())
 	return s.scheduler.Schedule(&rCommand{command: c, base: job.GetJob().GetName()})
 }
