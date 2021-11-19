@@ -106,7 +106,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			if job.GetJob().GetPartialBootstrap() {
 				s.doCopy(job)
 				job.BuildFail = 0
-				job.SubState = "Scheduling A Run"
+				job.SubState = "Scheduling A Run post copy"
 				key := s.scheduleRun(job)
 				job.CommandKey = key
 				job.StartTime = time.Now().Unix()
