@@ -104,6 +104,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.State = pb.State_VERSION_CHECK
 			// Don't check version on pb jobs
 			if job.GetJob().GetPartialBootstrap() {
+				s.doCopy(job)
 				job.BuildFail = 0
 				job.SubState = "Scheduling A Run"
 				key := s.scheduleRun(job)
@@ -300,6 +301,7 @@ func (s *Server) doCopy(job *pb.JobAssignment) {
 func (s *Server) scheduleRun(job *pb.JobAssignment) string {
 	// Wait a while before starting the job JIC
 	time.Sleep(time.Second * 2)
+
 	c := s.translator.run(job.GetJob())
 	return s.scheduler.Schedule(&rCommand{command: c, base: job.GetJob().GetName()})
 }
