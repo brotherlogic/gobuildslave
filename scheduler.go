@@ -220,7 +220,7 @@ func (s *Scheduler) run(c *rCommand) error {
 
 	c.status = "StartCommand"
 	err := c.command.Start()
-	s.Log(fmt.Sprint("Ran command: %v", err))
+	s.Log(fmt.Sprintf("Ran command: (%v), %v", c.command.Path, err))
 	if err != nil {
 		c.endTime = time.Now().Unix()
 		c.comp <- true

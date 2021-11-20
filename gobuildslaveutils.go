@@ -299,7 +299,7 @@ func (s *Server) doCopy(job *pb.JobAssignment) {
 	key := s.scheduler.Schedule(&rCommand{command: exec.Command("mv", "$GOPATH/bin/"+job.GetJob().GetName()+".new", "$GOPATH/bin/"+job.GetJob().GetName()), base: job.GetJob().GetName()})
 	s.scheduler.wait(key)
 
-	key = s.scheduler.Schedule(&rCommand{command: exec.Command("mv", "$GOPATH/bin/"+job.GetJob().GetName()+".nversion", "$GOPATH/bin/"+job.GetJob().GetName()), base: job.GetJob().GetName() + ".version"})
+	key = s.scheduler.Schedule(&rCommand{command: exec.Command("mv", "$GOPATH/bin/"+job.GetJob().GetName()+".nversion", "$GOPATH/bin/"+job.GetJob().GetName()+".version"), base: job.GetJob().GetName() + ".version"})
 	s.scheduler.wait(key)
 }
 
