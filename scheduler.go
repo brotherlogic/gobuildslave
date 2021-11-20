@@ -117,7 +117,7 @@ func (s *Scheduler) killJob(key string) {
 func (s *Scheduler) processBlockingCommands() {
 	for c := range s.blockingQueue {
 		bqSize.Set(float64(len(s.blockingQueue)))
-		err := run(c)
+		err := s.run(c)
 		if err != nil {
 			c.endTime = time.Now().Unix()
 		}
@@ -128,7 +128,7 @@ func (s *Scheduler) processNonblockingCommands() {
 	for c := range s.nonblockingQueue {
 		s.Log(fmt.Sprintf("Running Command: %+v", c))
 		nbqSize.Set(float64(len(s.nonblockingQueue)))
-		err := run(c)
+		err := s.run(c)
 		if err != nil {
 			c.endTime = time.Now().Unix()
 		}
@@ -150,7 +150,8 @@ var (
 	})
 )
 
-func run(c *rCommand) error {
+func (s *Scheduler) run(c *rCommand) error {
+	s.Log(fmt.Sprintf("In scheduler run: %+v", c))
 
 	c.status = "Running"
 	env := os.Environ()
@@ -187,6 +188,8 @@ func run(c *rCommand) error {
 	out, err1 := c.command.StderrPipe()
 	outr, err2 := c.command.StdoutPipe()
 
+	s.Log(fmt.Sprintf("Created pipes: %v and %v", err1, err2))
+
 	if c.crash1 || err1 != nil {
 		return err1
 	}
@@ -198,6 +201,7 @@ func run(c *rCommand) error {
 	scanner := bufio.NewScanner(out)
 	go func() {
 		for scanner != nil && scanner.Scan() {
+			s.Log(fmt.Sprintf("OUT1: %v", scanner.Text()))
 			c.output += scanner.Text()
 			outputsize.With(prometheus.Labels{"dest": "err", "job": c.command.Path}).Add(float64(len(scanner.Text())))
 		}
@@ -207,6 +211,7 @@ func run(c *rCommand) error {
 	scanner2 := bufio.NewScanner(outr)
 	go func() {
 		for scanner2 != nil && scanner2.Scan() {
+			s.Log(fmt.Sprintf("OUT2: %v", scanner.Text()))
 			c.mainOut += scanner2.Text()
 			outputsize.With(prometheus.Labels{"dest": "out", "job": c.command.Path}).Add(float64(len(scanner2.Text())))
 		}
@@ -215,6 +220,7 @@ func run(c *rCommand) error {
 
 	c.status = "StartCommand"
 	err := c.command.Start()
+	s.Log(fmt.Sprint("Ran command: %v", err))
 	if err != nil {
 		c.endTime = time.Now().Unix()
 		c.comp <- true
@@ -227,6 +233,7 @@ func run(c *rCommand) error {
 	r := func() {
 		c.status = "Entering Wait"
 		err := c.command.Wait()
+		s.Log(fmt.Sprintf("Completed command %v", err))
 		c.status = "Completed Wait"
 		if err != nil {
 			c.err = err
