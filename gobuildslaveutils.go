@@ -186,6 +186,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 				job.State = pb.State_RUNNING
 			} else {
 				s.Log(fmt.Sprintf("Cannot reregister: %v", err))
+				job.State = pb.State_DIED
 			}
 		}
 	case pb.State_RUNNING:
