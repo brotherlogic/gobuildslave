@@ -126,6 +126,7 @@ func (s *Scheduler) processBlockingCommands() {
 
 func (s *Scheduler) processNonblockingCommands() {
 	for c := range s.nonblockingQueue {
+		s.Log(fmt.Sprintf("Running Command: %+v", c))
 		nbqSize.Set(float64(len(s.nonblockingQueue)))
 		err := run(c)
 		if err != nil {
@@ -150,6 +151,7 @@ var (
 )
 
 func run(c *rCommand) error {
+
 	c.status = "Running"
 	env := os.Environ()
 	home := ""
