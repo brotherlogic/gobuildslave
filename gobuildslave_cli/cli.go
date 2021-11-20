@@ -134,7 +134,7 @@ func main() {
 					log.Fatalf("Error listing job with: %v", err)
 				}
 				for _, r := range res.Jobs {
-					fmt.Printf("%v {%v}-> %v [%v] (%v)\n", r.Job.Name, r.GetPort(), r.State, r.GetSubState(), time.Unix(r.GetLastUpdateTime(), 0))
+					fmt.Printf("%v {%v / %v}-> %v [%v] (%v)\n", r.Job.Name, r.GetPort(), r.GetRunningVersion(), r.State, r.GetSubState(), time.Unix(r.GetLastUpdateTime(), 0))
 				}
 			}
 		case "nbuild":
