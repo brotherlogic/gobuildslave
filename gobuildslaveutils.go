@@ -294,7 +294,11 @@ func (s *Server) scheduleBuild(ctx context.Context, job *pb.JobAssignment) strin
 
 func (s *Server) doCopy(job *pb.JobAssignment) {
 	//Copy over any existing new versions
+
 	key := s.scheduler.Schedule(&rCommand{command: exec.Command("mv", "$GOPATH/bin/"+job.GetJob().GetName()+".new", "$GOPATH/bin/"+job.GetJob().GetName()), base: job.GetJob().GetName()})
+	s.scheduler.wait(key)
+
+	key = s.scheduler.Schedule(&rCommand{command: exec.Command("mv", "$GOPATH/bin/"+job.GetJob().GetName()+".nversion", "$GOPATH/bin/"+job.GetJob().GetName()), base: job.GetJob().GetName() + ".version"})
 	s.scheduler.wait(key)
 }
 
