@@ -135,8 +135,20 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		s.versionsMutex.Lock()
 		defer s.versionsMutex.Unlock()
 		if elems[0] != version.GetVersion() {
-			s.Log(fmt.Sprintf("Bad version found in the wild", fmt.Sprintf("Bad version on %v for %v -> %v vs %v", s.Registry.Identifier, job.GetJob().GetName(), elems[0], s.versions[job.GetJob().GetName()].Version)))
+			s.Log(fmt.Sprintf("Bad version on %v for %v -> %v vs %v", s.Registry.Identifier, job.GetJob().GetName(), elems[0], s.versions[job.GetJob().GetName()].Version))
 			job.SubState = fmt.Sprintf("Dealing With Version Mismatch: %v", job.BuildFail)
+
+			conn, err := s.FDialSpecificServer(ctx, "versiontracker", s.Registry.Identifier)
+			if err != nil {
+				s.Log(fmt.Sprintf("Unable to dial vt: %v", err))
+			} else {
+				defer conn.Close()
+				vtc := pbvt.NewVersionTrackerServiceClient(conn)
+				_, err = vtc.NewJob(ctx, &pbvt.NewJobRequest{
+					Version: version,
+				})
+				s.Log(fmt.Sprintf("Requested new version: %v", err))
+			}
 
 			// Don't let the job sit here
 			job.BuildFail++
