@@ -144,7 +144,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			} else {
 				defer conn.Close()
 				vtc := pbvt.NewVersionTrackerServiceClient(conn)
-				_, err = vtc.NewJob(ctx, &pbvt.NewJobRequest{
+				_, err = vtc.NewVersion(ctx, &pbvt.NewVersionRequest{
 					Version: version,
 				})
 				s.Log(fmt.Sprintf("Requested new version: %v", err))
