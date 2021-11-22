@@ -159,20 +159,16 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			break
 		}
 
-		if time.Since(time.Unix(version.GetVersionDate(), 0)) < time.Hour*24 {
-			job.BuildFail = 0
-			job.SubState = "Scheduling of the Run"
-			key := s.scheduleRun(job)
-			job.CommandKey = key
-			job.StartTime = time.Now().Unix()
-			job.State = pb.State_PENDING
-			if _, ok := s.pendingMap[time.Now().Weekday()]; !ok {
-				s.pendingMap[time.Now().Weekday()] = make(map[string]int)
-			}
-			s.pendingMap[time.Now().Weekday()][job.Job.Name]++
-		} else {
-			job.SubState = fmt.Sprintf("%v -> %v is too old (%v)", time.Unix(version.GetVersionDate(), 0), time.Unix(s.versions[job.GetJob().GetName()].GetVersionDate(), 0), time.Unix(version.GetVersionDate(), 0).Sub(time.Unix(s.versions[job.GetJob().GetName()].GetVersionDate(), 0)))
+		job.BuildFail = 0
+		job.SubState = "Scheduling of the Run"
+		key := s.scheduleRun(job)
+		job.CommandKey = key
+		job.StartTime = time.Now().Unix()
+		job.State = pb.State_PENDING
+		if _, ok := s.pendingMap[time.Now().Weekday()]; !ok {
+			s.pendingMap[time.Now().Weekday()] = make(map[string]int)
 		}
+		s.pendingMap[time.Now().Weekday()][job.Job.Name]++
 
 	case pb.State_PENDING:
 		if job.Job.PartialBootstrap && job.Job.Bootstrap {
