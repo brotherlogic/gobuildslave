@@ -179,6 +179,13 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		s.pendingMap[time.Now().Weekday()][job.Job.Name]++
 
 	case pb.State_PENDING:
+		res, err := exec.Command("md5sum", fmt.Sprintf("/home/simon/gobuild/bin/%v", job.GetJob().GetName())).Output()
+		if err != nil {
+			s.Log(fmt.Sprintf("Error reading md5sum: %v", err))
+		}
+		elems := strings.Fields(string(res))
+		job.RunningVersion = elems[0]
+
 		if job.Job.PartialBootstrap && job.Job.Bootstrap {
 			job.Job.Bootstrap = false
 		}
