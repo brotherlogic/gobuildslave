@@ -132,6 +132,8 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			s.Log(fmt.Sprintf("Error reading md5sum: %v", err))
 		}
 		elems := strings.Fields(string(res))
+		job.RunningVersion = elems[0]
+
 		s.versionsMutex.Lock()
 		defer s.versionsMutex.Unlock()
 		if elems[0] != version.GetVersion() {

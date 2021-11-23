@@ -90,7 +90,15 @@ func (p *prodBuilder) build(ctx context.Context, job *pb.Job) (*pbb.Version, err
 	file := fmt.Sprintf("/home/simon/gobuild/bin/%v.version", job.Name)
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, err
+		if os.IsNotExist(err) {
+			file := fmt.Sprintf("/home/simon/gobuild/bin/%v.nversion", job.Name)
+			data, err = ioutil.ReadFile(file)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
 	}
 
 	version := &pbb.Version{}
