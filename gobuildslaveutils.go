@@ -41,7 +41,7 @@ func (s *Server) procAcks() {
 		} else {
 
 			client := pbvt.NewVersionTrackerServiceClient(conn)
-			_, err = client.NewJob(ctx, &pbvt.NewJobRequest{Version: &pbb.Version{Job: job.GetJob()}})
+			_, err = client.NewJob(ctx, &pbvt.NewJobRequest{Version: &pbb.Version{Version: job.GetRunningVersion(), Job: job.GetJob()}})
 			if err != nil {
 				s.ackChan <- job
 			}
