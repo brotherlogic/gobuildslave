@@ -50,7 +50,7 @@ func (s *Server) procAcks() {
 		cancel()
 
 		// Don't rush the system
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Second)
 	}
 }
 
