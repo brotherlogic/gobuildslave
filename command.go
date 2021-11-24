@@ -212,7 +212,7 @@ func InitServer(build bool) *Server {
 		time.Now(),
 		time.Now(),
 		time.Now(),
-		make(chan *pb.JobAssignment, 100),
+		make(chan *pb.JobAssignment, 1000),
 		10,
 	}
 
