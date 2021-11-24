@@ -75,6 +75,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			if key != "" {
 				job.State = pb.State_BUILT
 				job.RunningVersion = key
+				s.ackChan <- job
 			} else {
 				// Bootstrap this job since we don't have an initial version
 				if job.Job.PartialBootstrap {
@@ -139,6 +140,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		}
 		elems := strings.Fields(string(res))
 		job.RunningVersion = elems[0]
+		s.ackChan <- job
 
 		s.versionsMutex.Lock()
 		defer s.versionsMutex.Unlock()
@@ -185,6 +187,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		}
 		elems := strings.Fields(string(res))
 		job.RunningVersion = elems[0]
+		s.ackChan <- job
 
 		if job.Job.PartialBootstrap && job.Job.Bootstrap {
 			job.Job.Bootstrap = false
