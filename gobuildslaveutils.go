@@ -32,22 +32,23 @@ var (
 
 func (s *Server) procAcks() {
 	for job := range s.ackChan {
-		ackQueueLen.Set(float64(len(s.ackChan)))
-		ctx, cancel := utils.ManualContext("gobuildslaveack", time.Minute)
-		conn, err := s.FDialSpecificServer(ctx, "versiontracker", s.Registry.GetIdentifier())
-		if err != nil {
-			s.DLog(ctx, fmt.Sprintf("Dial error: (%v), %v\n", job.GetJob(), err))
-			s.ackChan <- job
-		} else {
-
-			client := pbvt.NewVersionTrackerServiceClient(conn)
-			_, err = client.NewJob(ctx, &pbvt.NewJobRequest{Version: &pbb.Version{Version: job.GetRunningVersion(), Job: job.GetJob()}})
+		done := false
+		for !done {
+			ackQueueLen.Set(float64(len(s.ackChan)))
+			ctx, cancel := utils.ManualContext("gobuildslaveack", time.Minute)
+			conn, err := s.FDialSpecificServer(ctx, "versiontracker", s.Registry.GetIdentifier())
 			if err != nil {
-				s.ackChan <- job
+				s.DLog(ctx, fmt.Sprintf("Dial error: (%v), %v\n", job.GetJob(), err))
+			} else {
+				client := pbvt.NewVersionTrackerServiceClient(conn)
+				_, err = client.NewJob(ctx, &pbvt.NewJobRequest{Version: &pbb.Version{Version: job.GetRunningVersion(), Job: job.GetJob()}})
+				if err == nil {
+					done = true
+				}
+				conn.Close()
 			}
-			conn.Close()
+			cancel()
 		}
-		cancel()
 
 		// Don't rush the system
 		time.Sleep(time.Second)
