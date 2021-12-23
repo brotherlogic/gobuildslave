@@ -274,6 +274,8 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		job.State = pb.State_ACKNOWLEDGED
 	}
 
+	time.Sleep(time.Second * 5)
+
 	if job.State != startState {
 		job.LastTransitionTime = time.Now().Unix()
 	}
