@@ -711,12 +711,12 @@ func (s *Server) lookForDiscover(ctx context.Context) error {
 func (s *Server) sleepDisplay() {
 	for !s.LameDuck {
 		command := []string{"-display", ":0.0", "dpms", "force", "on"}
-		if time.Now().Hour() >= 22 || time.Now().Hour() < 11 {
+		if time.Now().Hour() >= 22 || time.Now().Hour() < 7 {
 			command = []string{"-display", ":0.0", "dpms", "force", "off"}
 		}
 		err := exec.Command("xset", command...).Run()
 		if err != nil {
-			s.Log(fmt.Sprintf("Error running"))
+			s.Log(fmt.Sprintf("Error running: %v", err))
 		}
 
 		time.Sleep(time.Minute * 5)
