@@ -717,6 +717,8 @@ func (s *Server) sleepDisplay() {
 		err := exec.Command("xset", command...).Run()
 		if err != nil {
 			s.Log(fmt.Sprintf("Error running: %v", err))
+		} else {
+			s.Log(fmt.Sprintf("Set the display %v", command[len(command)-1]))
 		}
 
 		time.Sleep(time.Minute * 5)
