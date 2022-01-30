@@ -213,7 +213,7 @@ func InitServer(build bool) *Server {
 		time.Now(),
 		time.Now(),
 		make(chan *pb.JobAssignment, 1000),
-		10,
+		7,
 	}
 
 	// Run the processing queues
