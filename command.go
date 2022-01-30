@@ -708,6 +708,21 @@ func (s *Server) lookForDiscover(ctx context.Context) error {
 	return nil
 }
 
+func (s *Server) sleepDisplay() {
+	for !s.LameDuck {
+		command := []string{"-display", ":0.0", "dpms", "force", "on"}
+		if time.Now().Hour() >= 22 || time.Now().Hour() < 11 {
+			command = []string{"-display", ":0.0", "dpms", "force", "off"}
+		}
+		err := exec.Command("xset", command...).Run()
+		if err != nil {
+			s.Log(fmt.Sprintf("Error running"))
+		}
+
+		time.Sleep(time.Minute * 5)
+	}
+}
+
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	var build = flag.Bool("builds", true, "Responds to build requests")
@@ -777,6 +792,9 @@ func main() {
 
 	go s.procAcks()
 	go s.updateAccess()
+	if s.Registry.Identifier == "rdisplay" {
+		go s.sleepDisplay()
+	}
 
 	err = s.Serve()
 	log.Fatalf("Unable to serve: %v", err)
