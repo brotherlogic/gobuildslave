@@ -737,6 +737,15 @@ func main() {
 	}
 
 	s := InitServer(*build)
+
+	s.scheduler.Log = s.Log
+	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName, dial: s.FDialServer}
+	s.runner.getip = s.GetIP
+	s.runner.logger = s.Log
+	s.Register = s
+	s.PrepServer()
+	s.Killme = false
+
 	s.maxJobs = *maxnum
 	dets, err := ioutil.ReadFile("/sys/firmware/devicetree/base/model")
 	if err == nil {
@@ -751,14 +760,6 @@ func main() {
 	} else {
 		s.Log(fmt.Sprintf("BAD READ: %v", err))
 	}
-
-	s.scheduler.Log = s.Log
-	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName, dial: s.FDialServer}
-	s.runner.getip = s.GetIP
-	s.runner.logger = s.Log
-	s.Register = s
-	s.PrepServer()
-	s.Killme = false
 
 	go s.backgroundRegister()
 
