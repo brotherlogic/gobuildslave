@@ -760,6 +760,7 @@ func main() {
 	} else {
 		s.Log(fmt.Sprintf("BAD READ: %v", err))
 	}
+	s.DLog(context.Background(), fmt.Sprintf("Running now with %v max jobs", s.maxJobs))
 
 	go s.backgroundRegister()
 
