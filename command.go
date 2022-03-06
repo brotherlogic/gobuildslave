@@ -750,7 +750,7 @@ func main() {
 	dets, err := ioutil.ReadFile("/sys/firmware/devicetree/base/model")
 	if err == nil {
 		model := string(dets)
-		if strings.HasPrefix(model, "Raspberry Pi 4") {
+		if strings.HasPrefix(model, "Raspberry Pi 4") || strings.HasPrefix(s.Registry.Identifier, "clust") {
 			s.maxJobs = 100
 		} else {
 			s.maxJobs = 0
