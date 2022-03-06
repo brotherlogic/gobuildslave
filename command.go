@@ -631,6 +631,10 @@ func (s *Server) backgroundRegister() {
 		time.Sleep(time.Minute)
 	}
 
+	if strings.HasPrefix(s.Registry.Identifier, "clust") {
+		s.maxJobs = 100
+	}
+
 	s.version = &prodVersion{s.FDialServer, s.Registry.Identifier, s.Log}
 }
 
@@ -750,7 +754,7 @@ func main() {
 	dets, err := ioutil.ReadFile("/sys/firmware/devicetree/base/model")
 	if err == nil {
 		model := string(dets)
-		if strings.HasPrefix(model, "Raspberry Pi 4") || strings.HasPrefix(s.Registry.Identifier, "clust") {
+		if strings.HasPrefix(model, "Raspberry Pi 4") {
 			s.maxJobs = 100
 		} else {
 			s.maxJobs = 0
