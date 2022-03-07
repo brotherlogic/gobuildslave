@@ -150,6 +150,10 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			s.Log(fmt.Sprintf("Bad version on %v for %v -> %v vs %v", s.Registry.Identifier, job.GetJob().GetName(), elems[0], s.versions[job.GetJob().GetName()].Version))
 			job.SubState = fmt.Sprintf("Dealing With Version Mismatch: %v", job.BuildFail)
 
+			if job.BuildFail > 10 {
+				s.RaiseIssue(fmt.Sprintf("Error running %v", job.Job.Name), fmt.Sprintf("Running on %v", s.Registry.Identifier))
+			}
+
 			conn, err := s.FDialSpecificServer(ctx, "versiontracker", s.Registry.Identifier)
 			if err != nil {
 				s.Log(fmt.Sprintf("Unable to dial vt: %v", err))
