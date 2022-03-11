@@ -631,9 +631,9 @@ func (s *Server) backgroundRegister() {
 		time.Sleep(time.Minute)
 	}
 
-	if strings.HasPrefix(s.Registry.Identifier, "clust") {
+	/*if strings.HasPrefix(s.Registry.Identifier, "clust") {
 		s.maxJobs = 100
-	}
+	}*/
 
 	s.version = &prodVersion{s.FDialServer, s.Registry.Identifier, s.Log}
 }
