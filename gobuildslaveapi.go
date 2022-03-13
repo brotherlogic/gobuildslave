@@ -16,7 +16,7 @@ import (
 
 // RunJob - runs the job
 func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunResponse, error) {
-	if s.Bits != int(req.GetBits()) {
+	if req.GetBits() > 0 && s.Bits != int(req.GetBits()) {
 		return &pb.RunResponse{}, status.Errorf(codes.FailedPrecondition, "Cannot run %v bits on this server", req.GetBits())
 	}
 	if !s.doesBuild && !req.Job.Breakout {
