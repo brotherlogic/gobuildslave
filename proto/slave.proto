@@ -14,6 +14,7 @@ enum RequirementCategory {
   NETWORK = 4;
   ACCESS_POINT = 5;
   RECEIPT_PRINTER = 6;
+  BITS = 7;
 }
 
 enum State {
