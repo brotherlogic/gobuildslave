@@ -113,9 +113,7 @@ func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.Co
 	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_NETWORK, Properties: br})
 	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_ACCESS_POINT, Properties: ap})
 
-	if s.Bits == 32 {
-		requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_BITS, Properties: fmt.Sprintf("%v", s.Bits)})
-	}
+	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_BITS, Properties: fmt.Sprintf("%v", s.Bits)})
 
 	// Add in the printer
 
