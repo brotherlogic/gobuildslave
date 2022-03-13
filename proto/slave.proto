@@ -110,6 +110,7 @@ message Config {
 
 message RunRequest {
   Job job = 1;
+  int32 bits = 2;
 }
 
 message RunResponse {}
