@@ -89,18 +89,22 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.State = pb.State_BUILDING
 		}
 	case pb.State_BUILDING:
+		s.CtxLog(ctx, fmt.Sprintf("Locking %v", job.Job.Name))
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("BUILD(%v): %v", job.CommandKey, s.scheduler.getState(job.CommandKey))
 		s.stateMutex.Unlock()
+		s.CtxLog(ctx, fmt.Sprintf("UnLocking %v", job.Job.Name))
 		s.scheduler.wait(job.CommandKey)
 		job.State = pb.State_BUILT
 	case pb.State_BUILT:
 		job.SubState = "Getting Output"
 		output, _ := s.scheduler.getOutput(job.CommandKey)
 		job.SubState = "Entering Lock"
+		s.CtxLog(ctx, fmt.Sprintf("Locking %v", job.Job.Name))
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("BUILT(%v): (%v): %v", job.CommandKey, len(output), output)
 		s.stateMutex.Unlock()
+		s.CtxLog(ctx, fmt.Sprintf("UnLocking %v", job.Job.Name))
 		if job.Job.Bootstrap && len(output) > 0 {
 			if job.BuildFail == 5 {
 				job.SubState = "Sending Report"
@@ -198,10 +202,12 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		if job.Job.PartialBootstrap && job.Job.Bootstrap {
 			job.Job.Bootstrap = false
 		}
+		s.CtxLog(ctx, fmt.Sprintf("Locking %v", job.Job.Name))
 		s.stateMutex.Lock()
 		out, _ := s.scheduler.getOutput(job.CommandKey)
 		s.stateMap[job.Job.Name] = fmt.Sprintf("OUTPUT = %v", out)
 		s.stateMutex.Unlock()
+		s.CtxLog(ctx, fmt.Sprintf("UnLocking %v", job.Job.Name))
 		if time.Now().Add(-time.Minute).Unix() > job.StartTime {
 			var err error
 			if job.Job.Name == "discovery" {
@@ -223,16 +229,20 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	case pb.State_RUNNING:
 		output, errout := s.scheduler.getOutput(job.CommandKey)
 		output2, _ := s.scheduler.getErrOutput(job.CommandKey)
+		s.CtxLog(ctx, fmt.Sprintf("Locking %v", job.Job.Name))
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("ROUTPUT = %v, %v", output, s.scheduler.getStatus(job.CommandKey))
 		job.Status = s.scheduler.getStatus(job.CommandKey)
 		s.stateMutex.Unlock()
+		s.CtxLog(ctx, fmt.Sprintf("UnLocking %v", job.Job.Name))
 		if len(job.CommandKey) > 0 {
 			s.scheduler.wait(job.CommandKey)
 			s.stateMap[job.Job.Name] = fmt.Sprintf("ONLOCk = (%v, %v)", job, output)
+			s.CtxLog(ctx, fmt.Sprintf("Locking %v", job.Job.Name))
 			s.stateMutex.Lock()
 			s.stateMap[job.Job.Name] = fmt.Sprintf("COMPLETE = (%v, %v)", job, output)
 			s.stateMutex.Unlock()
+			s.CtxLog(ctx, fmt.Sprintf("UnLocking %v", job.Job.Name))
 			s.deliverCrashReport(ctx, job, fmt.Sprintf("%v%v", output, output2))
 			job.State = pb.State_DIED
 		}
@@ -259,9 +269,11 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 				job.LastVersionPull = time.Now().Unix()
 
 				if err == nil && version.Version != job.RunningVersion {
+					s.CtxLog(ctx, fmt.Sprintf("Locking %v", job.Job.Name))
 					s.stateMutex.Lock()
 					s.stateMap[job.Job.Name] = fmt.Sprintf("VERSION_MISMATCH = %v,%v", version, job.RunningVersion)
 					s.stateMutex.Unlock()
+					s.CtxLog(ctx, fmt.Sprintf("UnLocking %v", job.Job.Name))
 					s.scheduler.killJob(job.CommandKey)
 				}
 			}
@@ -272,9 +284,11 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.State = pb.State_ACKNOWLEDGED
 		}
 	case pb.State_DIED:
+		s.CtxLog(ctx, fmt.Sprintf("Locking %v", job.Job.Name))
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("DIED %v", job.CommandKey)
 		s.stateMutex.Unlock()
+		s.CtxLog(ctx, fmt.Sprintf("UnLocking %v", job.Job.Name))
 		job.State = pb.State_ACKNOWLEDGED
 	}
 
