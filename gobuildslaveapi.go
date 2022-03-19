@@ -19,6 +19,7 @@ func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunRespons
 	if req.GetBits() > 0 && s.Bits != int(req.GetBits()) {
 		return &pb.RunResponse{}, status.Errorf(codes.FailedPrecondition, "Cannot run %v bits on this server", req.GetBits())
 	}
+
 	if !s.doesBuild && !req.Job.Breakout {
 		return &pb.RunResponse{}, status.Errorf(codes.FailedPrecondition, "Refusing to build")
 	}
@@ -32,7 +33,7 @@ func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunRespons
 		return nil, status.Errorf(codes.FailedPrecondition, "We're running %v jobs, can't run no more", len(s.njobs))
 	}
 
-	s.njobs[req.GetJob().GetName()] = &pb.JobAssignment{Job: req.GetJob(), LastTransitionTime: time.Now().Unix()}
+	s.njobs[req.GetJob().GetName()] = &pb.JobAssignment{Job: req.GetJob(), LastTransitionTime: time.Now().Unix(), Bits: int32(s.Bits)}
 	go s.nmonitor(s.njobs[req.GetJob().GetName()])
 
 	return &pb.RunResponse{}, nil
