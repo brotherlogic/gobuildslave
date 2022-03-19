@@ -270,8 +270,8 @@ github.com/brotherlogic/goserver v0.0.0-20220213163312-57bc62be62ac/go.mod h1:VK
 github.com/brotherlogic/goserver v0.0.0-20220222141615-c870aeee618e/go.mod h1:VKtjCx8Ss27ClwGWc0GkG+fl4/uS3fwV4nYVrKltggo=
 github.com/brotherlogic/goserver v0.0.0-20220305183634-6df280b4c992/go.mod h1:VKtjCx8Ss27ClwGWc0GkG+fl4/uS3fwV4nYVrKltggo=
 github.com/brotherlogic/goserver v0.0.0-20220313174609-1f86505d1724/go.mod h1:VKtjCx8Ss27ClwGWc0GkG+fl4/uS3fwV4nYVrKltggo=
-github.com/brotherlogic/goserver v0.0.0-20220319225140-61a055154bf4 h1:vDzn7Z+D2yn50Crx+DGikyzqZYZJdLwI6lyTXm7WcbY=
-github.com/brotherlogic/goserver v0.0.0-20220319225140-61a055154bf4/go.mod h1:VKtjCx8Ss27ClwGWc0GkG+fl4/uS3fwV4nYVrKltggo=
+github.com/brotherlogic/goserver v0.0.0-20220319231340-6d648fc4fb88 h1:x0WexTvMj9FWqZVD8Hqpcl7ElU1dIpv5988ng/tBZyc=
+github.com/brotherlogic/goserver v0.0.0-20220319231340-6d648fc4fb88/go.mod h1:VKtjCx8Ss27ClwGWc0GkG+fl4/uS3fwV4nYVrKltggo=
 github.com/brotherlogic/keymapper v0.0.0-20201116203852-f939ef86e1a2/go.mod h1:bZEHwfvamDSiweU+qiuNXmK5hUteKykayCtBVEOcq1U=
 github.com/brotherlogic/keymapper v0.0.0-20210311144023-8fb7e9401321/go.mod h1:cUAjkXcFmwSRCtsgbM/vmBu+rRexe1YOw5/PmGDwFw8=
 github.com/brotherlogic/keymapper v0.0.0-20210820140329-0a4c6cea65e8/go.mod h1:h1g13dewznZrv1+SHrh360wy+dK6iXS5042TiC8b4bY=
