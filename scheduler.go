@@ -38,12 +38,12 @@ type Scheduler struct {
 
 func (s *Scheduler) getState(key string) string {
 	for _, c := range s.complete {
-		if c.key == key {
+		if c.key == key && c.endTime > 0 {
 			return fmt.Sprintf("%v -> %v", c.endTime, c.output)
 		}
 	}
 
-	return "UNKNOWN"
+	return ""
 }
 
 // Schedule schedules a task

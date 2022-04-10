@@ -52,7 +52,6 @@ func (s *Server) procAcks() {
 			// Don't rush the system
 			time.Sleep(time.Second)
 		}
-
 	}
 }
 
@@ -226,7 +225,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			} else {
 				if len(s.scheduler.getState(job.CommandKey)) > 0 {
 					job.State = pb.State_DIED
-					s.Log(fmt.Sprintf("Recording job as dead: %v", s.scheduler.getState(job.CommandKey)))
+					s.Log(fmt.Sprintf("Recording job as dead: '%v'", s.scheduler.getState(job.CommandKey)))
 				}
 				s.Log(fmt.Sprintf("Cannot reregister: %v", err))
 			}
