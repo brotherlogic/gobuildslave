@@ -148,10 +148,11 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		job.RunningVersion = elems[0]
 		s.ackChan <- job
 
-		s.versionsMutex.Lock()
-		defer s.versionsMutex.Unlock()
 		if elems[0] != version.GetVersion() {
+			s.versionsMutex.Lock()
 			s.Log(fmt.Sprintf("Bad version on %v for %v -> %v vs %v", s.Registry.Identifier, job.GetJob().GetName(), elems[0], s.versions[job.GetJob().GetName()].Version))
+			s.versionsMutex.Unlock()
+
 			job.SubState = fmt.Sprintf("Dealing With Version Mismatch: %v", job.BuildFail)
 
 			if job.BuildFail > 10 {

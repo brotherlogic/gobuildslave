@@ -33,6 +33,8 @@ func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunRespons
 		return nil, status.Errorf(codes.FailedPrecondition, "We're running %v jobs, can't run no more", len(s.njobs))
 	}
 
+	s.CtxLog(ctx, "Running %v")
+
 	s.njobs[req.GetJob().GetName()] = &pb.JobAssignment{Job: req.GetJob(), LastTransitionTime: time.Now().Unix(), Bits: int32(s.Bits)}
 	go s.nmonitor(s.njobs[req.GetJob().GetName()])
 
