@@ -42,7 +42,9 @@ func (s *Server) procAcks() {
 			} else {
 				client := pbvt.NewVersionTrackerServiceClient(conn)
 				_, err = client.NewJob(ctx, &pbvt.NewJobRequest{Version: &pbb.Version{Version: job.GetRunningVersion(), Job: job.GetJob()}})
-				if err == nil {
+
+				//Slave can block if version tracker is unavailable - ignore this failure
+				if err == nil || status.Convert(err).Code() == codes.Unavailable {
 					done = true
 				}
 				conn.Close()
