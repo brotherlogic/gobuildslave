@@ -200,6 +200,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		}
 		elems := strings.Fields(string(res))
 		job.RunningVersion = elems[0]
+		s.CtxLog(ctx, fmt.Sprintf("Sending to ack chan %v -> %v", job.GetJob().GetName(), len(s.ackChan)))
 		s.ackChan <- job
 
 		if job.Job.PartialBootstrap && job.Job.Bootstrap {
