@@ -118,6 +118,9 @@ func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.Co
 
 	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_BITS, Properties: fmt.Sprintf("%v", s.Bits)})
 
+	out, _ = exec.Command("cat", "/sys/firmware/devicetree/base/model").Output()
+	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_HOST_TYPE, Properties: string(out)})
+
 	// Add in the printer
 
 	return &pb.ConfigResponse{Config: &pb.SlaveConfig{Requirements: requirements}}, nil

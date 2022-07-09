@@ -15,6 +15,7 @@ enum RequirementCategory {
   ACCESS_POINT = 5;
   RECEIPT_PRINTER = 6;
   BITS = 7;
+  HOST_TYPE = 8;
 }
 
 enum State {
