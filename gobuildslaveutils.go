@@ -102,7 +102,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		job.SubState = "Getting Output"
 		output, _ := s.scheduler.getOutput(job.CommandKey)
 		job.SubState = "Entering Lock"
-		s.CtxLog(ctx, fmt.Sprintf("Locking %v", job.Job.Name))
+		s.CtxLog(ctx, fmt.Sprintf("Built Job %v -> %v", job.Job.Name, output))
 		s.stateMutex.Lock()
 		s.stateMap[job.Job.Name] = fmt.Sprintf("BUILT(%v): (%v): %v", job.CommandKey, len(output), output)
 		s.stateMutex.Unlock()
