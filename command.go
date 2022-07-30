@@ -611,7 +611,7 @@ func (s *Server) stateChecker(ctx context.Context) error {
 func (s *Server) backgroundRegister() {
 	err := fmt.Errorf("Initial error")
 	for err != nil {
-		err = s.RegisterServerV2("gobuildslave", false, true)
+		err = s.RegisterServerV2(false)
 		if err == nil {
 			ctx, cancel := utils.ManualContext("gbs-rereg", time.Minute)
 			defer cancel()
@@ -622,7 +622,7 @@ func (s *Server) backgroundRegister() {
 				client := pbd.NewDiscoveryServiceV2Client(conn)
 				client.Unregister(ctx, &pbd.UnregisterRequest{Service: &pbd.RegistryEntry{Identifier: s.Registry.Identifier}})
 				time.Sleep(time.Second * 5)
-				s.RegisterServerV2("gobuildslave", false, true)
+				s.RegisterServerV2(false)
 			}
 		}
 
@@ -747,7 +747,7 @@ func main() {
 	s.runner.getip = s.GetIP
 	s.runner.logger = s.Log
 	s.Register = s
-	s.PrepServer()
+	s.PrepServer("gobuildslave")
 	s.Killme = false
 
 	s.maxJobs = *maxnum
