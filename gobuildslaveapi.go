@@ -22,7 +22,7 @@ func (s *Server) RunJob(ctx context.Context, req *pb.RunRequest) (*pb.RunRespons
 			s.Registry.Identifier == "clust7" ||
 			s.Registry.Identifier == "clust8" ||
 			s.Registry.Identifier == "clust4") {
-		return &pb.RunResponse{}, fmt.Errorf("we only run the basic set of jobs")
+		return &pb.RunResponse{}, status.Errorf(codes.FailedPrecondition, "we only run the basic set of jobs")
 	}
 
 	if req.GetBits() > 0 && s.Bits != int(req.GetBits()) {
