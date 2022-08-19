@@ -639,6 +639,9 @@ func (s *Server) backgroundRegister() {
 }
 
 func (s *Server) updateAccess() {
+	ctx, cancel := utils.ManualContext("gbs-update-access", time.Hour)
+	defer cancel()
+
 	for true {
 		url := "http://192.168.86.1"
 		r, err := http.Get(url)
@@ -647,12 +650,12 @@ func (s *Server) updateAccess() {
 			s.lastAccess = time.Now()
 			r.Body.Close()
 		} else {
-			s.Log(fmt.Sprintf("Ping fail %v (%v = %v)", err, s.lastAccess, time.Now().Sub(s.lastAccess).Minutes()))
+			s.CtxLog(ctx, fmt.Sprintf("Ping fail %v (%v = %v)", err, s.lastAccess, time.Now().Sub(s.lastAccess).Minutes()))
 			fails.Inc()
 		}
 
 		if time.Now().Sub(s.lastAccess) > time.Minute*5 && time.Now().Hour() < 22 && time.Now().Hour() >= 6 {
-			s.Log(fmt.Sprintf("REBOOTING -> %v, %v\n", err, s.lastAccess))
+			s.CtxLog(ctx, fmt.Sprintf("REBOOTING -> %v, %v\n", err, s.lastAccess))
 			cmd := exec.Command("sudo", "reboot")
 			cmd.Run()
 		}
@@ -660,13 +663,13 @@ func (s *Server) updateAccess() {
 		foundIP := false
 		ifaces, err := net.Interfaces()
 		if err != nil {
-			s.Log(fmt.Sprintf("NETINT ERROR: %v", err))
+			s.CtxLog(ctx, fmt.Sprintf("NETINT ERROR: %v", err))
 			foundIP = true
 		} else {
 			for _, i := range ifaces {
 				addrs, err := i.Addrs()
 				if err != nil {
-					s.Log(fmt.Sprintf("ADDR ERROR: %v", err))
+					s.CtxLog(ctx, fmt.Sprintf("ADDR ERROR: %v", err))
 					foundIP = true
 				} else {
 					for _, addr := range addrs {
@@ -681,14 +684,14 @@ func (s *Server) updateAccess() {
 
 						if ip != nil && !ip.IsLoopback() && ip.String() != "127.0.0.1" {
 							foundIP = true
-							s.Log(fmt.Sprintf("FOUNDIP %v", ip))
+							s.CtxLog(ctx, fmt.Sprintf("FOUNDIP %v", ip))
 						}
 					}
 				}
 			}
 		}
 		if foundIP {
-			s.Log(fmt.Sprintf("NOIP"))
+			s.CtxLog(ctx, fmt.Sprintf("NOIP"))
 		}
 
 		time.Sleep(time.Second * 30)
