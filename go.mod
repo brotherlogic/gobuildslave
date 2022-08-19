@@ -3,17 +3,18 @@ module github.com/brotherlogic/gobuildslave
 go 1.13
 
 require (
-	github.com/brotherlogic/buildserver v0.0.0-20220707145838-f32062433e3b
-	github.com/brotherlogic/discovery v0.0.0-20220730004509-d845c0dc4b6d
-	github.com/brotherlogic/filecopier v0.0.0-20220805153518-d910771d9f0f
-	github.com/brotherlogic/githubcard v0.0.0-20220801172901-d229178df90b
-	github.com/brotherlogic/goserver v0.0.0-20220802151516-4b60a60b3020
-	github.com/brotherlogic/keystore v0.0.0-20220621052415-70ae78501e3c
+	github.com/brotherlogic/buildserver v0.0.0-20220819191625-f89226c52329
+	github.com/brotherlogic/discovery v0.0.0-20220817003605-cdc1453b9396
+	github.com/brotherlogic/filecopier v0.0.0-20220819191141-7f988c1e77f9
+	github.com/brotherlogic/githubcard v0.0.0-20220819190537-93c7545e2a0b
+	github.com/brotherlogic/goserver v0.0.0-20220819191451-f33d62230933
+	github.com/brotherlogic/keystore v0.0.0-20220819190324-985dc407a45a
+	github.com/brotherlogic/lock v0.0.0-20220819191630-9657aba48280 // indirect
 	github.com/brotherlogic/versionserver v0.0.0-20200424225322-e02615d8678f
-	github.com/brotherlogic/versiontracker v0.0.0-20220805153355-cb2720cebe5d
+	github.com/brotherlogic/versiontracker v0.0.0-20220819191319-a26b671d350d
 	github.com/golang/protobuf v1.5.2
-	github.com/prometheus/client_golang v1.12.2
-	golang.org/x/net v0.0.0-20220805013720-a33c5aa5df48
+	github.com/prometheus/client_golang v1.13.0
+	golang.org/x/net v0.0.0-20220812174116-3211cb980234
 	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.28.1
 )
