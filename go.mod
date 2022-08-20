@@ -3,15 +3,15 @@ module github.com/brotherlogic/gobuildslave
 go 1.13
 
 require (
-	github.com/brotherlogic/buildserver v0.0.0-20220819211656-f7ded19f4dd8
-	github.com/brotherlogic/discovery v0.0.0-20220819235609-39b8a40e36ce
+	github.com/brotherlogic/buildserver v0.0.0-20220820185059-1024cf3addd9
+	github.com/brotherlogic/discovery v0.0.0-20220820182519-60e0dfb6f9c9
 	github.com/brotherlogic/filecopier v0.0.0-20220819205839-30ef3d4bd1ff
-	github.com/brotherlogic/githubcard v0.0.0-20220819190537-93c7545e2a0b
-	github.com/brotherlogic/goserver v0.0.0-20220820160629-0890776553c7
+	github.com/brotherlogic/githubcard v0.0.0-20220820163537-5c5e7d0ca9c2
+	github.com/brotherlogic/goserver v0.0.0-20220820213253-533bb760889f
 	github.com/brotherlogic/keystore v0.0.0-20220819230625-94090acd1be1
 	github.com/brotherlogic/lock v0.0.0-20220819231059-a6b35d0a941c // indirect
 	github.com/brotherlogic/versionserver v0.0.0-20200424225322-e02615d8678f
-	github.com/brotherlogic/versiontracker v0.0.0-20220819214932-bf9c791b2e02
+	github.com/brotherlogic/versiontracker v0.0.0-20220820215929-8f05deb0174e
 	github.com/golang/protobuf v1.5.2
 	github.com/prometheus/client_golang v1.13.0
 	golang.org/x/net v0.0.0-20220812174116-3211cb980234
