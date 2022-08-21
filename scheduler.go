@@ -2,12 +2,14 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 	"time"
 
+	"github.com/brotherlogic/goserver/utils"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -30,7 +32,7 @@ type rCommand struct {
 
 //Scheduler the main task scheduler
 type Scheduler struct {
-	Log              func(string)
+	Log              func(context.Context, string)
 	blockingQueue    chan *rCommand
 	nonblockingQueue chan *rCommand
 	complete         []*rCommand
@@ -48,12 +50,14 @@ func (s *Scheduler) getState(key string) string {
 
 // Schedule schedules a task
 func (s *Scheduler) Schedule(c *rCommand) string {
+	ctx, cancel := utils.ManualContext("gbs-schedule", time.Minute)
+	defer cancel()
 	key := fmt.Sprintf("%v", time.Now().UnixNano())
 	s.complete = append(s.complete, c)
 	c.status = "InQueue"
 	c.key = key
 	c.comp = make(chan bool)
-	s.Log(fmt.Sprintf("Running %+v with %v", c.command, c.block))
+	s.Log(ctx, fmt.Sprintf("Running %+v with %v", c.command, c.block))
 	if c.block {
 		s.blockingQueue <- c
 		bqSize.Set(float64(len(s.blockingQueue)))
@@ -126,12 +130,14 @@ func (s *Scheduler) processBlockingCommands() {
 
 func (s *Scheduler) processNonblockingCommands() {
 	for c := range s.nonblockingQueue {
-		s.Log(fmt.Sprintf("Running Command: %+v", c))
+		ctx, cancel := utils.ManualContext("gbs-pnbc", time.Minute)
+		s.Log(ctx, fmt.Sprintf("Running Command: %+v", c))
 		nbqSize.Set(float64(len(s.nonblockingQueue)))
 		err := s.run(c)
 		if err != nil {
 			c.endTime = time.Now().Unix()
 		}
+		cancel()
 	}
 }
 
@@ -151,7 +157,6 @@ var (
 )
 
 func (s *Scheduler) run(c *rCommand) error {
-	s.Log(fmt.Sprintf("In scheduler run: %+v", c))
 
 	c.status = "Running"
 	env := os.Environ()
@@ -188,8 +193,6 @@ func (s *Scheduler) run(c *rCommand) error {
 	out, err1 := c.command.StderrPipe()
 	outr, err2 := c.command.StdoutPipe()
 
-	s.Log(fmt.Sprintf("Created pipes: %v and %v", err1, err2))
-
 	if c.crash1 || err1 != nil {
 		return err1
 	}
@@ -201,7 +204,6 @@ func (s *Scheduler) run(c *rCommand) error {
 	scanner := bufio.NewScanner(out)
 	go func() {
 		for scanner != nil && scanner.Scan() {
-			s.Log(fmt.Sprintf("OUT1: %v", scanner.Text()))
 			c.output += scanner.Text()
 			outputsize.With(prometheus.Labels{"dest": "err", "job": c.command.Path}).Add(float64(len(scanner.Text())))
 		}
@@ -211,7 +213,6 @@ func (s *Scheduler) run(c *rCommand) error {
 	scanner2 := bufio.NewScanner(outr)
 	go func() {
 		for scanner2 != nil && scanner2.Scan() {
-			s.Log(fmt.Sprintf("OUT2: %v", scanner.Text()))
 			c.mainOut += scanner2.Text()
 			outputsize.With(prometheus.Labels{"dest": "out", "job": c.command.Path}).Add(float64(len(scanner2.Text())))
 		}
@@ -220,7 +221,6 @@ func (s *Scheduler) run(c *rCommand) error {
 
 	c.status = "StartCommand"
 	err := c.command.Start()
-	s.Log(fmt.Sprintf("Ran command: (%v), %v", c.command.Path, err))
 	if err != nil {
 		c.endTime = time.Now().Unix()
 		c.comp <- true
@@ -233,7 +233,6 @@ func (s *Scheduler) run(c *rCommand) error {
 	r := func() {
 		c.status = "Entering Wait"
 		err := c.command.Wait()
-		s.Log(fmt.Sprintf("Completed command %v", err))
 		c.status = "Completed Wait"
 		if err != nil {
 			c.err = err

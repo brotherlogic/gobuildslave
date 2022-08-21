@@ -50,7 +50,7 @@ type version interface {
 type prodVersion struct {
 	dial   func(ctx context.Context, server string) (*grpc.ClientConn, error)
 	server string
-	log    func(line string)
+	log    func(ctx context.Context, line string)
 }
 
 func (p *prodVersion) confirm(ctx context.Context, job string) bool {
@@ -72,7 +72,7 @@ func (p *prodVersion) confirm(ctx context.Context, job string) bool {
 				Setter: "gobuildslave" + p.server,
 			},
 		})
-	p.log(fmt.Sprintf("Result = %v, %v", err, resp))
+	p.log(ctx, fmt.Sprintf("Result = %v, %v", err, resp))
 	if err != nil {
 		return false
 	}
@@ -83,7 +83,7 @@ func (p *prodVersion) confirm(ctx context.Context, job string) bool {
 type prodBuilder struct {
 	dial   func(ctx context.Context, server string) (*grpc.ClientConn, error)
 	server func() string
-	Log    func(string)
+	Log    func(context.Context, string)
 }
 
 func (p *prodBuilder) build(ctx context.Context, job *pb.Job) (*pbb.Version, error) {
@@ -226,7 +226,7 @@ func InitServer(build bool) *Server {
 func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, output string) {
 	s.crashAttempts++
 
-	s.Log(fmt.Sprintf("Attempting to send crash report: %v -> %v", j.Job, output))
+	s.CtxLog(ctx, fmt.Sprintf("Attempting to send crash report: %v -> %v", j.Job, output))
 
 	if j.Job.Name == "buildserver" && len(output) > 0 {
 		s.RaiseIssue("Buildserver failing", fmt.Sprintf("on %v -> %v", s.Registry, output))
@@ -242,12 +242,12 @@ func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, ou
 			if err != nil {
 				s.crashFails++
 				s.crashError = fmt.Sprintf("%v-%v", j.Job, err)
-				s.Log(fmt.Sprintf("Failed to send crash report: %v -> %v because %v", j.Job, output, err))
+				s.CtxLog(ctx, fmt.Sprintf("Failed to send crash report: %v -> %v because %v", j.Job, output, err))
 
 			}
 		}
 	} else {
-		s.Log(fmt.Sprintf("Skipping empty crash report"))
+		s.CtxLog(ctx, fmt.Sprintf("Skipping empty crash report"))
 	}
 
 }
@@ -602,7 +602,7 @@ func (s *Server) stateChecker(ctx context.Context) error {
 	defer s.nMut.Unlock()
 	for _, job := range s.njobs {
 		if job.State == pb.State_ACKNOWLEDGED && time.Now().Sub(time.Unix(job.LastTransitionTime, 0)) > time.Minute*30 {
-			s.Log(fmt.Sprintf("%v is having a long ACK (%v) on %v", job.Job.Name, time.Now().Sub(time.Unix(job.LastTransitionTime, 0)), s.Registry.Identifier))
+			s.CtxLog(ctx, fmt.Sprintf("%v is having a long ACK (%v) on %v", job.Job.Name, time.Now().Sub(time.Unix(job.LastTransitionTime, 0)), s.Registry.Identifier))
 		}
 	}
 	return nil
@@ -626,8 +626,6 @@ func (s *Server) backgroundRegister() {
 			}
 		}
 
-		s.DLog(context.Background(), fmt.Sprintf("Registring us to discover: %v\n", err))
-
 		time.Sleep(time.Minute)
 	}
 
@@ -635,7 +633,7 @@ func (s *Server) backgroundRegister() {
 		s.maxJobs = 100
 	}*/
 
-	s.version = &prodVersion{s.FDialServer, s.Registry.Identifier, s.Log}
+	s.version = &prodVersion{s.FDialServer, s.Registry.Identifier, s.CtxLog}
 }
 
 func (s *Server) updateAccess() {
@@ -721,12 +719,7 @@ func (s *Server) sleepDisplay() {
 		if time.Now().Hour() >= 22 || time.Now().Hour() < 7 {
 			command = []string{"-display", ":0.0", "dpms", "force", "off"}
 		}
-		err := exec.Command("xset", command...).Run()
-		if err != nil {
-			s.Log(fmt.Sprintf("Error running: %v", err))
-		} else {
-			s.Log(fmt.Sprintf("Set the display %v", command[len(command)-1]))
-		}
+		exec.Command("xset", command...).Run()
 
 		time.Sleep(time.Minute * 5)
 	}
@@ -745,10 +738,10 @@ func main() {
 
 	s := InitServer(*build)
 
-	s.scheduler.Log = s.Log
-	s.builder = &prodBuilder{Log: s.Log, server: s.getServerName, dial: s.FDialServer}
+	s.scheduler.Log = s.CtxLog
+	s.builder = &prodBuilder{Log: s.CtxLog, server: s.getServerName, dial: s.FDialServer}
 	s.runner.getip = s.GetIP
-	s.runner.logger = s.Log
+	s.runner.logger = s.CtxLog
 	s.Register = s
 	s.PrepServer("gobuildslave")
 	s.Killme = false
@@ -763,11 +756,7 @@ func main() {
 			s.maxJobs = 0
 		}
 
-		s.Log(fmt.Sprintf("Got model %v -> set max jobs %v", model, s.maxJobs))
-	} else {
-		s.Log(fmt.Sprintf("BAD READ: %v", err))
 	}
-	s.DLog(context.Background(), fmt.Sprintf("Running now with %v max jobs", s.maxJobs))
 
 	go s.backgroundRegister()
 

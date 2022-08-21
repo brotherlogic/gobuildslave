@@ -65,7 +65,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	case pb.State_WARMUP:
 		res, err := exec.Command("md5sum", fmt.Sprintf("/home/simon/gobuild/bin/%v", job.GetJob().GetName())).Output()
 		if err != nil {
-			s.Log(fmt.Sprintf("Error reading md5sum: %v", err))
+			s.CtxLog(ctx, fmt.Sprintf("Error reading md5sum: %v", err))
 		} else {
 			elems := strings.Fields(string(res))
 			job.RunningVersion = elems[0]
@@ -138,13 +138,13 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		s.loadCurrentVersions()
 		version, err := s.getLatestVersion(ctx, job.GetJob().Name, job.GetJob().GetGoPath())
 		if err != nil {
-			s.Log(fmt.Sprintf("Error getting version: %v", err))
+			s.CtxLog(ctx, fmt.Sprintf("Error getting version: %v", err))
 			break
 		}
 
 		res, err := exec.Command("md5sum", fmt.Sprintf("/home/simon/gobuild/bin/%v", job.GetJob().GetName())).Output()
 		if err != nil {
-			s.Log(fmt.Sprintf("Error reading md5sum: %v", err))
+			s.CtxLog(ctx, fmt.Sprintf("Error reading md5sum: %v", err))
 		}
 		elems := strings.Fields(string(res))
 		job.RunningVersion = elems[0]
@@ -152,7 +152,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 
 		if elems[0] != version.GetVersion() {
 			s.versionsMutex.Lock()
-			s.Log(fmt.Sprintf("Bad version on %v for %v -> %v vs %v", s.Registry.Identifier, job.GetJob().GetName(), elems[0], s.versions[job.GetJob().GetName()].Version))
+			s.CtxLog(ctx, fmt.Sprintf("Bad version on %v for %v -> %v vs %v", s.Registry.Identifier, job.GetJob().GetName(), elems[0], s.versions[job.GetJob().GetName()].Version))
 			s.versionsMutex.Unlock()
 
 			job.SubState = fmt.Sprintf("Dealing With Version Mismatch: %v", job.BuildFail)
@@ -163,14 +163,14 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 
 			conn, err := s.FDialSpecificServer(ctx, "versiontracker", s.Registry.Identifier)
 			if err != nil {
-				s.Log(fmt.Sprintf("Unable to dial vt: %v", err))
+				s.CtxLog(ctx, fmt.Sprintf("Unable to dial vt: %v", err))
 			} else {
 				defer conn.Close()
 				vtc := pbvt.NewVersionTrackerServiceClient(conn)
 				_, err = vtc.NewVersion(ctx, &pbvt.NewVersionRequest{
 					Version: version,
 				})
-				s.Log(fmt.Sprintf("Requested new version: %v", err))
+				s.CtxLog(ctx, fmt.Sprintf("Requested new version: %v", err))
 			}
 
 			// Don't let the job sit here
@@ -196,7 +196,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 	case pb.State_PENDING:
 		res, err := exec.Command("md5sum", fmt.Sprintf("/home/simon/gobuild/bin/%v", job.GetJob().GetName())).Output()
 		if err != nil {
-			s.Log(fmt.Sprintf("Error reading md5sum: %v", err))
+			s.CtxLog(ctx, fmt.Sprintf("Error reading md5sum: %v", err))
 		}
 		elems := strings.Fields(string(res))
 		job.RunningVersion = elems[0]
@@ -223,15 +223,15 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			if code == codes.OK || code == codes.Unavailable {
 				// Validate that the job is alive
 				if !s.isJobAlive(ctx, job) {
-					s.Log(fmt.Sprintf("Job %v is not alive", job))
+					s.CtxLog(ctx, fmt.Sprintf("Job %v is not alive", job))
 				}
 				job.State = pb.State_RUNNING
 			} else {
 				if len(s.scheduler.getState(job.CommandKey)) > 0 {
 					job.State = pb.State_DIED
-					s.Log(fmt.Sprintf("Recording job as dead: '%v'", s.scheduler.getState(job.CommandKey)))
+					s.CtxLog(ctx, fmt.Sprintf("Recording job as dead: '%v'", s.scheduler.getState(job.CommandKey)))
 				}
-				s.Log(fmt.Sprintf("Cannot reregister: %v", err))
+				s.CtxLog(ctx, fmt.Sprintf("Cannot reregister: %v", err))
 			}
 		}
 	case pb.State_RUNNING:
@@ -263,7 +263,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 					s.RaiseIssue("Cannot Discover Running Server", fmt.Sprintf("%v on %v is not discoverable, despite running (%v) the output says %v (%v), %v, %v", job.Job.Name, s.Registry.Identifier, err, output, errout, output2, errout2))
 				}
 				job.DiscoverCount++
-				s.Log(fmt.Sprintf("Missing discover for %+v, %v -> %v", job, entry, err))
+				s.CtxLog(ctx, fmt.Sprintf("Missing discover for %+v, %v -> %v", job, entry, err))
 			} else {
 				job.Port = entry.GetPort()
 				job.DiscoverCount = 0

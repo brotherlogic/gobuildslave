@@ -114,7 +114,7 @@ func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.Co
 	if err != nil {
 		return nil, fmt.Errorf("error listing usb components: %v", err)
 	}
-	s.Log(fmt.Sprintf("USBRES: %v", string(data)))
+	s.CtxLog(ctx, fmt.Sprintf("USBRES: %v", string(data)))
 	if strings.Contains(string(data), "TSP100II") {
 		requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_RECEIPT_PRINTER})
 	}

@@ -46,7 +46,7 @@ func (s *Server) runOnChange() error {
 			jj = val
 		}
 	}
-	s.Log(fmt.Sprintf("Resyncing on %v jobs (First is %v)", len(s.njobs), jj))
+	s.CtxLog(ctx, fmt.Sprintf("Resyncing on %v jobs (First is %v)", len(s.njobs), jj))
 	_, err := s.Reregister(ctx, &pbgs.ReregisterRequest{})
 	if err != nil {
 		return err
@@ -55,18 +55,18 @@ func (s *Server) runOnChange() error {
 		if job.Port > 0 {
 			conn, err := s.FDial(fmt.Sprintf("%v:%v", s.Registry.Ip, job.Port))
 			if err != nil {
-				s.Log(fmt.Sprintf("Cannot dial %v,%v -> %v", s.Registry.Ip, job.Port, err))
+				s.CtxLog(ctx, fmt.Sprintf("Cannot dial %v,%v -> %v", s.Registry.Ip, job.Port, err))
 				break
 			}
 			defer conn.Close()
 			client := pbgs.NewGoserverServiceClient(conn)
 			_, err = client.Reregister(ctx, &pbgs.ReregisterRequest{})
 			if err != nil {
-				s.Log(fmt.Sprintf("Reregister failed: %v", err))
+				s.CtxLog(ctx, fmt.Sprintf("Reregister failed: %v", err))
 			}
 		} else {
 			time.Sleep(time.Second)
-			s.Log(fmt.Sprintf("Job %v has no port", job))
+			s.CtxLog(ctx, fmt.Sprintf("Job %v has no port", job))
 		}
 	}
 

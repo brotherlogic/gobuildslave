@@ -55,7 +55,7 @@ type Runner struct {
 	m               *sync.Mutex
 	bm              *sync.Mutex
 	getip           func(string) (string, int)
-	logger          func(string)
+	logger          func(context.Context, string)
 	builder         Builder
 }
 
