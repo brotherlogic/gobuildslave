@@ -792,7 +792,7 @@ func main() {
 
 	go s.procAcks()
 	go s.updateAccess()
-	if s.Registry.Identifier == "rdisplay" {
+	if strings.Contains(s.Registry.Identifier, "display") {
 		go s.sleepDisplay()
 	}
 
