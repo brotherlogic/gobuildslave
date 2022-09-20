@@ -12,6 +12,8 @@ import (
 	"google.golang.org/grpc/status"
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
+	pbgs "github.com/brotherlogic/goserver/proto"
+	"github.com/brotherlogic/goserver/utils"
 )
 
 // RunJob - runs the job
@@ -133,4 +135,31 @@ func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.Co
 	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_ZONE, Properties: s.Registry.Zone})
 
 	return &pb.ConfigResponse{Config: &pb.SlaveConfig{Requirements: requirements}}, nil
+}
+
+func (s *Server) FullShutdown(ctx context.Context, req *pb.ShutdownRequest) (*pb.ShutdownResponse, error) {
+	defer func() {
+		time.Sleep(time.Minute)
+
+		exec.Command("sudo", "shutdown", "-h", "now")
+	}()
+
+	jobs, err := s.ListJobs(ctx, &pb.ListRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, job := range jobs.GetJobs() {
+		conn, err := utils.LFDial(fmt.Sprintf("%v:%v", job.GetHost(), job.GetPort()))
+		if err != nil {
+			return nil, err
+		}
+		gsclient := pbgs.NewGoserverServiceClient(conn)
+		_, err = gsclient.Shutdown(ctx, &pbgs.ShutdownRequest{})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &pb.ShutdownResponse{}, nil
 }

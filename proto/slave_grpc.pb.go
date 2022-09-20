@@ -22,6 +22,7 @@ type BuildSlaveClient interface {
 	KillJob(ctx context.Context, in *KillRequest, opts ...grpc.CallOption) (*KillResponse, error)
 	ListJobs(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error)
 	SlaveConfig(ctx context.Context, in *ConfigRequest, opts ...grpc.CallOption) (*ConfigResponse, error)
+	FullShutdown(ctx context.Context, in *ShutdownRequest, opts ...grpc.CallOption) (*ShutdownResponse, error)
 }
 
 type buildSlaveClient struct {
@@ -77,6 +78,15 @@ func (c *buildSlaveClient) SlaveConfig(ctx context.Context, in *ConfigRequest, o
 	return out, nil
 }
 
+func (c *buildSlaveClient) FullShutdown(ctx context.Context, in *ShutdownRequest, opts ...grpc.CallOption) (*ShutdownResponse, error) {
+	out := new(ShutdownResponse)
+	err := c.cc.Invoke(ctx, "/gobuildslave.BuildSlave/FullShutdown", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BuildSlaveServer is the server API for BuildSlave service.
 // All implementations should embed UnimplementedBuildSlaveServer
 // for forward compatibility
@@ -86,6 +96,7 @@ type BuildSlaveServer interface {
 	KillJob(context.Context, *KillRequest) (*KillResponse, error)
 	ListJobs(context.Context, *ListRequest) (*ListResponse, error)
 	SlaveConfig(context.Context, *ConfigRequest) (*ConfigResponse, error)
+	FullShutdown(context.Context, *ShutdownRequest) (*ShutdownResponse, error)
 }
 
 // UnimplementedBuildSlaveServer should be embedded to have forward compatible implementations.
@@ -106,6 +117,9 @@ func (UnimplementedBuildSlaveServer) ListJobs(context.Context, *ListRequest) (*L
 }
 func (UnimplementedBuildSlaveServer) SlaveConfig(context.Context, *ConfigRequest) (*ConfigResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SlaveConfig not implemented")
+}
+func (UnimplementedBuildSlaveServer) FullShutdown(context.Context, *ShutdownRequest) (*ShutdownResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FullShutdown not implemented")
 }
 
 // UnsafeBuildSlaveServer may be embedded to opt out of forward compatibility for this service.
@@ -209,6 +223,24 @@ func _BuildSlave_SlaveConfig_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BuildSlave_FullShutdown_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ShutdownRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BuildSlaveServer).FullShutdown(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/gobuildslave.BuildSlave/FullShutdown",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BuildSlaveServer).FullShutdown(ctx, req.(*ShutdownRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _BuildSlave_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "gobuildslave.BuildSlave",
 	HandlerType: (*BuildSlaveServer)(nil),
@@ -232,6 +264,10 @@ var _BuildSlave_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SlaveConfig",
 			Handler:    _BuildSlave_SlaveConfig_Handler,
+		},
+		{
+			MethodName: "FullShutdown",
+			Handler:    _BuildSlave_FullShutdown_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

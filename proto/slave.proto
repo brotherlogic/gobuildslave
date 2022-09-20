@@ -141,12 +141,16 @@ message ConfigResponse {
   SlaveConfig config = 1;
 }
 
+message ShutdownRequest {}
+message ShutdownResponse {}
+
 service BuildSlave {
   rpc RunJob(RunRequest) returns (RunResponse) {};
   rpc UpdateJob(UpdateRequest) returns (UpdateResponse) {};
   rpc KillJob(KillRequest) returns (KillResponse) {};
   rpc ListJobs(ListRequest) returns (ListResponse) {};
   rpc SlaveConfig(ConfigRequest) returns (ConfigResponse) {};
+  rpc FullShutdown(ShutdownRequest) returns (ShutdownResponse) {};
 }
 
 service GoBuildSlave {
