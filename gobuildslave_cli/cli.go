@@ -65,6 +65,19 @@ func main() {
 		fmt.Printf("Commands: build run\n")
 	} else {
 		switch os.Args[1] {
+		case "sd":
+			if err := buildFlags.Parse(os.Args[2:]); err == nil {
+				host, port := findServer(ctx, "gobuildslave", *server)
+
+				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
+				defer conn.Close()
+
+				registry := pb.NewBuildSlaveClient(conn)
+				_, err := registry.FullShutdown(ctx, &pb.ShutdownRequest{})
+				if err != nil {
+					log.Fatalf("Error building job: %v", err)
+				}
+			}
 		case "build":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
 				host, port := findServer(ctx, "gobuildslave", *server)
