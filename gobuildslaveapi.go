@@ -155,6 +155,7 @@ func (s *Server) FullShutdown(ctx context.Context, req *pb.ShutdownRequest) (*pb
 			if err != nil {
 				return nil, err
 			}
+			s.CtxLog(ctx, fmt.Sprintf("Calling shutdown on %v", job))
 			gsclient := pbgs.NewGoserverServiceClient(conn)
 			_, err = gsclient.Shutdown(ctx, &pbgs.ShutdownRequest{})
 			if err != nil {
