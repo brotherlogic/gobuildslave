@@ -150,14 +150,16 @@ func (s *Server) FullShutdown(ctx context.Context, req *pb.ShutdownRequest) (*pb
 	}
 
 	for _, job := range jobs.GetJobs() {
-		conn, err := utils.LFDial(fmt.Sprintf("%v:%v", job.GetHost(), job.GetPort()))
-		if err != nil {
-			return nil, err
-		}
-		gsclient := pbgs.NewGoserverServiceClient(conn)
-		_, err = gsclient.Shutdown(ctx, &pbgs.ShutdownRequest{})
-		if err != nil {
-			return nil, err
+		if job.GetPort() != 0 {
+			conn, err := utils.LFDial(fmt.Sprintf("%v:%v", job.GetHost(), job.GetPort()))
+			if err != nil {
+				return nil, err
+			}
+			gsclient := pbgs.NewGoserverServiceClient(conn)
+			_, err = gsclient.Shutdown(ctx, &pbgs.ShutdownRequest{})
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
