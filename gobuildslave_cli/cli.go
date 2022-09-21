@@ -67,13 +67,14 @@ func main() {
 		switch os.Args[1] {
 		case "sd":
 			if err := buildFlags.Parse(os.Args[2:]); err == nil {
-				host, port := findServer(ctx, "gobuildslave", *server)
-
-				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
+				conn, err := grpc.Dial(*hosta+":53604", grpc.WithInsecure())
+				if err != nil {
+					log.Fatalf("Bad dial: %v", err)
+				}
 				defer conn.Close()
 
 				registry := pb.NewBuildSlaveClient(conn)
-				_, err := registry.FullShutdown(ctx, &pb.ShutdownRequest{})
+				_, err = registry.FullShutdown(ctx, &pb.ShutdownRequest{})
 				if err != nil {
 					log.Fatalf("Error building job: %v", err)
 				}
