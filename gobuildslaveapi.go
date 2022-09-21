@@ -161,6 +161,8 @@ func (s *Server) FullShutdown(ctx context.Context, req *pb.ShutdownRequest) (*pb
 			if err != nil {
 				return nil, err
 			}
+		} else {
+			s.CtxLog(ctx, fmt.Sprintf("Not shutting down %v", job))
 		}
 	}
 
