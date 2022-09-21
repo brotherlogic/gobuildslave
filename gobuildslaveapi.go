@@ -141,7 +141,7 @@ func (s *Server) FullShutdown(ctx context.Context, req *pb.ShutdownRequest) (*pb
 	defer func() {
 		time.Sleep(time.Minute)
 
-		exec.Command("sudo", "shutdown", "-h", "now")
+		exec.Command("sudo", "shutdown", "-h", "now").Run()
 	}()
 
 	jobs, err := s.ListJobs(ctx, &pb.ListRequest{})
@@ -161,7 +161,7 @@ func (s *Server) FullShutdown(ctx context.Context, req *pb.ShutdownRequest) (*pb
 			gsclient := pbgs.NewGoserverServiceClient(conn)
 			_, err = gsclient.Shutdown(ctx, &pbgs.ShutdownRequest{})
 			if err != nil {
-				return nil, err
+				s.CtxLog(ctx, fmt.Sprintf("Failed shutdown: %v", err))
 			}
 		} else {
 			s.CtxLog(ctx, fmt.Sprintf("Not shutting down %v", job))
