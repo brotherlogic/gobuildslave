@@ -140,9 +140,11 @@ func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.Co
 
 func (s *Server) FullShutdown(ctx context.Context, req *pb.ShutdownRequest) (*pb.ShutdownResponse, error) {
 	defer func() {
+		s.CtxLog(ctx, "Running shutdown")
 		time.Sleep(time.Minute)
 
-		exec.Command("sudo", "shutdown", "-h", "now").Run()
+		err := exec.Command("sudo", "shutdown", "-h", "now").Run()
+		s.CtxLog(ctx, fmt.Sprintf("Shutdown: %v", err))
 	}()
 
 	jobs, err := s.ListJobs(ctx, &pb.ListRequest{})
