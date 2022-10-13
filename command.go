@@ -173,6 +173,7 @@ type Server struct {
 	lastAccess      time.Time
 	ackChan         chan *pb.JobAssignment
 	maxJobs         int
+	shuttingDown    bool
 }
 
 // InitServer builds out a server
@@ -214,6 +215,7 @@ func InitServer(build bool) *Server {
 		time.Now(),
 		make(chan *pb.JobAssignment, 1000),
 		7,
+		false,
 	}
 
 	// Run the processing queues

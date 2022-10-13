@@ -58,6 +58,10 @@ func (s *Server) procAcks() {
 }
 
 func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
+	// Stop all the tranistions if we're shutting down
+	if s.shuttingDown {
+		return
+	}
 	s.DLog(ctx, fmt.Sprintf("TRANS: %v\n", job))
 	startState := job.State
 	job.LastUpdateTime = time.Now().Unix()

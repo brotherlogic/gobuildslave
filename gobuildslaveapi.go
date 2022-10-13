@@ -139,6 +139,7 @@ func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.Co
 }
 
 func (s *Server) FullShutdown(ctx context.Context, req *pb.ShutdownRequest) (*pb.ShutdownResponse, error) {
+	s.shuttingDown = true
 	defer func() {
 		s.CtxLog(ctx, "Running shutdown")
 		time.Sleep(time.Minute)
