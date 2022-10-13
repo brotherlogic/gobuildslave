@@ -296,45 +296,6 @@ func getHash(file string) (string, error) {
 	return string(h.Sum(nil)), nil
 }
 
-// updateState of the runner command
-func isAlive(ctx context.Context, spec *pb.JobSpec) bool {
-	elems := strings.Split(spec.Name, "/")
-	if spec.GetPort() == 0 {
-		dServer, dPort, err := getIP(ctx, elems[len(elems)-1], spec.Server)
-
-		e, ok := status.FromError(err)
-		if ok && e.Code() == codes.DeadlineExceeded {
-			//Ignore deadline exceeds on discover
-			return true
-		}
-
-		if err != nil {
-			return false
-		}
-
-		spec.Host = dServer
-		spec.Port = dPort
-	}
-
-	dConn, err := grpc.Dial(spec.Host+":"+strconv.Itoa(int(spec.Port)), grpc.WithInsecure())
-	if err != nil {
-		return false
-	}
-	defer dConn.Close()
-
-	c := pbs.NewGoserverServiceClient(dConn)
-	resp, err := c.IsAlive(ctx, &pbs.Alive{}, grpc.FailFast(false))
-
-	if err != nil || resp.Name != elems[len(elems)-1] {
-		e, ok := status.FromError(err)
-		if ok && e.Code() != codes.Unavailable {
-			return false
-		}
-	}
-
-	return true
-}
-
 // DoRegister Registers this server
 func (s *Server) DoRegister(server *grpc.Server) {
 	pb.RegisterGoBuildSlaveServer(server, s)
@@ -452,7 +413,7 @@ func (p *pTranslator) run(job *pb.Job) *exec.Cmd {
 // updateState of the runner command
 func (s *Server) isJobAlive(ctx context.Context, job *pb.JobAssignment) bool {
 	if job.GetPort() == 0 {
-		dServer, dPort, err := getIP(ctx, job.Job.Name, job.Server)
+		dServer, dPort, err := s.getIP(ctx, job.Job.Name, job.Server)
 
 		s.CtxLog(ctx, fmt.Sprintf("GOT THE PORT %v with %v", dPort, err))
 
@@ -489,8 +450,8 @@ func (s *Server) isJobAlive(ctx context.Context, job *pb.JobAssignment) bool {
 	return true
 }
 
-func getIP(ctx context.Context, name string, server string) (string, int32, error) {
-	conn, err := grpc.Dial(utils.LocalDiscover, grpc.WithInsecure())
+func (s *Server) getIP(ctx context.Context, name string, server string) (string, int32, error) {
+	conn, err := s.FDial(utils.LocalDiscover)
 	defer conn.Close()
 
 	if err != nil {
@@ -507,7 +468,10 @@ func getIP(ctx context.Context, name string, server string) (string, int32, erro
 		return "", -1, fmt.Errorf("No services found for %v and %v", name, server)
 	}
 
+	s.CtxLog(ctx, fmt.Sprintf("%v -> %v", server, r.GetServices()))
+
 	return r.GetServices()[0].Ip, r.GetServices()[0].Port, nil
+
 }
 
 func (s *Server) checkOnSsh(ctx context.Context) error {
