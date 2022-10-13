@@ -14,7 +14,6 @@ import (
 
 	pb "github.com/brotherlogic/gobuildslave/proto"
 	pbgs "github.com/brotherlogic/goserver/proto"
-	"github.com/brotherlogic/goserver/utils"
 )
 
 // RunJob - runs the job
@@ -161,7 +160,7 @@ func (s *Server) FullShutdown(ctx context.Context, req *pb.ShutdownRequest) (*pb
 			wg.Add(1)
 
 			go func(job *pb.JobAssignment) {
-				conn, err := utils.LFDial(fmt.Sprintf("%v:%v", job.GetHost(), job.GetPort()))
+				conn, err := s.FDial(fmt.Sprintf("%v:%v", job.GetHost(), job.GetPort()))
 				if err != nil {
 					return
 				}
