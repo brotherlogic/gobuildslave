@@ -20,7 +20,7 @@ import (
 
 	"github.com/brotherlogic/goserver"
 	"github.com/brotherlogic/goserver/utils"
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"google.golang.org/grpc"
@@ -586,7 +586,7 @@ func (s *Server) backgroundRegister() {
 			if err == nil {
 				defer conn.Close()
 				client := pbd.NewDiscoveryServiceV2Client(conn)
-				client.Unregister(ctx, &pbd.UnregisterRequest{Service: &pbd.RegistryEntry{Identifier: s.Registry.Identifier}})
+				client.Unregister(ctx, &pbd.UnregisterRequest{Reason: "gbs-restart", Service: &pbd.RegistryEntry{Identifier: s.Registry.Identifier}})
 				time.Sleep(time.Second * 5)
 				s.RegisterServerV2(false)
 			}

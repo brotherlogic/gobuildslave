@@ -73,8 +73,11 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		} else {
 			elems := strings.Fields(string(res))
 			job.RunningVersion = elems[0]
-			s.ackChan <- job
 		}
+
+		// Need to ack this job to get a version
+		s.ackChan <- job
+
 		job.State = pb.State_ACKNOWLEDGED
 	case pb.State_ACKNOWLEDGED:
 		key := s.scheduleBuild(ctx, job)
