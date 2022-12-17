@@ -4,13 +4,13 @@ go 1.19
 
 require (
 	github.com/brotherlogic/buildserver v0.0.0-20221210191743-7420726d38bd
-	github.com/brotherlogic/discovery v0.0.0-20221209181332-1dd8f71c375f
-	github.com/brotherlogic/filecopier v0.0.0-20221203211932-d73c7200b5dd
-	github.com/brotherlogic/githubcard v0.0.0-20221203201620-54ec2faa3df3
-	github.com/brotherlogic/goserver v0.0.0-20221202193151-b0b39691c212
-	github.com/brotherlogic/keystore v0.0.0-20221210190215-af3698c6a2c9
+	github.com/brotherlogic/discovery v0.0.0-20221217182444-b37b79160c37
+	github.com/brotherlogic/filecopier v0.0.0-20221211015024-12080a77fee5
+	github.com/brotherlogic/githubcard v0.0.0-20221211032956-b40a80581d2d
+	github.com/brotherlogic/goserver v0.0.0-20221217002224-0ba5c0213be1
+	github.com/brotherlogic/keystore v0.0.0-20221217201637-70b8783f62a3
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2
-	github.com/brotherlogic/versiontracker v0.0.0-20221203203419-22f8f1e46f30
+	github.com/brotherlogic/versiontracker v0.0.0-20221211032528-78b955128f31
 	github.com/golang/protobuf v1.5.2
 	github.com/prometheus/client_golang v1.14.0
 	golang.org/x/net v0.4.0
@@ -21,9 +21,9 @@ require (
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/brotherlogic/datastore v0.0.0-20221210190216-dcfbc825557b // indirect
-	github.com/brotherlogic/dstore v0.0.0-20221209194838-9d0611d5184d // indirect
-	github.com/brotherlogic/lock v0.0.0-20221203202511-04ba5b92ba06 // indirect
-	github.com/brotherlogic/logging v0.0.0-20221203212151-dada6354aca4 // indirect
+	github.com/brotherlogic/dstore v0.0.0-20221217202454-5e624411fd54 // indirect
+	github.com/brotherlogic/lock v0.0.0-20221211025725-c7b14345e31e // indirect
+	github.com/brotherlogic/logging v0.0.0-20221211023411-3e56b8c66cc1 // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
@@ -31,7 +31,7 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mitchellh/go-ps v1.0.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
-	github.com/prometheus/common v0.38.0 // indirect
+	github.com/prometheus/common v0.39.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/struCoder/pidusage v0.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.37.0 // indirect
