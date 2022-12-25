@@ -4,11 +4,11 @@ go 1.19
 
 require (
 	github.com/brotherlogic/buildserver v0.0.0-20221225021229-838a7162cae8
-	github.com/brotherlogic/discovery v0.0.0-20221218025922-f7f0f4bfa032
-	github.com/brotherlogic/filecopier v0.0.0-20221218021651-226dcef90de6
+	github.com/brotherlogic/discovery v0.0.0-20221225031615-260961372d02
+	github.com/brotherlogic/filecopier v0.0.0-20221225031216-b0a04da5b7c9
 	github.com/brotherlogic/githubcard v0.0.0-20221218045542-3f6d59d6597e
 	github.com/brotherlogic/goserver v0.0.0-20221217002224-0ba5c0213be1
-	github.com/brotherlogic/keystore v0.0.0-20221218025925-612b2a89a337
+	github.com/brotherlogic/keystore v0.0.0-20221225031157-d9efa4c60049
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2
 	github.com/brotherlogic/versiontracker v0.0.0-20221218033853-ca01a3f19928
 	github.com/golang/protobuf v1.5.2
