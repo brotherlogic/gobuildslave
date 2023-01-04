@@ -20,12 +20,12 @@ import (
 
 	"github.com/brotherlogic/goserver"
 	"github.com/brotherlogic/goserver/utils"
-	"google.golang.org/protobuf/proto"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 
 	pbb "github.com/brotherlogic/buildserver/proto"
 	pbd "github.com/brotherlogic/discovery/proto"
@@ -39,6 +39,11 @@ import (
 var (
 	fails = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "gobuildslave_pingfails",
+		Help: "The size of the print queue",
+	})
+
+	voltage = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "gobuildslave_voltage",
 		Help: "The size of the print queue",
 	})
 )
@@ -234,7 +239,7 @@ func (s *Server) deliverCrashReport(ctx context.Context, j *pb.JobAssignment, ou
 		s.RaiseIssue("Buildserver failing", fmt.Sprintf("on %v -> %v", s.Registry, output))
 	}
 
-	if len(output) > 0 && !s.SkipLog {
+	if len(strings.TrimSpace(output)) > 0 && !s.SkipLog {
 		conn, err := s.FDialServer(ctx, "buildserver")
 		if err == nil && s.Registry != nil {
 			defer conn.Close()
@@ -321,7 +326,7 @@ func (s *Server) GetState() []*pbs.State {
 	return []*pbs.State{}
 }
 
-//Init builds the default runner framework
+// Init builds the default runner framework
 func Init(b Builder) *Runner {
 	r := &Runner{gopath: "goautobuild", m: &sync.Mutex{}, bm: &sync.Mutex{}, builder: b}
 	r.runner = runCommand
@@ -606,7 +611,20 @@ func (s *Server) updateAccess() {
 	ctx, cancel := utils.ManualContext("gbs-update-access", time.Hour)
 	defer cancel()
 
-	for true {
+	for {
+		output, err := exec.Command("sudo", "vcgencmd", "measure_volts").CombinedOutput()
+		if err != nil {
+			s.CtxLog(ctx, fmt.Sprintf("Unable to measure voltage: %v", err))
+		} else {
+			bits := strings.Split(string(output), "=")
+			val, err := strconv.ParseFloat(bits[1][:len(bits[1])-2], 64)
+			if err != nil {
+				s.CtxLog(ctx, fmt.Sprintf("Unable to pars voltage: %v", err))
+			} else {
+				voltage.Set(val)
+			}
+		}
+
 		url := "http://192.168.86.1"
 		r, err := http.Get(url)
 
