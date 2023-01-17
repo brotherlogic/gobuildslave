@@ -3,27 +3,27 @@ module github.com/brotherlogic/gobuildslave
 go 1.19
 
 require (
-	github.com/brotherlogic/buildserver v0.0.0-20230101021559-90565768ca43
-	github.com/brotherlogic/discovery v0.0.0-20230101041754-a86bf8911dcc
-	github.com/brotherlogic/filecopier v0.0.0-20230101040446-fdc83a3fd889
-	github.com/brotherlogic/githubcard v0.0.0-20221225062731-7418cdcb7539
-	github.com/brotherlogic/goserver v0.0.0-20221217002224-0ba5c0213be1
-	github.com/brotherlogic/keystore v0.0.0-20230101043504-05ac1b6cfc9c
+	github.com/brotherlogic/buildserver v0.0.0-20230108034220-e8f7fb54466c
+	github.com/brotherlogic/discovery v0.0.0-20230105182040-04b2f40a21ed
+	github.com/brotherlogic/filecopier v0.0.0-20230107194337-8f54acb4d946
+	github.com/brotherlogic/githubcard v0.0.0-20230117165222-ceb0ab9eae00
+	github.com/brotherlogic/goserver v0.0.0-20230113190359-3aaa706170c9
+	github.com/brotherlogic/keystore v0.0.0-20230108052654-392c7a9b9675
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2
-	github.com/brotherlogic/versiontracker v0.0.0-20230101050552-f71620849698
+	github.com/brotherlogic/versiontracker v0.0.0-20230117164650-58fa66674732
 	github.com/golang/protobuf v1.5.2
 	github.com/prometheus/client_golang v1.14.0
-	golang.org/x/net v0.4.0
-	google.golang.org/grpc v1.51.0
+	golang.org/x/net v0.5.0
+	google.golang.org/grpc v1.52.0
 	google.golang.org/protobuf v1.28.1
 )
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/brotherlogic/datastore v0.0.0-20230101041740-b200a5fc54c3 // indirect
-	github.com/brotherlogic/dstore v0.0.0-20221225061644-96d629064695 // indirect
-	github.com/brotherlogic/lock v0.0.0-20221225053643-e6fbf2d9b812 // indirect
-	github.com/brotherlogic/logging v0.0.0-20221225055731-60128fd35350 // indirect
+	github.com/brotherlogic/datastore v0.0.0-20230108044309-80a59f72b29b // indirect
+	github.com/brotherlogic/dstore v0.0.0-20230108103035-94e9284d0601 // indirect
+	github.com/brotherlogic/lock v0.0.0-20230103180730-bb452b6fe70f // indirect
+	github.com/brotherlogic/logging v0.0.0-20230108082501-1829ce3e39d8 // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
@@ -40,7 +40,7 @@ require (
 	go.opentelemetry.io/otel/metric v0.34.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.11.2 // indirect
 	go.opentelemetry.io/otel/trace v1.11.2 // indirect
-	golang.org/x/sys v0.3.0 // indirect
-	golang.org/x/text v0.5.0 // indirect
-	google.golang.org/genproto v0.0.0-20221227171554-f9683d7f8bef // indirect
+	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/text v0.6.0 // indirect
+	google.golang.org/genproto v0.0.0-20230117162540-28d6b9783ac4 // indirect
 )
