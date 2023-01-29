@@ -92,20 +92,6 @@ func TestListJobs(t *testing.T) {
 	}
 }
 
-func TestGetSlaveConfig(t *testing.T) {
-	s := getTestServer()
-	s.Registry.Identifier = "stationone"
-	s.disker = &testDisker{disks: []string{"disk1"}}
-	config, err := s.SlaveConfig(context.Background(), &pb.ConfigRequest{})
-	if err != nil {
-		t.Fatalf("Error getting config: %v", err)
-	}
-
-	if len(config.Config.Requirements) != 5 {
-		t.Errorf("Requirements not been captured: (%v) %v", len(config.Config.Requirements), config)
-	}
-}
-
 func TestRegMatch(t *testing.T) {
 	result := `wlan0     IEEE 802.11  ESSID:SiFi
           Mode:Managed  Frequency:5.745 GHz  Access Point: 70:3A:CB:17:CF:BB

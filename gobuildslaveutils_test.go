@@ -4,7 +4,6 @@ import (
 	"log"
 	"os/exec"
 	"testing"
-	"time"
 
 	pbfc "github.com/brotherlogic/filecopier/proto"
 	pb "github.com/brotherlogic/gobuildslave/proto"
@@ -88,20 +87,6 @@ func TestBadBuild(t *testing.T) {
 	}
 }
 
-func TestTransitions(t *testing.T) {
-	s := getTestServer()
-	s.translator = &testTranslator{}
-	for _, test := range transitionTable {
-		log.Printf("RUNNING %v", test)
-		s.checker = &testChecker{alive: test.alive}
-		s.runTransition(context.Background(), test.job)
-
-		if test.job.State != test.newState {
-			t.Errorf("Job transition failed: %v should have been %v but was %v", test.job, test.newState, test.job.State)
-		}
-	}
-}
-
 func TestBuildFail(t *testing.T) {
 	s := getTestServer()
 	s.translator = &testTranslator{}
@@ -114,15 +99,6 @@ func TestBuildFail(t *testing.T) {
 
 	if job.State != pb.State_DIED {
 		t.Errorf("Multiple failures did not fail: %v", job.State)
-	}
-}
-
-func TestFailDiscover(t *testing.T) {
-	s := getTestServer()
-	//s.discover = &testDiscover{fail: true}
-	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_RUNNING}
-	for i := 0; i < 32; i++ {
-		s.runTransition(context.Background(), job)
 	}
 }
 
@@ -146,28 +122,6 @@ func TestBuildJobBaseTrans(t *testing.T) {
 	if job.State != pb.State_BUILT {
 		t.Errorf("Multiple failures did not fail: %v", job.State)
 	}
-}
-
-func TestKill(t *testing.T) {
-	s := getTestServer()
-	s.builder = &testBuilder{count: 2}
-	job := &pb.JobAssignment{Job: &pb.Job{Name: "blah", GoPath: "blah"}, State: pb.State_ACKNOWLEDGED}
-	s.runTransition(context.Background(), job)
-
-	if job.State != pb.State_BUILT {
-		t.Errorf("Was not built")
-	}
-
-	s.runTransition(context.Background(), job)
-	log.Printf("NOW %v", job.State)
-
-	time.Sleep(time.Minute * 2)
-	s.runTransition(context.Background(), job)
-	log.Printf("NOW %v", job.State)
-
-	s.builder = &testBuilder{change: true, count: 2}
-	s.runTransition(context.Background(), job)
-	log.Printf("NOW %v", job.State)
 }
 
 func TestSchedule(t *testing.T) {

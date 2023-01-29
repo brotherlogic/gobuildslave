@@ -59,7 +59,7 @@ func (p *testBuilder) copy(ctx context.Context, v *pbb.Version) (*pbfc.CopyRespo
 func InitTest() *Runner {
 	r := &Runner{builder: &testBuilder{count: 1}, bm: &sync.Mutex{}, m: &sync.Mutex{}, getip: func(blah string) (string, int) {
 		return "", -1
-	}, logger: func(blah string) {
+	}, logger: func(ctx context.Context, blah string) {
 		//Do nothing
 	}}
 	r.runner = testRunCommand
