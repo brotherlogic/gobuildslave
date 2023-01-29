@@ -62,6 +62,7 @@ func getTestServer() *Server {
 	s.versions = make(map[string]*pbb.Version)
 	s.version = &testVersion{}
 	s.versionsMutex = &sync.Mutex{}
+	s.scheduler.Log = s.CtxLog
 
 	return s
 }

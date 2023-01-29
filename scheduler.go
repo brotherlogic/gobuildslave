@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -57,6 +58,7 @@ func (s *Scheduler) Schedule(c *rCommand) string {
 	c.status = "InQueue"
 	c.key = key
 	c.comp = make(chan bool)
+	log.Printf("%T", s.Log)
 	s.Log(ctx, fmt.Sprintf("Running %+v with %v", c.command, c.block))
 	if c.block {
 		s.blockingQueue <- c
