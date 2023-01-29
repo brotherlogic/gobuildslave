@@ -457,11 +457,10 @@ func (s *Server) isJobAlive(ctx context.Context, job *pb.JobAssignment) bool {
 
 func (s *Server) getIP(ctx context.Context, name string, server string) (string, int32, error) {
 	conn, err := s.FDial(utils.LocalDiscover)
-	defer conn.Close()
-
 	if err != nil {
 		return "", -1, err
 	}
+	defer conn.Close()
 
 	registry := pbd.NewDiscoveryServiceV2Client(conn)
 	r, err := registry.Get(ctx, &pbd.GetRequest{Job: name, Server: server})
