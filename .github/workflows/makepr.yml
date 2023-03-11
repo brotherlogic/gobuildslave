@@ -1,7 +1,6 @@
 name: Create production promotion pull request
 on:
   push:
-
 jobs:
  pull-request:
     runs-on: ubuntu-latest
@@ -10,5 +9,5 @@ jobs:
     - name: pull-request
       uses: repo-sync/pull-request@v2
       with:
-        destination_branch: "master"
+        destination_branch: "main"
         github_token: ${{ secrets.PERSONAL_TOKEN }}
