@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/brotherlogic/buildserver v0.0.0-20230524232808-1c33c092bf4d
 	github.com/brotherlogic/discovery v0.0.0-20230527174721-899846f80b8c
-	github.com/brotherlogic/filecopier v0.0.0-20230521032951-4174867df9d4
+	github.com/brotherlogic/filecopier v0.0.0-20230528034220-d76206c74aad
 	github.com/brotherlogic/githubcard v0.0.0-20230524015807-3bafe4a97e26
 	github.com/brotherlogic/goserver v0.0.0-20230330215506-65bad61eb180
 	github.com/brotherlogic/keystore v0.0.0-20230522040346-409b74da0718
