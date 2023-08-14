@@ -3,14 +3,14 @@ module github.com/brotherlogic/gobuildslave
 go 1.19
 
 require (
-	github.com/brotherlogic/buildserver v0.0.0-20230804164246-796f234d4c96
-	github.com/brotherlogic/discovery v0.0.0-20230805173434-00271107b19e
-	github.com/brotherlogic/filecopier v0.0.0-20230801000702-5144e74d800c
-	github.com/brotherlogic/githubcard v0.0.0-20230802063641-e567f6c58ad2
+	github.com/brotherlogic/buildserver v0.0.0-20230811173609-8e43165c62f6
+	github.com/brotherlogic/discovery v0.0.0-20230812174432-b5226af5a648
+	github.com/brotherlogic/filecopier v0.0.0-20230808001449-6b2e98847634
+	github.com/brotherlogic/githubcard v0.0.0-20230809064540-6c0e36ac6ad3
 	github.com/brotherlogic/goserver v0.0.0-20230726200050-779ae6811580
-	github.com/brotherlogic/keystore v0.0.0-20230804194656-c684af493a70
+	github.com/brotherlogic/keystore v0.0.0-20230811204641-d22e17444a8c
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2
-	github.com/brotherlogic/versiontracker v0.0.0-20230801000650-bb4b4593eadd
+	github.com/brotherlogic/versiontracker v0.0.0-20230808001313-00dbbecaf213
 	github.com/golang/protobuf v1.5.3
 	github.com/prometheus/client_golang v1.16.0
 	golang.org/x/net v0.14.0
@@ -20,10 +20,10 @@ require (
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/brotherlogic/datastore v0.0.0-20230802074209-120f0bdd1d4b // indirect
-	github.com/brotherlogic/dstore v0.0.0-20230805144104-f6d919b0dbdf // indirect
-	github.com/brotherlogic/lock v0.0.0-20230731232351-f011f2d7e22a // indirect
-	github.com/brotherlogic/logging v0.0.0-20230801211723-c0daab8c26d4 // indirect
+	github.com/brotherlogic/datastore v0.0.0-20230809074622-972d5abee332 // indirect
+	github.com/brotherlogic/dstore v0.0.0-20230812144406-320b087aa8a3 // indirect
+	github.com/brotherlogic/lock v0.0.0-20230808002205-d5c7afd60a1e // indirect
+	github.com/brotherlogic/logging v0.0.0-20230808212725-1415a37107ed // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
@@ -34,5 +34,5 @@ require (
 	github.com/struCoder/pidusage v0.2.1 // indirect
 	golang.org/x/sys v0.11.0 // indirect
 	golang.org/x/text v0.12.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20230803162519-f966b187b2e5 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20230807174057-1744710a1577 // indirect
 )
