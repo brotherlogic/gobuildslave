@@ -1500,8 +1500,9 @@ github.com/brotherlogic/filecopier v0.0.0-20230724232628-44ccc0f2c36d/go.mod h1:
 github.com/brotherlogic/filecopier v0.0.0-20230801000702-5144e74d800c/go.mod h1:MOP36f1cctaa/mr2oV+GIl0zknGnkrm7eEPtaHEFRIs=
 github.com/brotherlogic/filecopier v0.0.0-20230808001449-6b2e98847634/go.mod h1:OjifmMWz5LXcGPBWoWoTtq5axOeHUNCKg7gOFzRqaac=
 github.com/brotherlogic/filecopier v0.0.0-20230815001853-b944199ab1dd/go.mod h1:5qJ51DDaa4BT8DncOz5O75Eaj0xG96FzGemxwSzN79E=
-github.com/brotherlogic/filecopier v0.0.0-20230822010829-e7389a2178af h1:bppn5hT9XtCuJfaRGeuNWt++rTCaK/SgnB667y4FwiU=
 github.com/brotherlogic/filecopier v0.0.0-20230822010829-e7389a2178af/go.mod h1:hB4a8QjLYcLmbbe05e0BSaSbLTTl3qF3IoULvUyc1OQ=
+github.com/brotherlogic/filecopier v0.0.0-20230829014031-ffc52aa591c5 h1:GgEhDkEockTuhIe/zofvXs+ClEJDSyayL4S07G0NCeE=
+github.com/brotherlogic/filecopier v0.0.0-20230829014031-ffc52aa591c5/go.mod h1:LouWXBAusLD87XuKaRkRoBNlkpGpXoPfbqGanZ1kTd4=
 github.com/brotherlogic/frametracker v0.0.0-20210108214332-61d86ee8f701/go.mod h1:21Eaa47nKHk1Ab77YyOhBdQ6cxKMvKf+9x96UL0wnhs=
 github.com/brotherlogic/frametracker v0.0.0-20220308202045-6632250e217e/go.mod h1:l52l94odEuoKaFmZxFUQ6A+p/AMD0KRY+J4E2V8mwyY=
 github.com/brotherlogic/frametracker v0.0.0-20220514055242-c87e03b44946/go.mod h1:9wXLjwHIBgssdHeWSzgcejaqu08Vmo1i2/Rk4fJ/Kxg=
@@ -3335,8 +3336,9 @@ github.com/brotherlogic/versiontracker v0.0.0-20230724232650-a13a8322fa19/go.mod
 github.com/brotherlogic/versiontracker v0.0.0-20230801000650-bb4b4593eadd/go.mod h1:P4BCvTrlaJLnkv1FekMZ1b8YUcrcrLm3JPgRSxoMksw=
 github.com/brotherlogic/versiontracker v0.0.0-20230808001313-00dbbecaf213/go.mod h1:ePB+c0yAE/WJ5UdsYT5EOEKxp1529dZBOMKhFsPraU4=
 github.com/brotherlogic/versiontracker v0.0.0-20230815001921-b314c0c0c760/go.mod h1:tQIKFkJcjhLzAP+khGjMS9RQ2MjbRwZ/F+Gl5RCk06M=
-github.com/brotherlogic/versiontracker v0.0.0-20230822010758-0d3b454bc54f h1:wTORH49hVAqDqxM3ra9kbZTJ1prUWTniX9v8DHBbIo0=
 github.com/brotherlogic/versiontracker v0.0.0-20230822010758-0d3b454bc54f/go.mod h1:EQFQvymlXx/hRVyD0/X/haS2pmILQeE9TUz3eDq1vNM=
+github.com/brotherlogic/versiontracker v0.0.0-20230829013942-35b2ce58624b h1:QwjohZSgoc2KlZzNPLQ/T9OdQJJ3knI4GAkC2o69BsY=
+github.com/brotherlogic/versiontracker v0.0.0-20230829013942-35b2ce58624b/go.mod h1:OSf+5+fbl+xr5qIQGNI+IzkHLMrPEhdr+aN4cW6z4SQ=
 github.com/bsm/ginkgo/v2 v2.5.0/go.mod h1:AiKlXPm7ItEHNc/2+OkrNG4E0ITzojb9/xWzvQ9XZ9w=
 github.com/bsm/gomega v1.20.0/go.mod h1:JifAceMQ4crZIWYUKrlGcmbN3bqHogVTADMD2ATsbwk=
 github.com/buger/jsonparser v1.1.1/go.mod h1:6RYKKt7H4d4+iWqouImQ9R2FZql3VbhNgx27UK13J/0=
