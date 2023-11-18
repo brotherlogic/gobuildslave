@@ -4020,8 +4020,8 @@ github.com/brotherlogic/versiontracker v0.0.0-20231020040752-8e5782381465/go.mod
 github.com/brotherlogic/versiontracker v0.0.0-20231027050201-4a8d952d0a3e/go.mod h1:32tVQOhF8cEVq2dPct0PnCG5PrjTIRLHhHjo5CCSsas=
 github.com/brotherlogic/versiontracker v0.0.0-20231103053057-fe8c7922538c/go.mod h1:q2iWGXVWFGd+1lMMjrJpyLDcwfwmUuEGmSPFlwifMMs=
 github.com/brotherlogic/versiontracker v0.0.0-20231110055328-25126cc3f8b1/go.mod h1:psyDPVj+6JWNdCMvgzbJnkPSSsYYCXnG6nSpfEDUi3w=
-github.com/brotherlogic/versiontracker v0.0.0-20231118045519-4de1d2c09955 h1:ZvQf7uFQUiGOIeb8kO3dqZeMumNNo4Harbi3KIhfBd8=
-github.com/brotherlogic/versiontracker v0.0.0-20231118045519-4de1d2c09955/go.mod h1:Gsmiy88u37YqVWuUFCwQaZn4eV9hjdAFoXVsymEQEiU=
+github.com/brotherlogic/versiontracker v0.0.0-20231118054138-31b46fe601cd h1:v0e4x5UA1XCbz5kdJ+0XGSHFSsxknaQkl3HPeaHEMkc=
+github.com/brotherlogic/versiontracker v0.0.0-20231118054138-31b46fe601cd/go.mod h1:S9ktxT9MFGISgnclVIwooIyGnCeqj9yVFz5u7MTINHg=
 github.com/bsm/ginkgo/v2 v2.5.0/go.mod h1:AiKlXPm7ItEHNc/2+OkrNG4E0ITzojb9/xWzvQ9XZ9w=
 github.com/bsm/gomega v1.20.0/go.mod h1:JifAceMQ4crZIWYUKrlGcmbN3bqHogVTADMD2ATsbwk=
 github.com/buger/jsonparser v1.1.1/go.mod h1:6RYKKt7H4d4+iWqouImQ9R2FZql3VbhNgx27UK13J/0=
