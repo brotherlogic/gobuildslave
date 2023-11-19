@@ -10,7 +10,7 @@ require (
 	github.com/brotherlogic/goserver v0.0.0-20230726200050-779ae6811580
 	github.com/brotherlogic/keystore v0.0.0-20231112195839-4b61dfa63b0a
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2
-	github.com/brotherlogic/versiontracker v0.0.0-20231119001011-65309ee3e1b4
+	github.com/brotherlogic/versiontracker v0.0.0-20231119004145-0ba8dae6be76
 	github.com/golang/protobuf v1.5.3
 	github.com/prometheus/client_golang v1.17.0
 	golang.org/x/net v0.18.0
