@@ -1981,8 +1981,9 @@ github.com/brotherlogic/dstore v0.0.0-20231213201149-4c8ab5df5868/go.mod h1:m1FE
 github.com/brotherlogic/dstore v0.0.0-20231220201705-b74cc02fc3e4/go.mod h1:UNpf2y/zCzRmuwaBkpxdiUYVXxQjbabv2lNdxEe7svE=
 github.com/brotherlogic/dstore v0.0.0-20231227211457-98c11b4f8d50/go.mod h1:I5rR+4RnJlMS3eDWXsoEiSqSHf92IqArr16FlxczMtk=
 github.com/brotherlogic/dstore v0.0.0-20240103222510-cb87ca7c9c53/go.mod h1:JIqxv9IH4hGDdgoQ2aoNssGAt0J6/JCvJQ1mJ3JHffk=
-github.com/brotherlogic/dstore v0.0.0-20240110235822-65994e72bc43 h1:h85U7g6rRa1aaAvOLwpGZYdbV9AR/SVu0nnBplhMkQk=
 github.com/brotherlogic/dstore v0.0.0-20240110235822-65994e72bc43/go.mod h1:2LRjk2pqehdM4/dOhA9TO7WXe70nMfHn5z0off9MsGY=
+github.com/brotherlogic/dstore v0.0.0-20240118011651-258f2d409c14 h1:YdFd4V3OHwkRrFKmhTQxO8gCIYc1FiZS1o4LorfJtWU=
+github.com/brotherlogic/dstore v0.0.0-20240118011651-258f2d409c14/go.mod h1:9M3eERuD8H7axrzvkXY+YvflTdsmWW3CsXjUjR3In4k=
 github.com/brotherlogic/executor v0.0.0-20200915161204-3a99e1a889c5/go.mod h1:i/BkUS1evIqvvP1PQeiBpnOnju5VtzM8inv9hK2dWBo=
 github.com/brotherlogic/executor v0.0.0-20211120222045-7cd0d2d90a92/go.mod h1:6izXVRd9q/ZNjg+OFerYLjKzLO5odrXorHcgSo68r9Q=
 github.com/brotherlogic/executor v0.0.0-20211223152906-411e9ebe268b/go.mod h1:0cY8kq6JsfeTJb19frLQXGC/dRpYbOOOk1yvbj9+P1I=
