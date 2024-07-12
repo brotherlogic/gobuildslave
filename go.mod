@@ -3,9 +3,9 @@ module github.com/brotherlogic/gobuildslave
 go 1.22.1
 
 require (
-	github.com/brotherlogic/buildserver v0.0.0-20240705220503-89995eb137f4
+	github.com/brotherlogic/buildserver v0.0.0-20240712230902-3eca63f96e88
 	github.com/brotherlogic/discovery v0.0.0-20240708161113-0bb9cf92cda7
-	github.com/brotherlogic/filecopier v0.0.0-20240705222755-9504d9e55a29
+	github.com/brotherlogic/filecopier v0.0.0-20240712224743-e33be71ae567
 	github.com/brotherlogic/githubcard v0.0.0-20240708161634-4330cb07f5a9
 	github.com/brotherlogic/goserver v0.0.0-20240303220030-80da220f0393
 	github.com/brotherlogic/keystore v0.0.0-20240508161349-814b3200b126
