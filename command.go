@@ -775,7 +775,7 @@ func main() {
 
 	go s.procAcks()
 	go s.updateAccess()
-	if strings.Contains(s.Registry.Identifier, "display") {
+	if strings.Contains(s.Registry.Identifier, "display") || strings.Contains(s.Registry.Identifier, "personal") {
 		go s.sleepDisplay()
 	}
 
