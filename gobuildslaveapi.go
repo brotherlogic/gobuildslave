@@ -65,7 +65,7 @@ func (s *Server) KillJob(ctx context.Context, req *pb.KillRequest) (*pb.KillResp
 	return &pb.KillResponse{}, nil
 }
 
-//UpdateJob - updates the job
+// UpdateJob - updates the job
 func (s *Server) UpdateJob(ctx context.Context, req *pb.UpdateRequest) (*pb.UpdateResponse, error) {
 	s.nMut.Lock()
 	defer s.nMut.Unlock()
@@ -129,7 +129,8 @@ func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.Co
 
 	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_BITS, Properties: fmt.Sprintf("%v", s.Bits)})
 
-	out, _ = exec.Command("cat", "/sys/firmware/devicetree/base/model").Output()
+	out, err = exec.Command("cat", "/sys/firmware/devicetree/base/model").Output()
+	s.CtxLog(ctx, fmt.Sprintf("FOUNDEXEC: %v and %v", string(out), err))
 	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_HOST_TYPE, Properties: string(out)})
 
 	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_ZONE, Properties: s.Registry.Zone})
