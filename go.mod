@@ -16,16 +16,16 @@ require (
 	github.com/golang/protobuf v1.5.4
 	github.com/prometheus/client_golang v1.20.5
 	golang.org/x/net v0.34.0
-	google.golang.org/grpc v1.69.2
+	google.golang.org/grpc v1.69.4
 	google.golang.org/protobuf v1.36.2
 )
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/brotherlogic/datastore v0.0.0-20250109205055-7c0f869da953 // indirect
-	github.com/brotherlogic/dstore v0.0.0-20250109205109-c2f22df81426 // indirect
+	github.com/brotherlogic/datastore v0.0.0-20250113221437-a850954b72ee // indirect
+	github.com/brotherlogic/dstore v0.0.0-20250113221442-6d9336264203 // indirect
 	github.com/brotherlogic/githubridge v0.2830.0 // indirect
-	github.com/brotherlogic/lock v0.0.0-20250109214914-3e437d73de0e // indirect
+	github.com/brotherlogic/lock v0.0.0-20250110210017-19a09743c3cb // indirect
 	github.com/brotherlogic/logging v0.0.0-20250109214357-a9bf430837d8 // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
