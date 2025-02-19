@@ -6,10 +6,10 @@ github.com/brotherlogic/datastore v0.0.0-20250113225754-a9cab19c721e h1:+ObStHAW
 github.com/brotherlogic/datastore v0.0.0-20250113225754-a9cab19c721e/go.mod h1:9q9KdpUQOEqifh2D1mDctq0de7pzh86xydybPu+l9tk=
 github.com/brotherlogic/discovery v0.0.0-20241109204028-02908558af09 h1:/G6RM6m/hLY/LbVw2mNcbeUxms5zNE2c0F72Z8ZI8HU=
 github.com/brotherlogic/discovery v0.0.0-20241109204028-02908558af09/go.mod h1:ih6YWeSvJfqZHdtPujz/mbs2fdnLD9HKVnPYplvriEY=
-github.com/brotherlogic/dstore v0.0.0-20250219054514-151bc90f1f2e h1:cS4SJm8tl8x6jJucWHNVm6eBaveTm/CcWA3oGkraS9k=
-github.com/brotherlogic/dstore v0.0.0-20250219054514-151bc90f1f2e/go.mod h1:U/pStbzH6lV+8dFgvu//pq5s2tmVcVOcdaGaKf4Lcwk=
-github.com/brotherlogic/filecopier v0.0.0-20250219073651-a1ac9dbf0e32 h1:kGfX0FgJo4VZ0oIAJ5BEVpCgoM0WcJSd26kFrYFcq5E=
-github.com/brotherlogic/filecopier v0.0.0-20250219073651-a1ac9dbf0e32/go.mod h1:HiZHO+3PlkatGNax+BMvpBFVL1GtUFP4Dcms3DnrYCE=
+github.com/brotherlogic/dstore v0.0.0-20250219075523-a2e383c379dd h1:D5n6Ncp7QQvqo3cPgme/zauOTBMAFDbZnRVaYBFhlyU=
+github.com/brotherlogic/dstore v0.0.0-20250219075523-a2e383c379dd/go.mod h1:L6r4YDiyuVgJxBVQbE4Nv+vMZDsN3MbUSOgdi7m27Tg=
+github.com/brotherlogic/filecopier v0.0.0-20250219075528-8cc5ba95c445 h1:UjG6r6K28zOkWWaghiGgDduCyg+b9eaNqR1sZhn/h3Q=
+github.com/brotherlogic/filecopier v0.0.0-20250219075528-8cc5ba95c445/go.mod h1:7jlIcDd86EUmYRxkG9wW1heIdts51lepTR8J/8XCutY=
 github.com/brotherlogic/githubcard v0.0.0-20250219074310-5b55ace7ef5d h1:MA+nbn39AzSYKDMtrVz8vrG83OzWF2QOWYfFFc4MRdI=
 github.com/brotherlogic/githubcard v0.0.0-20250219074310-5b55ace7ef5d/go.mod h1:fD83DnBX+CqYK+TcdeiAorg36sCwSSJ4v2L/e1DqP/o=
 github.com/brotherlogic/githubridge v0.2848.0 h1:WnTceh+IL+HKuitKTElpqSLZ6tBIRriQDCyEhc2lyJY=
@@ -22,8 +22,8 @@ github.com/brotherlogic/keystore v0.0.0-20240508161349-814b3200b126 h1:6e12Cl80V
 github.com/brotherlogic/keystore v0.0.0-20240508161349-814b3200b126/go.mod h1:2JK2kJhI5ler7e7M1WtIpIkiNGG2qy8V6X7VZLCsd5k=
 github.com/brotherlogic/lock v0.0.0-20250219074228-a3a75b889a92 h1:lqelZSjvaxgWXkQQ2+nz3vADPG8rY+8Y1gzHE9y2j4k=
 github.com/brotherlogic/lock v0.0.0-20250219074228-a3a75b889a92/go.mod h1:3xyvfS0Vtutz0tG+YzyR49kzIhbpy3eIWrspOGy90Ys=
-github.com/brotherlogic/logging v0.0.0-20250219055634-253b715678fc h1:oFGvtVYotfp5eYxfKBakOuz5QOB3XLIDtTszycH1wvA=
-github.com/brotherlogic/logging v0.0.0-20250219055634-253b715678fc/go.mod h1:gl2aSj+QpmjCTAwtXc1BjlK+l/X5EZSg8tPmYwQIG5Q=
+github.com/brotherlogic/logging v0.0.0-20250219080420-9bf10ce630b5 h1:g13MNzowvzNLbKeU+U5J9VKLL9GdRjGG1gXMrUAY2bE=
+github.com/brotherlogic/logging v0.0.0-20250219080420-9bf10ce630b5/go.mod h1:2Pm0pIAPmhRoorolTiEZZmViIcs27++y4Oaem6Azt+M=
 github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 h1:hxu2T9JspE76sL3XAx/CNtA9bOO6QCEJkyG9rBXFEVA=
 github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6/go.mod h1:babny4VO2GqFwjXqhJsP4a6la4XJeMT6f4BgLBPq4G8=
 github.com/brotherlogic/recordcollection v0.0.0-20240507141004-bfb0a1e980c6 h1:0a1gaVNjbTEDo+1eT98pHIMxojrIlxk69ZqYav5c6jQ=
@@ -56,8 +56,8 @@ github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/prometheus/client_golang v1.20.5 h1:cxppBPuYhUnsO6yo/aoRol4L7q7UFfdm+bR9r+8l63Y=
-github.com/prometheus/client_golang v1.20.5/go.mod h1:PIEt8X02hGcP8JWbeHyeZ53Y/jReSnHgO035n//V5WE=
+github.com/prometheus/client_golang v1.21.0 h1:DIsaGmiaBkSangBgMtWdNfxbMNdku5IK6iNhrEqWvdA=
+github.com/prometheus/client_golang v1.21.0/go.mod h1:U9NM32ykUErtVBxdvD3zfi+EuFkkaBvMb09mIfe0Zgg=
 github.com/prometheus/client_model v0.6.1 h1:ZKSh/rekM+n3CeS952MLRAdFwIKqeY8b62p8ais2e9E=
 github.com/prometheus/client_model v0.6.1/go.mod h1:OrxVMOVHjw3lKMa8+x6HeMGkHMQyHDk9E3jmP2AmGiY=
 github.com/prometheus/common v0.62.0 h1:xasJaQlnWAeyHdUBeGjXmutelfJHWMRr+Fg4QszZ2Io=
