@@ -7,7 +7,7 @@ toolchain go1.23.4
 require (
 	github.com/brotherlogic/buildserver v0.0.0-20250221150729-278793330a6a
 	github.com/brotherlogic/discovery v0.0.0-20241109204028-02908558af09
-	github.com/brotherlogic/filecopier v0.0.0-20250221151248-3e25f9c42ed1
+	github.com/brotherlogic/filecopier v0.0.0-20250221155021-8524dd71d8d7
 	github.com/brotherlogic/githubcard v0.0.0-20250221141309-fd5830677d1e
 	github.com/brotherlogic/goserver v0.0.0-20250123145056-95c6fbb2310a
 	github.com/brotherlogic/keystore v0.0.0-20240508161349-814b3200b126
@@ -23,7 +23,7 @@ require (
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/brotherlogic/datastore v0.0.0-20250113225754-a9cab19c721e // indirect
-	github.com/brotherlogic/dstore v0.0.0-20250221130457-18fc802a03fc // indirect
+	github.com/brotherlogic/dstore v0.0.0-20250221154836-7000116015f2 // indirect
 	github.com/brotherlogic/githubridge v0.2848.0 // indirect
 	github.com/brotherlogic/lock v0.0.0-20250221150836-50a77a2f86f1 // indirect
 	github.com/brotherlogic/logging v0.0.0-20250221151059-4f2829b5699a // indirect
