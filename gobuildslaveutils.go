@@ -165,6 +165,17 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 			job.SubState = fmt.Sprintf("Dealing With Version Mismatch: %v", job.BuildFail)
 
 			if job.BuildFail > 10 {
+				// Do a fire and forget build request
+				conn, err := s.FDialServer(ctx, "buildserver")
+				if err == nil {
+					bclient := pbb.NewBuildServiceClient(conn)
+					bclient.Build(ctx, &pbb.BuildRequest{
+						Job:     job.Job,
+						BitSize: int32(s.Bits),
+					})
+					conn.Close()
+
+				}
 				s.RaiseIssue(fmt.Sprintf("Error running %v", job.Job.Name), fmt.Sprintf("Running on %v", s.Registry.Identifier))
 			}
 
