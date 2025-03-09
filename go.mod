@@ -23,7 +23,7 @@ require (
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/brotherlogic/datastore v0.0.0-20250113225754-a9cab19c721e // indirect
-	github.com/brotherlogic/dstore v0.0.0-20250309050337-c63d96af9f9b // indirect
+	github.com/brotherlogic/dstore v0.0.0-20250309060608-b2f8a71a74a6 // indirect
 	github.com/brotherlogic/githubridge v0.2848.0 // indirect
 	github.com/brotherlogic/lock v0.0.0-20250309052842-ffa026fd1b5d // indirect
 	github.com/brotherlogic/logging v0.0.0-20250309060128-8ed9dac7eae7 // indirect
