@@ -25,8 +25,8 @@ require (
 	github.com/brotherlogic/datastore v0.0.0-20250113225754-a9cab19c721e // indirect
 	github.com/brotherlogic/dstore v0.0.0-20250309122604-d0b5f30872b3 // indirect
 	github.com/brotherlogic/githubridge v0.2848.0 // indirect
-	github.com/brotherlogic/lock v0.0.0-20250309083724-cbd7ea0cd25f // indirect
-	github.com/brotherlogic/logging v0.0.0-20250309123156-1ba4837d1e8c // indirect
+	github.com/brotherlogic/lock v0.0.0-20250309125908-2bdbea6487db // indirect
+	github.com/brotherlogic/logging v0.0.0-20250309132543-fec2a70d7c2a // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
