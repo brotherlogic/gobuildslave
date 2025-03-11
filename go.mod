@@ -7,7 +7,7 @@ toolchain go1.23.4
 require (
 	github.com/brotherlogic/buildserver v0.0.0-20250311035601-c6eede15f42d
 	github.com/brotherlogic/discovery v0.0.0-20241109204028-02908558af09
-	github.com/brotherlogic/filecopier v0.0.0-20250311035525-bb500be387b5
+	github.com/brotherlogic/filecopier v0.0.0-20250311040943-4d5b874c5ff6
 	github.com/brotherlogic/githubcard v0.0.0-20250311024908-1bab66c9507c
 	github.com/brotherlogic/goserver v0.0.0-20250123145056-95c6fbb2310a
 	github.com/brotherlogic/keystore v0.0.0-20240508161349-814b3200b126
