@@ -8,8 +8,8 @@ github.com/brotherlogic/discovery v0.0.0-20241109204028-02908558af09 h1:/G6RM6m/
 github.com/brotherlogic/discovery v0.0.0-20241109204028-02908558af09/go.mod h1:ih6YWeSvJfqZHdtPujz/mbs2fdnLD9HKVnPYplvriEY=
 github.com/brotherlogic/dstore v0.0.0-20250314232459-b7d81f0a6cb6 h1:QIy3OEPTS2yCbWjgtes18TTrGS1FicKdY3T/6Hhj7SU=
 github.com/brotherlogic/dstore v0.0.0-20250314232459-b7d81f0a6cb6/go.mod h1:mbhlmHqNyQ8Fi1qLHJF9u/Y/F3bwJ5QkU8TBSIy7GkM=
-github.com/brotherlogic/filecopier v0.0.0-20250314232919-5f74695004da h1:iR5ItleLTykNVxOtYSv9XCDJDk83XaiGOOKpsB6v/hs=
-github.com/brotherlogic/filecopier v0.0.0-20250314232919-5f74695004da/go.mod h1:P0lz7xn/MiiKrMMtf9U5szAnp03sQBbYec++hAl5lt4=
+github.com/brotherlogic/filecopier v0.0.0-20250314235635-24e09f66b44b h1:C7IvzRZoELu+Rhc3GfJu6GM0wJSvtpIHtyZdJ4Raaqc=
+github.com/brotherlogic/filecopier v0.0.0-20250314235635-24e09f66b44b/go.mod h1:gR8HDLcLP5c6Q8BQX0f62IR+UpSS1UUYLI+2OV1Ou+s=
 github.com/brotherlogic/githubcard v0.0.0-20250314223711-9e54da30a907 h1:8UImlwBSUjzJIiQb/QtMe1sgQQYoTIGoTOzVPovKeeQ=
 github.com/brotherlogic/githubcard v0.0.0-20250314223711-9e54da30a907/go.mod h1:7vftMcfAYi90MtozP4qox19zc7jv3g7SG3R3DoKox+Q=
 github.com/brotherlogic/githubridge v0.2849.0 h1:jv3r2RBtCrIUaV97opwFkamhlLqWJFVXLtmPVh/UCIA=
@@ -30,8 +30,8 @@ github.com/brotherlogic/recordcollection v0.0.0-20240507141004-bfb0a1e980c6 h1:0
 github.com/brotherlogic/recordcollection v0.0.0-20240507141004-bfb0a1e980c6/go.mod h1:ITVGSuIy9X6o/ymgp5tS3qcISVrY4I9qLwNYmu8K60Y=
 github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2 h1:YjFE4Sa+wwbl4yJwJaMQVeA4CMzLIDbbIuSMdsEp5/w=
 github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2/go.mod h1:ODrbMDhG+yOp2vie9vE4oaKsKhILDralZMr7PJ4HrJY=
-github.com/brotherlogic/versiontracker v0.0.0-20250308035503-3c19dd66cdd2 h1:JsSXbYgPTLddJYH1lqPnaKPMxo9K4dMg3mBav3RSmp8=
-github.com/brotherlogic/versiontracker v0.0.0-20250308035503-3c19dd66cdd2/go.mod h1:OUamxmCT7OngNs6eti8vIwwqLG3MUerDWRIc8Y1udI4=
+github.com/brotherlogic/versiontracker v0.0.0-20250314235651-e5f54139a040 h1:g89tR1hQ8fm6pVeJdR1FBY1rWdv/R9kLvFW7kz7WGCE=
+github.com/brotherlogic/versiontracker v0.0.0-20250314235651-e5f54139a040/go.mod h1:rwys1n/h11aaD/Nq2bhz3OgCBP8UeBLIe+PgTvqFcEI=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
