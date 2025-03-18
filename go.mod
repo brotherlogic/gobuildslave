@@ -7,12 +7,12 @@ toolchain go1.23.4
 require (
 	github.com/brotherlogic/buildserver v0.0.0-20250318051724-42b03ad66067
 	github.com/brotherlogic/discovery v0.0.0-20241109204028-02908558af09
-	github.com/brotherlogic/filecopier v0.0.0-20250318063306-91a94238b518
+	github.com/brotherlogic/filecopier v0.0.0-20250318064424-cafbd52fdd38
 	github.com/brotherlogic/githubcard v0.0.0-20250318055855-d8984fc33004
 	github.com/brotherlogic/goserver v0.0.0-20250123145056-95c6fbb2310a
 	github.com/brotherlogic/keystore v0.0.0-20240508161349-814b3200b126
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2
-	github.com/brotherlogic/versiontracker v0.0.0-20250318062705-d8b83842bada
+	github.com/brotherlogic/versiontracker v0.0.0-20250318064343-c6013d22ddcb
 	github.com/golang/protobuf v1.5.4
 	github.com/prometheus/client_golang v1.21.1
 	golang.org/x/net v0.37.0
