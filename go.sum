@@ -1,7 +1,7 @@
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/brotherlogic/buildserver v0.0.0-20250321040822-0624228502ec h1:FPgnpHE981z+5M/dPjF13yWbOcQTZPviIiAtM0S8ehE=
-github.com/brotherlogic/buildserver v0.0.0-20250321040822-0624228502ec/go.mod h1:BZkNRLCyltz5zpVfwAzlZwzP+Frtt+1xXgpHc25ps90=
+github.com/brotherlogic/buildserver v0.0.0-20250321064554-3d7815aa0f4c h1:9gVTtF9Zxf5IuMj/T+F989EPcIbe0IdM2VaVFSJJzc0=
+github.com/brotherlogic/buildserver v0.0.0-20250321064554-3d7815aa0f4c/go.mod h1:foGjznNuFL2U2pcHXwgwK3NPx9uxXQrnPRzT33aY6ts=
 github.com/brotherlogic/datastore v0.0.0-20250313015544-917b63bdd6ff h1:8FbGrnfXtiKkqpsvd2zZLHIr6VB2A7nN9q8Zho0uJXQ=
 github.com/brotherlogic/datastore v0.0.0-20250313015544-917b63bdd6ff/go.mod h1:bOUmS6E/FFRHpZphA9dTTtP53E6ZyQb5N/HvZNNw2mE=
 github.com/brotherlogic/discovery v0.0.0-20241109204028-02908558af09 h1:/G6RM6m/hLY/LbVw2mNcbeUxms5zNE2c0F72Z8ZI8HU=
@@ -30,8 +30,8 @@ github.com/brotherlogic/recordcollection v0.0.0-20240507141004-bfb0a1e980c6 h1:0
 github.com/brotherlogic/recordcollection v0.0.0-20240507141004-bfb0a1e980c6/go.mod h1:ITVGSuIy9X6o/ymgp5tS3qcISVrY4I9qLwNYmu8K60Y=
 github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2 h1:YjFE4Sa+wwbl4yJwJaMQVeA4CMzLIDbbIuSMdsEp5/w=
 github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2/go.mod h1:ODrbMDhG+yOp2vie9vE4oaKsKhILDralZMr7PJ4HrJY=
-github.com/brotherlogic/versiontracker v0.0.0-20250321063157-5cd7623d8856 h1:MQ/gnlFV3K3SXUpBN1q8wfCfr9+VZok7Kn4JSJP//HA=
-github.com/brotherlogic/versiontracker v0.0.0-20250321063157-5cd7623d8856/go.mod h1:0FQjTUlupcCzZ8+VGVketpQJxQnX6Qtto9Ctz6/SH2g=
+github.com/brotherlogic/versiontracker v0.0.0-20250321064430-2e2e792168b3 h1:Jpb4sEMjS8T6ssDGFWsvSBRsYWtky2Tt6vxU2SgJOJE=
+github.com/brotherlogic/versiontracker v0.0.0-20250321064430-2e2e792168b3/go.mod h1:iWam8LclYt9R9Pgwz1tTSheeTcSbtvQEwcAk5/t3DqU=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
