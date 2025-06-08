@@ -624,7 +624,7 @@ func (s *Server) updateAccess() {
 			}
 		}
 
-		url := "http://192.168.86.1"
+		url := "http://192.168.68.1"
 		r, err := http.Get(url)
 
 		if err == nil {
