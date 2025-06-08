@@ -216,6 +216,7 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		if err != nil {
 			s.CtxLog(ctx, fmt.Sprintf("Error reading md5sum: %v", err))
 		}
+		s.CtxLog(ctx, fmt.Sprintf("Read md54sum for %v -> %v", job.GetJob().GetName(), string(res)))
 		elems := strings.Fields(string(res))
 		job.RunningVersion = elems[0]
 		s.CtxLog(ctx, fmt.Sprintf("Sending to ack chan %v -> %v", job.GetJob().GetName(), len(s.ackChan)))
