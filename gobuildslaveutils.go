@@ -215,7 +215,10 @@ func (s *Server) runTransition(ctx context.Context, job *pb.JobAssignment) {
 		res, err := exec.Command("md5sum", fmt.Sprintf("/home/simon/gobuild/bin/%v", job.GetJob().GetName())).Output()
 		if err != nil {
 			s.CtxLog(ctx, fmt.Sprintf("Error reading md5sum: %v", err))
+			job.State = pb.State_DIED
+			return
 		}
+		s.CtxLog(ctx, fmt.Sprintf("Read md54sum for %v -> %v", job.GetJob().GetName(), string(res)))
 		elems := strings.Fields(string(res))
 		job.RunningVersion = elems[0]
 		s.CtxLog(ctx, fmt.Sprintf("Sending to ack chan %v -> %v", job.GetJob().GetName(), len(s.ackChan)))
