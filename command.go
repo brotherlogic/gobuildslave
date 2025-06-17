@@ -132,10 +132,10 @@ type prodDisker struct{}
 
 func (p *prodDisker) getDisks() []string {
 	disks := make([]string, 0)
-	read, err := ioutil.ReadDir("/media")
+	read, err := os.ReadDir("/media")
 	if err == nil {
 		for _, f := range read {
-			if f.IsDir() {
+			if f.IsDir() || f.Name() == "datastore" {
 				disks = append(disks, f.Name())
 			}
 		}
