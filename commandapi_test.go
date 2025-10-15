@@ -35,7 +35,7 @@ func (t *testDisker) getDisks() []string {
 }
 
 func testLog(str string) {
-	log.Printf(str)
+	log.Print(str)
 }
 
 func getTestServer() *Server {

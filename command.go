@@ -352,8 +352,8 @@ func runCommand(c *runnerCommand) {
 		c.command.Args[i] = strings.Replace(c.command.Args[i], "$GOPATH", gpath, -1)
 	}
 
-	path := fmt.Sprintf("GOPATH=" + home + "/gobuild/")
-	pathbin := fmt.Sprintf("GOBIN=" + home + "/gobuild/bin/")
+	path := fmt.Sprintf("GOPATH=%v/gobuild/", home)
+	pathbin := fmt.Sprintf("GOBIN=%v/gobuild/bin/", home)
 	found := false
 	envl := os.Environ()
 	for i, blah := range envl {

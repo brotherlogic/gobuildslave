@@ -30,7 +30,7 @@ type rCommand struct {
 	comp      chan bool
 }
 
-//Scheduler the main task scheduler
+// Scheduler the main task scheduler
 type Scheduler struct {
 	Log              func(context.Context, string)
 	blockingQueue    chan *rCommand
@@ -172,8 +172,8 @@ func (s *Scheduler) run(c *rCommand) error {
 	for i := range c.command.Args {
 		c.command.Args[i] = strings.Replace(c.command.Args[i], "$GOPATH", gpath, -1)
 	}
-	path := fmt.Sprintf("GOPATH=" + home + "/gobuild")
-	pathbin := fmt.Sprintf("GOBIN=" + home + "/gobuild/bin")
+	path := fmt.Sprintf("GOPATH=%v/gobuild", home)
+	pathbin := fmt.Sprintf("GOBIN=%v/gobuild/bin", home)
 	found := false
 	for i, blah := range env {
 		if strings.HasPrefix(blah, "GOPATH") {
