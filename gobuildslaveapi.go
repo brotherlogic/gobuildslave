@@ -108,7 +108,7 @@ func (s *Server) SlaveConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.Co
 		requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_DISK, Properties: disk})
 	}
 	requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_SERVER, Properties: s.Registry.Identifier})
-	if s.Registry.Identifier == "argon.home" {
+	if s.Registry.Identifier == "argon" {
 		requirements = append(requirements, &pb.Requirement{Category: pb.RequirementCategory_EXTERNAL, Properties: "external_ready"})
 	}
 
