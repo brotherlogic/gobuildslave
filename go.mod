@@ -1,6 +1,6 @@
 module github.com/brotherlogic/gobuildslave
 
-go 1.24.5
+go 1.25.0
 
 require (
 	github.com/brotherlogic/buildserver v0.0.0-20250812032055-b55519aed1f5
@@ -13,7 +13,7 @@ require (
 	github.com/brotherlogic/versiontracker v0.0.0-20250816012923-17d9e36aae57
 	github.com/golang/protobuf v1.5.4
 	github.com/prometheus/client_golang v1.23.2
-	golang.org/x/net v0.49.0
+	golang.org/x/net v0.55.0
 	google.golang.org/grpc v1.79.3
 	google.golang.org/protobuf v1.36.11
 )
@@ -35,7 +35,7 @@ require (
 	github.com/prometheus/procfs v0.19.2 // indirect
 	github.com/struCoder/pidusage v0.2.1 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
-	golang.org/x/sys v0.40.0 // indirect
-	golang.org/x/text v0.33.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260120221211-b8f7ae30c516 // indirect
 )
